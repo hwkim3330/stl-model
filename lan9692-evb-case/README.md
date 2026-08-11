@@ -1,16 +1,53 @@
 # EVB-LAN9692-LM enclosure
 
-Open-ended tray + vented lid for the Microchip EVB-LAN9692-LM automotive
-12-port TSN evaluation board (EV09P11A). No off-the-shelf model for this board
-exists, so the geometry is generated from Microchip's released manufacturing
-data (Gerbers + Excellon, `04-12092-R1`, 30 Apr 2026).
+Enclosures for the Microchip EVB-LAN9692-LM automotive 12-port TSN evaluation
+board (EV09P11A). No off-the-shelf model for this board exists, so everything is
+generated from Microchip's released manufacturing data — Gerbers + Excellon
+(`04-12092-R1`) and the pick-and-place file (`02-01022-R1`), both 30 Apr 2026.
 
-![assembly](img/assembly.png)
+Two styles, same board data:
+
+| | `lan9692_case.py` — open tray | `lan9692_box.py` — closed box |
+|---|---|---|
+| Parts | tray + lid | tray + front panel + rear panel + lid |
+| Ends | open, no cut-outs to get wrong | **matched port windows** |
+| Outside | 236.4 × 172.9 × 39.5 mm | 233.8 × 155.7 × 39.5 mm |
+| Volume | 74.3 + 44.2 = **118.5 cm³** | 86.2 + 13.4 + 17.8 + 46.8 = **164.3 cm³** |
+| Fasteners | 8 × M3 × 8, 4 × M3 × 10 | 8 × M3 × 8, 4 × M3 × 10 |
+
+![box](img/box_assembly.png)
+
+## Closed box — port windows
+
+Connector X/Y is exact: it comes from the pick-and-place file, which also gives
+the manufacturer part number of every connector. Connector *heights* are in no
+released file, so those come from datasheets and standards. **The end panels are
+separate parts for exactly that reason** — a wrong window is a 13–18 cm³ reprint,
+not a new box. They slide into channels in the side walls and the lid traps
+them; no extra screws.
+
+![front panel](img/box_front.png)
+![rear panel](img/box_rear.png)
+
+| Port | Part | Window | z above PCB | Source |
+|---|---|---|---|---|
+| 7 × MATEnet `J12`,`J11A-F` | TE 9-2304372-9 | one slot, x 2.06…135.61 | −0.5…14.5 | datasheet: 17.75 W × 13.5 H |
+| 4 × SFP+ `X1A-D` | U77-A111X cage | 15.0 × 10.8 at x 145.6/164.6/183.6/202.6 | −0.4…10.4 | SFP MSA panel cut-out |
+| RJ45 `J33` | L829-1J1T-43 | 17.0 × 15.0 at x 58.803 | −0.5…14.5 | 8P8C standard body |
+| USB-C `J30` | USB4105 | 10.5 × 5.0 at x 37.762, outer relief | −0.6…4.4 | receptacle 8.94 × 3.16 |
+| OCuLink `J21` | AMP G14A42121B12HR | 24.0 × 9.0 at x 118.305 | −0.5…8.5 | **estimate** |
+| DC jack `J23` | PJ-002BH | Ø11.0 at x 171.283 | centre 6.5 | 2.5 mm barrel |
+| Power switch `SW3` | ESW-500SSP1S1M6QEA | 14.0 × 7.5 at x 188.110 | −0.5…7.0 | **estimate** |
+| Reset `SW2` | 1825027-5 | Ø6.0 at x 21.844 | centre 3.5 | **estimate** |
+
+The MATEnet row has to be one continuous slot: the bodies are 17.75 mm wide on a
+19.05 mm pitch, so individual windows would leave 0.3 mm of panel between them.
+The USB-C sits ~1.2 mm inside the board edge, so its window gets a relief pocket
+on the outside face to thin the panel to 1.0 mm there and let a plug seat.
 
 | | |
 |---|---|
-| Tray | 236.4 × 172.9 × 40 mm, 74.3 cm³ |
-| Lid | 236.4 × 172.9 × 7 mm, 44.2 cm³ |
+| Open tray | 236.4 × 172.9 × 40 mm, 74.3 cm³ + lid 44.2 cm³ |
 | Assembled height | 39.5 mm |
 | Fasteners | 8 × M3 × 8 (PCB), 4 × M3 × 10 (lid) |
 
@@ -83,6 +120,7 @@ print the tray first and measure before ordering the lid.
 ```bash
 pip3 install --break-system-packages trimesh manifold3d
 python3 lan9692_case.py            # -> lan9692_tray.stl, lan9692_lid.stl
+python3 lan9692_box.py             # -> lan9692_box_{tray,front,rear,lid}.stl
 python3 assembly_preview.py        # -> assembly.png
 python3 render_preview.py lan9692_tray.stl tray.png --elev 28 --azim -50
 ```

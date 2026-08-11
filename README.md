@@ -4,13 +4,16 @@
 
 | Model | Board | Parts | Material volume |
 |---|---|---|---|
-| [`lan9692-evb-case/`](lan9692-evb-case/) | Microchip EVB-LAN9692-LM (EV09P11A) | tray + vented lid | 74.3 + 44.2 cm³ |
-| [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite + PoE base board | bottom + top | 11.7 + 5.4 cm³ |
+| [`lan9692-evb-case/`](lan9692-evb-case/) | Microchip EVB-LAN9692-LM (EV09P11A) | open tray + lid | 118.5 cm³ |
+| [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box with port windows | tray + 2 panels + lid | 164.3 cm³ |
+| [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite + PoE base board | bottom + top | 17.1 cm³ |
+| [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 26.6 cm³ |
 
-Both are dimensioned from primary sources, not from drawings or eyeballing:
-the LAN9692 tray from Microchip's released Gerber/Excellon set, the LilyGo
-`_fit` variants from measurements of the published STLs checked against LilyGo's
-own board CAD. Each folder's README shows the numbers and how they were read.
+Everything is dimensioned from primary sources, not from drawings or eyeballing:
+the LAN9692 parts from Microchip's released Gerber/Excellon and pick-and-place
+files, the LilyGo `_fit` variants from measurements of the published STLs checked
+against LilyGo's own board CAD, the ESP32-S31 tray from Espressif's dimension
+DXF. Each folder's README states which numbers are data and which are not.
 
 ## Ordering
 
@@ -20,7 +23,7 @@ JLC3DP order page use the PCB/PCBA tab in the nav bar, then combine payment.
 
 | | LilyGo case | LAN9692 tray + lid |
 |---|---|---|
-| Files | the **`_fit`** pair, not the originals | `lan9692_tray.stl`, `lan9692_lid.stl` |
+| Files | the **`_fit`** pair, not the originals | open tray, or the 4-part closed box |
 | Material | MJF PA12-HP Nylon | MJF PA12-HP Nylon, or FDM ABS/PETG to save money |
 | Why | flexing button tabs, PoE heat, no support marks | PA12 prints it as-is; at 119 cm³ the volume-priced MJF costs ~7× the small case |
 

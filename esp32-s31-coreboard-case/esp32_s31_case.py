@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""ESP32-S31-Function-CoreBoard-1 tray + vented lid.
+
+Outline data is exact, port data is not - see README. The two long edges are
+left open so no port position has to be guessed; the only derived feature is
+the lid slot for the 40-pin header.
+
+Board data from Espressif's published dimension drawing
+(https://dl.espressif.com/schematics/esp32-s31-function-coreboard-1-dimensions.dxf):
+
+  outline        65.000 x 55.000 mm, corner radius 3.500 mm
+                 (the four straight edges run 3.5..61.5 and 3.5..51.5)
+  header grid    pin 1 at (8.370, 53.270), 2.540 mm pitch, second row at
+                 y = 50.730 -> a 2x20 header lying along the y = 55 edge
+
+Requires: trimesh, manifold3d.
+"""
+import numpy as np
+import trimesh
+from trimesh.creation import box, cylinder
+
+# --------------------------------------------------------------------------
+BW, BH = 65.0, 55.0          # outline, from the dimension drawing
+CORNER_R = 3.5
+PCB_T = 1.6                  # not published; 1.6 is the Espressif norm
+
+FIT = 0.6                    # board edge to wall
+WALL = 2.4
+FLOOR_T = 2.0
+STANDOFF_H = 6.0             # under-board space
+LEDGE_W = 1.5                # perimeter shelf the board rests on
+WALL_H = 12.0                # short-edge walls, above the floor
+INNER_H = 20.0               # above the PCB
+LID_T = 2.0
+POST_D, POST_OFF = 8.0, 4.5
+SCREW_PILOT, SCREW_CLEAR = 2.9, 3.4
+FOOT_D, FOOT_H = 10.0, 2.0
+VENT_CELL, VENT_RIB, VENT_MARGIN = 11.0, 4.0, 3.0
+
+# 2x20 header along the y = 55 edge, derived from the dimensioned pin grid
+HDR_PIN1 = (8.370, 53.270)
+HDR_PITCH = 2.54
+HDR_COLS, HDR_ROWS = 20, 2
+HDR_MARGIN = 1.6             # slot clearance around the header body
+
+Z_FLOOR = FLOOR_T
+Z_PCB = Z_FLOOR + STANDOFF_H
+Z_TOP = Z_PCB + PCB_T
+POST_H = STANDOFF_H + PCB_T + INNER_H
+Z_LID = Z_FLOOR + POST_H
+
+WX0, WX1 = -FIT - WALL, BW + FIT + WALL
+PLATE_Y0, PLATE_Y1 = -2.0, BH + 2.0
+POSTS = [(-POST_OFF, -POST_OFF), (BW + POST_OFF, -POST_OFF),
+         (-POST_OFF, BH + POST_OFF), (BW + POST_OFF, BH + POST_OFF)]
+PAD = POST_D / 2 + 1.5
+
+
+def bx(x0, x1, y0, y1, z0, z1):
+    m = box(extents=(x1 - x0, y1 - y0, z1 - z0))
+    m.apply_translation(((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2))
+    return m
+
+
+def cyl(d, z0, z1, x, y, sections=48):
+    m = cylinder(radius=d / 2, height=z1 - z0, sections=sections)
+    m.apply_translation((x, y, (z0 + z1) / 2))
+    return m
+
+
+def union(p):
+    return trimesh.boolean.union(p, engine='manifold')
+
+
+def difference(a, c):
+    return trimesh.boolean.difference([a] + c, engine='manifold')
+
+
+def rounded_ring(r_in, z0, z1, grow):
+    """Perimeter shelf that follows the board's rounded outline."""
+    outer = rounded_plate(grow, z0, z1)
+    inner = rounded_plate(grow - r_in, z0 - 1, z1 + 1)
+    return difference(outer, [inner])
+
+
+def rounded_plate(grow, z0, z1):
+    """Board outline offset by `grow`, as a rounded rectangle."""
+    r = CORNER_R + grow
+    body = union([bx(-grow, BW + grow, CORNER_R - grow, BH - CORNER_R + grow, z0, z1),
+                  bx(CORNER_R - grow, BW - CORNER_R + grow, -grow, BH + grow, z0, z1)])
+    corners = [(CORNER_R, CORNER_R), (BW - CORNER_R, CORNER_R),
+               (CORNER_R, BH - CORNER_R), (BW - CORNER_R, BH - CORNER_R)]
+    return union([body] + [cyl(2 * r, z0, z1, cx, cy) for cx, cy in corners])
+
+
+def plate_solid(z0, z1):
+    parts = [bx(WX0, WX1, PLATE_Y0, PLATE_Y1, z0, z1)]
+    for px, py in POSTS:
+        parts.append(bx(px - PAD, px + PAD, py - PAD, py + PAD, z0, z1))
+    return union(parts)
+
+
+def header_slot(z0, z1):
+    x0 = HDR_PIN1[0] - HDR_MARGIN
+    x1 = HDR_PIN1[0] + (HDR_COLS - 1) * HDR_PITCH + HDR_MARGIN
+    y1 = HDR_PIN1[1] + HDR_MARGIN
+    y0 = HDR_PIN1[1] - (HDR_ROWS - 1) * HDR_PITCH - HDR_MARGIN
+    return bx(x0, x1, y0, y1, z0, z1), (x1 - x0, y1 - y0)
+
+
+def vents(z0, z1, keepouts, skip=None):
+    cuts = []
+    nx = int((WX1 - WX0) // (VENT_CELL + VENT_RIB))
+    ny = int((PLATE_Y1 - PLATE_Y0) // (VENT_CELL + VENT_RIB))
+    sx = nx * VENT_CELL + (nx - 1) * VENT_RIB
+    sy = ny * VENT_CELL + (ny - 1) * VENT_RIB
+    ox, oy = (WX0 + WX1) / 2 - sx / 2, (PLATE_Y0 + PLATE_Y1) / 2 - sy / 2
+    half = VENT_CELL / 2 * np.sqrt(2)
+    for i in range(nx):
+        for j in range(ny):
+            x0 = ox + i * (VENT_CELL + VENT_RIB)
+            y0 = oy + j * (VENT_CELL + VENT_RIB)
+            x1, y1 = x0 + VENT_CELL, y0 + VENT_CELL
+            if (x0 < WX0 + VENT_MARGIN or x1 > WX1 - VENT_MARGIN
+                    or y0 < PLATE_Y0 + VENT_MARGIN or y1 > PLATE_Y1 - VENT_MARGIN):
+                continue
+            cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+            if any(np.hypot(cx - kx, cy - ky) < kr + half for kx, ky, kr in keepouts):
+                continue
+            if skip is not None and not (y1 < skip[0] or y0 > skip[1]):
+                continue
+            cuts.append(bx(x0, x1, y0, y1, z0, z1))
+    return cuts
+
+
+def build_tray():
+    solids = [plate_solid(0.0, Z_FLOOR)]
+    # walls on the two short edges only; both 65 mm edges stay open because the
+    # port positions along them are not published
+    for x0, x1 in ((WX0, -FIT), (BW + FIT, WX1)):
+        solids.append(bx(x0, x1, PLATE_Y0, PLATE_Y1, Z_FLOOR, Z_FLOOR + WALL_H))
+    # the board has no mounting holes in the released data, so it sits on a
+    # shelf that follows its rounded outline
+    solids.append(rounded_ring(LEDGE_W, Z_FLOOR, Z_PCB, FIT))
+    for px, py in POSTS:
+        solids.append(cyl(POST_D, Z_FLOOR - 0.1, Z_FLOOR + POST_H, px, py))
+    for fx, fy in ((5, 5), (BW - 5, 5), (5, BH - 5), (BW - 5, BH - 5)):
+        solids.append(cyl(FOOT_D, -FOOT_H, 0.5, fx, fy))
+    tray = union(solids)
+
+    keep = [(px, py, POST_D / 2 + 3.0) for px, py in POSTS]
+    keep += [(fx, fy, FOOT_D / 2 + 2.0)
+             for fx, fy in ((5, 5), (BW - 5, 5), (5, BH - 5), (BW - 5, BH - 5))]
+    cuts = vents(-FOOT_H - 1, Z_FLOOR, keep)
+    for px, py in POSTS:
+        cuts.append(cyl(SCREW_PILOT, Z_FLOOR + POST_H - 8.0, Z_FLOOR + POST_H + 1,
+                        px, py, sections=32))
+    return difference(tray, cuts)
+
+
+def build_lid():
+    lid = plate_solid(0.0, LID_T)
+    slot, size = header_slot(-1, LID_T + 1)
+    keep = [(px, py, POST_D / 2 + 3.0) for px, py in POSTS]
+    cuts = [slot] + vents(-1, LID_T + 1, keep,
+                          skip=(HDR_PIN1[1] - (HDR_ROWS - 1) * HDR_PITCH - HDR_MARGIN - 1,
+                                HDR_PIN1[1] + HDR_MARGIN + 1))
+    for px, py in POSTS:
+        cuts.append(cyl(SCREW_CLEAR, -1, LID_T + 1, px, py, sections=32))
+    # pads that hold the board down, with a hair of clearance
+    pads = []
+    for cx, cy in ((CORNER_R + 1, CORNER_R + 1), (BW - CORNER_R - 1, CORNER_R + 1),
+                   (CORNER_R + 1, BH - CORNER_R - 1), (BW - CORNER_R - 1, BH - CORNER_R - 1)):
+        pads.append(cyl(6.0, -(Z_LID - Z_TOP - 0.3), 0.1, cx, cy))
+    return difference(union([lid] + pads), cuts), size
+
+
+def report(n, m):
+    e = m.bounds[1] - m.bounds[0]
+    print(f"  {n:26s} {e[0]:6.1f} x {e[1]:6.1f} x {e[2]:5.1f} mm  "
+          f"{m.volume / 1000:5.2f} cm3  watertight={m.is_watertight}")
+
+
+if __name__ == '__main__':
+    tray = build_tray()
+    lid, hdr = build_lid()
+    tray.export('esp32_s31_tray.stl')
+    lid.export('esp32_s31_lid.stl')
+    report('esp32_s31_tray.stl', tray)
+    report('esp32_s31_lid.stl', lid)
+    print(f"\n  board       {BW} x {BH} mm, corner R{CORNER_R}")
+    print(f"  header slot {hdr[0]:.2f} x {hdr[1]:.2f} mm at "
+          f"x {HDR_PIN1[0] - HDR_MARGIN:.2f}, y {HDR_PIN1[1] - (HDR_ROWS - 1) * HDR_PITCH - HDR_MARGIN:.2f}")
+    print(f"  assembled   {Z_LID + LID_T:.1f} mm tall")
