@@ -5,17 +5,33 @@ board (EV09P11A). No off-the-shelf model for this board exists, so everything is
 generated from Microchip's released manufacturing data — Gerbers + Excellon
 (`04-12092-R1`) and the pick-and-place file (`02-01022-R1`), both 30 Apr 2026.
 
-Two styles, same board data:
+Three styles, same board data:
 
-| | `lan9692_case.py` — open tray | `lan9692_box.py` — closed box |
-|---|---|---|
-| Parts | tray + lid | tray + front panel + rear panel + lid |
-| Ends | open, no cut-outs to get wrong | **matched port windows** |
-| Outside | 236.4 × 172.9 × 39.5 mm | 233.8 × 155.7 × 39.5 mm |
-| Volume | 74.3 + 44.2 = **118.5 cm³** | 86.2 + 13.4 + 17.8 + 46.8 = **164.3 cm³** |
-| Fasteners | 8 × M3 × 8, 4 × M3 × 10 | 8 × M3 × 8, 4 × M3 × 10 |
+| | open tray | closed box, vented | closed box, sealed |
+|---|---|---|---|
+| Build | `lan9692_case.py` | `lan9692_box.py` | `lan9692_box.py --solid` |
+| Parts | tray + lid | tray + 2 panels + lid | tray + 2 panels + lid |
+| Ends | open, no cut-outs to get wrong | **matched port windows** | **matched port windows** |
+| Elsewhere | vent grid | vent grid in floor, walls, lid | **nothing but the ports** |
+| Outside | 236.4 × 172.9 × 39.5 | 233.8 × 155.7 × 39.5 | 233.8 × 155.7 × 39.5 mm |
+| Volume | 74.3 + 44.2 = **118.5 cm³** | 86.7 + 12.8 + 17.2 + 46.8 = **163.5 cm³** | 124.6 + 12.8 + 17.2 + 82.7 = **237.2 cm³** |
+| Fasteners | 8 × M3 × 8, 4 × M3 × 10 | same | same |
 
 ![box](img/box_assembly.png)
+![sealed box](img/boxsolid_assembly.png)
+
+### On sealing it completely
+
+The sealed variant is what `--solid` gives you: solid floor, solid walls, solid
+ribbed lid, and the port windows as the only openings. Worth knowing before
+ordering it — the board's own power tree budgets **12 V @ 4.1 A, under 50 W**,
+and a sealed plastic box of this size has roughly 0.14 m² of outside surface to
+shed it through. At natural convection that is tens of degrees of internal rise
+before the air even reaches the SFP cages and the seven PHYs, against a board
+rated to +85 °C *"case and airflow dependent"* (user's guide §6.1). It is fine
+for a lightly loaded bench setup and for looks; the vented variant is the one to
+run at load. Same parts, same fit — only the grids differ, so you can order the
+sealed lid later and swap it.
 
 ## Closed box — port windows
 
@@ -121,6 +137,7 @@ print the tray first and measure before ordering the lid.
 pip3 install --break-system-packages trimesh manifold3d
 python3 lan9692_case.py            # -> lan9692_tray.stl, lan9692_lid.stl
 python3 lan9692_box.py             # -> lan9692_box_{tray,front,rear,lid}.stl
+python3 lan9692_box.py --solid     # -> lan9692_boxsolid_*.stl (ports only)
 python3 assembly_preview.py        # -> assembly.png
 python3 render_preview.py lan9692_tray.stl tray.png --elev 28 --azim -50
 ```

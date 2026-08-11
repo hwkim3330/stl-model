@@ -47,6 +47,8 @@ PANEL_T = 2.4
 PANEL_GAP = 0.5          # board edge to panel inner face
 CHANNEL_D = 2.0          # how far the panel slides into each side wall
 CHANNEL_SLOP = 0.35      # per side, on the channel width
+RABBET = 0.8             # how far the panel seats into the floor. Kept under
+                         # FLOOR_T - 1.0 so the floor stays a printable wall.
 RAIL_IN = 1.6            # PCB support ledge (bottom paste is clear to 1.6)
 BOSS_D = 7.0
 SCREW_PILOT = 2.9
@@ -54,6 +56,9 @@ SCREW_CLEAR = 3.4
 LID_BOSS_D = 9.0         # local outward thickening of the side wall
 LID_BOSS_L = 16.0
 FOOT_D, FOOT_H = 16.0, 2.5
+VENTS = True             # False -> sealed box, port windows only. See README:
+                         # the board budgets 12 V @ 4.1 A, so a sealed plastic
+                         # box has no way to shed that.
 VENT_CELL, VENT_RIB, VENT_MARGIN = 16.0, 4.5, 3.5
 RIB_W, RIB_H = 3.0, 5.0
 
@@ -72,6 +77,7 @@ FY0 = FY1 - PANEL_T
 RY0 = BH + PANEL_GAP                  # rear panel inner face
 RY1 = RY0 + PANEL_T
 LID_Y = (FY0, RY1)
+Z_PANEL0 = Z_FLOOR - RABBET           # panels seat in a floor rabbet
 BOSS_Y = (FY1 + LID_BOSS_L / 2 + 2, RY0 - LID_BOSS_L / 2 - 2)  # clear of the
                                     # panel channels
 
@@ -127,6 +133,8 @@ def difference(a, cutters):
 def vent_grid(x0, x1, u0, u1, keepouts, thick_lo, thick_hi, plane='xy'):
     """Square vent holes over a rectangle, skipping cells near `keepouts`."""
     cuts = []
+    if not VENTS:
+        return cuts
     nx = max(int((x1 - x0) // (VENT_CELL + VENT_RIB)), 1)
     nu = max(int((u1 - u0) // (VENT_CELL + VENT_RIB)), 1)
     sx = nx * VENT_CELL + (nx - 1) * VENT_RIB
@@ -171,10 +179,10 @@ def build_tray():
     # panel channels in the side wall inner faces, open at the top
     for y0, y1 in ((FY0 - 1, FY1 + CHANNEL_SLOP), (RY0 - CHANNEL_SLOP, RY1 + 1)):
         for x0, x1 in ((-FIT - CHANNEL_D, -FIT), (BW + FIT, BW + FIT + CHANNEL_D)):
-            cuts.append(bx(x0, x1, y0, y1, Z_FLOOR, Z_LID + 1))
-    # the panels also need a floor rabbet so they seat below board level
-    cuts.append(bx(PX0, PX1, FY0 - 1, FY1 + CHANNEL_SLOP, Z_FLOOR - 1.2, Z_LID + 1))
-    cuts.append(bx(PX0, PX1, RY0 - CHANNEL_SLOP, RY1 + 1, Z_FLOOR - 1.2, Z_LID + 1))
+            cuts.append(bx(x0, x1, y0, y1, Z_PANEL0, Z_LID + 1))
+    # shallow floor rabbet so the panels seat instead of standing on the floor
+    cuts.append(bx(PX0, PX1, FY0 - 1, FY1 + CHANNEL_SLOP, Z_PANEL0, Z_LID + 1))
+    cuts.append(bx(PX0, PX1, RY0 - CHANNEL_SLOP, RY1 + 1, Z_PANEL0, Z_LID + 1))
 
     keep = [(hx, hy, BOSS_D / 2 + 2.5) for hx, hy in HOLES]
     keep += [(fx, fy, FOOT_D / 2 + 2.0)
@@ -196,7 +204,7 @@ def build_tray():
 
 def build_panel(which):
     y0, y1 = (FY0, FY1) if which == 'front' else (RY0, RY1)
-    panel = bx(PX0, PX1, y0, y1, 0, Z_LID)
+    panel = bx(PX0, PX1, y0, y1, Z_PANEL0, Z_LID)
     cuts = []
     for p in PORTS[which]:
         cuts.append(bx(p['x'][0], p['x'][1], y0 - 1, y1 + 1,
@@ -245,6 +253,11 @@ def report(name, m):
 
 
 if __name__ == '__main__':
+    import sys
+    if '--solid' in sys.argv:
+        VENTS = False
+    prefix = 'lan9692_box_' if VENTS else 'lan9692_boxsolid_'
+    print(f"{'vented' if VENTS else 'SEALED - port windows only'}\n")
     print("port windows (z from PCB top face):")
     for side in ('front', 'rear'):
         for p in PORTS[side]:
@@ -254,10 +267,10 @@ if __name__ == '__main__':
             print(f"  {side:5s} {p['name']:14s} x {p['x']:7.2f} Ø{p['d']:.1f}"
                   f"       z {p['z']:5.1f}         [{p['src']}]")
     print()
-    parts = {'lan9692_box_tray.stl': build_tray(),
-             'lan9692_box_front.stl': build_panel('front'),
-             'lan9692_box_rear.stl': build_panel('rear'),
-             'lan9692_box_lid.stl': build_lid()}
+    parts = {prefix + 'tray.stl': build_tray(),
+             prefix + 'front.stl': build_panel('front'),
+             prefix + 'rear.stl': build_panel('rear'),
+             prefix + 'lid.stl': build_lid()}
     total = 0
     for n, m in parts.items():
         m.export(n)
