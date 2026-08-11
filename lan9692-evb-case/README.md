@@ -2,14 +2,15 @@
 
 Open-ended tray + vented lid for the Microchip EVB-LAN9692-LM automotive
 12-port TSN evaluation board (EV09P11A). No off-the-shelf model for this board
-exists, so the geometry is generated from the official hardware documentation.
+exists, so the geometry is generated from Microchip's released manufacturing
+data (Gerbers + Excellon, `04-12092-R1`, 30 Apr 2026).
 
 ![assembly](img/assembly.png)
 
 | | |
 |---|---|
-| Tray | 237 × 173 × 40 mm, 77.7 cm³ |
-| Lid | 237 × 173 × 7 mm, 44.5 cm³ |
+| Tray | 236.4 × 172.9 × 40 mm, 74.3 cm³ |
+| Lid | 236.4 × 172.9 × 7 mm, 44.2 cm³ |
 | Assembled height | 39.5 mm |
 | Fasteners | 8 × M3 × 8 (PCB), 4 × M3 × 10 (lid) |
 
@@ -31,30 +32,51 @@ four corner posts that sit diagonally outboard of the PCB corners.
 
 ## Where the dimensions come from
 
-Source: *EVB-LAN9692-LM Hardware User's Guide*, DS50003848B.
+`extract_board_data.py` reads them out of the released fab data. Download the
+Gerber set from the [EV09P11A page](https://www.microchip.com/en-us/development-tool/EV09P11A)
+(Gerbers, 30 Apr 2026), unzip, and run it:
 
-* **Board outline** — §A.1: "The board dimensions are 214 x 150 mm".
-* **PCB thickness** — 1.535 mm, 4 layers (§A.2).
-* **Mounting holes** — not tabulated anywhere in the guide, only drawn in
-  Figure A-1. Recovered by rasterising page 52 at 600 dpi, fitting the PCB edge
-  rectangle in the drawing and scaling it to the stated 214 × 150 mm. The two
-  axes agree to 0.37%, and all 8 pads come out at 5.74 ± 0.01 mm, i.e. the same
-  feature — M3 clearance holes on a 5.75 mm annular ring.
+```
+board outline      213.360 x 149.860 mm   (corners 0.000,0.000 .. 213.360,149.860)
+                   = 8.400 x 5.900 in
+mounting holes     8 x Ø3.048 mm
+  corner inset 3.556 mm = 0.140 in
+bottom-side pads   1734 apertures inside the outline
+  nearest to left edge  5.60 mm
+  nearest to right edge 2.75 mm
+  nearest to any mounting hole centre 5.42 mm (Ø7.0 boss needs 3.5) -> OK
+  RAIL_IN = 1.6: 0 pad(s) under the rail -> OK
+  RAIL_IN = 3.0: 2 pad(s) under the rail -> too wide
+```
+
+* **Outline 213.360 × 149.860 mm** from the BOARD (`.GM2`) layer — exactly
+  8.400 × 5.900 in. The user's guide rounds this to "214 x 150 mm", so the
+  drawing-derived numbers this model used to carry were scaled 0.3% too large.
+  That layer also holds the fab drawing frame, so the outline is taken as the
+  tightest rectangle of real outline lines that still encloses the drill
+  pattern, not as the layer extent.
+* **8 × Ø3.048 mm (0.120 in) PTH** mounting holes — tool T23 in the drill
+  report, straight out of `04-12092-R1-RoundHoles.TXT`:
 
   | # | X (mm) | Y (mm) |  | # | X (mm) | Y (mm) |
   |---|---|---|---|---|---|---|
-  | 1 | 3.68 | 146.45 | | 5 | 205.88 | 71.38 |
-  | 2 | 102.01 | 146.45 | | 6 | 209.50 | 51.83 |
-  | 3 | 210.53 | 146.46 | | 7 | 133.87 | 51.53 |
-  | 4 | 205.88 | 129.44 | | 8 | 3.68 | 24.82 |
+  | 1 | 3.556 | 146.304 | | 5 | 205.187 | 71.330 |
+  | 2 | 101.600 | 146.304 | | 6 | 208.788 | 51.816 |
+  | 3 | 209.804 | 146.304 | | 7 | 133.350 | 51.562 |
+  | 4 | 205.187 | 129.330 | | 8 | 3.556 | 24.892 |
 
-  Origin is the bottom-left PCB corner in the Figure A-1 orientation (front
-  edge with the MATEnet/SFP connectors at Y = 0). Expected accuracy ±0.3 mm,
-  which the 2.9 mm pilot holes absorb.
-* **Internal height** — 26 mm above the PCB, judged from the board photos in
-  Figures 4-1 and 4-2: the tallest parts are the vertical expansion header, the
-  red DC/DC modules and the SMA jacks, all comfortably under 20 mm. This is the
-  one number worth re-checking with calipers before ordering the lid.
+* **Bottom-side keepouts** from the bottom paste (`.GBP`) layer, which is where
+  bottom-side parts actually sit. It clears every standoff by 5.42 mm and has no
+  aperture within 1.6 mm of either side edge — so the support rails are safe at
+  1.6 mm and would clip two pads at 3.0 mm. The assembly layers (`.GM10/.GM11`)
+  also contain designator text and hole symbols and are useless as a keepout
+  source.
+* **PCB thickness 1.535 mm**, 4 layers — §A.2 of the user's guide.
+
+Still not derived from data: `INNER_H = 26`, the clearance above the board.
+Gerbers carry no heights. The board photos in Figures 4-1/4-2 put the tallest
+parts (vertical expansion header, red DC/DC modules, SMA jacks) under 20 mm, but
+print the tray first and measure before ordering the lid.
 
 ## Regenerating
 
@@ -75,7 +97,9 @@ headless box with no GL stack.
 
 ## Assembly
 
-1. Remove the four rubber feet the board ships with (visible in Figure 4-2).
+1. Remove any rubber foot that covers a mounting hole (the board ships with
+   feet, visible in Figure 4-2). Feet that clear the holes can stay — they are
+   about 5 mm tall against the tray's 8 mm of underboard space.
 2. Drop the board in — it lands on the eight standoffs and the two side ledges.
 3. 8 × M3 × 8 thread-forming screws into the standoffs. The pilots are 2.9 mm;
    if a hole is off by a few tenths, open that pilot up to 3.2 mm.
@@ -96,17 +120,15 @@ option.
 
 Everything load-bearing degrades gracefully, on purpose:
 
-* **A mounting hole off by a few tenths** — the standoff top is a flat 7 mm
-  boss, so the board still rests on it; only the screw is affected, and a
-  2.9 mm pilot swallows ±0.3 mm. Worst case you drill that one pilot to 3.2 mm
-  or leave the screw out — seven others hold.
 * **Board width tolerance** — the wall gap is 1.2 mm per side, chosen from the
-  process tolerance (MJF ±0.4% = ±0.86 mm at 214 mm, FDM shrinkage similar),
+  process tolerance (MJF ±0.4% = ±0.85 mm at 213 mm, FDM shrinkage similar),
   not from a nominal fit. The board is located by its screws, not the walls.
-* **Bottom-side parts near the left/right edge** — set `RAIL_IN = 0` and the
-  ledges disappear; the eight standoffs still carry the board.
+* **A screw that will not start** — the standoff top is a flat 7 mm boss, so the
+  board rests on it regardless; drill that one pilot to 3.2 mm and the other
+  seven hold.
 * **`INNER_H` too low** — only the lid is affected, and the lid is a separate
   STL. Print the tray first, measure the real stack height, then order it.
 
-The one thing that cannot be recovered by a parameter is the board outline
-itself, and that number is stated in the guide as text, not read off a drawing.
+The outline, the hole pattern and the bottom-side keepouts are now fab data
+rather than estimates, so the remaining risk is concentrated in `INNER_H`, which
+only the lid depends on.

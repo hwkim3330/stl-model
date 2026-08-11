@@ -7,14 +7,12 @@ Two printable parts:
                       rails, 8 screw standoffs, 4 corner posts, feet
   lan9692_lid.stl   - vented top plate that screws onto the corner posts
 
-Board data source: EVB-LAN9692-LM Hardware User's Guide DS50003848B
-  - A.1 Dimension: "The board dimensions are 214 x 150 mm"
-  - A.2 PCB Layers: 4 layers
-Mounting hole positions were measured off Figure A-1 (board outline) by
-rasterising page 52 at 600 dpi, fitting the PCB edge rectangle and scaling it
-to the stated 214 x 150 mm. All 8 pads measure 5.74 mm +/- 0.01 mm, so they
-are the same feature (M3 mounting holes). Expected accuracy ~ +/-0.3 mm,
-hence the generous pilot/clearance holes.
+Board thickness source: EVB-LAN9692-LM Hardware User's Guide DS50003848B
+  - A.2 PCB Layers: 4 layers, 1.535 mm
+Every mechanical number comes from Microchip's released manufacturing data
+(Gerbers + Excellon, 04-12092-R1, 30 Apr 2026) via extract_board_data.py -
+outline, mounting holes and bottom-side keepouts. The user's guide is only used
+for the PCB thickness.
 
 Both long edges of the board carry connectors (7x MATEnet + 4x SFP+ on the
 front edge, RJ45 / USB-C / 12 V jack / SMA / OCuLink on the rear edge), so the
@@ -32,7 +30,9 @@ from trimesh.creation import box, cylinder
 # --------------------------------------------------------------------------
 # Parameters (mm)
 # --------------------------------------------------------------------------
-BW, BH = 214.0, 150.0        # PCB outline, per DS50003848B A.1
+BW, BH = 213.360, 149.860    # PCB outline, from the BOARD (GM2) Gerber layer:
+                             # 8.400 x 5.900 in. The user's guide rounds this
+                             # to "214 x 150 mm".
 PCB_T = 1.535                # PCB thickness, per DS50003848B
 
 FIT = 1.2                    # clearance between PCB edge and wall. Sized off
@@ -45,8 +45,9 @@ WALL = 3.0                   # side wall thickness
 FLOOR_T = 2.0                # floor plate thickness
 STANDOFF_H = 8.0             # gap under the PCB
 WALL_H = 14.0                # side wall height above the floor
-RAIL_IN = 3.0                # PCB support ledge, wide enough that it still
-                             # carries the board at the loose end of FIT
+RAIL_IN = 1.6                # PCB support ledge. The bottom paste layer has no
+                             # aperture within 1.6 mm of either side edge, but
+                             # two land inside 3.0 mm - so this is the ceiling.
 INNER_H = 26.0               # clearance above the PCB. Per the Figure 4-1/4-2
                              # board photos the tallest parts are the vertical
                              # expansion header, the red DC/DC modules and the
@@ -67,17 +68,19 @@ RIB_W, RIB_H = 3.0, 5.0      # lid stiffening ribs
 
 MAKE_LID = True
 
-# Mounting holes, origin = PCB bottom-left corner (X right, Y up).
-# Measured from Figure A-1; see module docstring.
+# Mounting holes: tool T23 in the drill report, 8 x Ø3.048 mm (0.120 in) PTH,
+# read straight out of 04-12092-R1-RoundHoles.TXT. Origin is the PCB corner at
+# the BOARD layer origin; corner holes sit 3.556 mm (0.140 in) in from both
+# edges. Run extract_board_data.py to regenerate this list.
 HOLES = [
-    (3.68, 146.45),
-    (102.01, 146.45),
-    (210.53, 146.46),
-    (205.88, 129.44),
-    (205.88, 71.38),
-    (209.50, 51.83),
-    (133.87, 51.53),
-    (3.68, 24.82),
+    (3.556, 146.304),
+    (101.600, 146.304),
+    (209.804, 146.304),
+    (205.187, 129.330),
+    (205.187, 71.330),
+    (208.788, 51.816),
+    (133.350, 51.562),
+    (3.556, 24.892),
 ]
 
 # --------------------------------------------------------------------------
