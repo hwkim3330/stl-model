@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Validate every STL in the repo the way a print service's uploader does.
+"""Validate every printable STL in the repo the way a print service's uploader does.
+
+(`*mock*.stl` is skipped - board_mock.stl is a preview aid, not a part.)
 
     python3 check_stls.py
 
@@ -25,7 +27,7 @@ def check(path):
 
 
 def main():
-    paths = sorted(glob.glob('*/*.stl'))
+    paths = [p for p in sorted(glob.glob('*/*.stl')) if 'mock' not in p]
     if not paths:
         sys.exit('no STLs found - run from the repo root')
     width = max(len(p) for p in paths)

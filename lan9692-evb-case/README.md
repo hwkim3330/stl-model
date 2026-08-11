@@ -17,7 +17,13 @@ Three styles, same board data:
 | Volume | 74.3 + 44.2 = **118.5 cm³** | 86.7 + 12.8 + 17.2 + 46.8 = **163.5 cm³** | 124.6 + 12.8 + 17.2 + 82.7 = **237.2 cm³** |
 | Fasteners | 8 × M3 × 8, 4 × M3 × 10 | same | same |
 
-![box](img/box_assembly.png)
+![box with the board in it](img/box_with_board.png)
+
+Vented box, lid off. The board is `board_mock.py` — the real PCB outline with a
+block per part at its pick-and-place position — so the picture doubles as proof
+that the windows line up:
+
+![ports](img/box_front_ports.png)
 ![sealed box](img/boxsolid_assembly.png)
 
 ### On sealing it completely
@@ -52,7 +58,7 @@ them; no extra screws.
 | RJ45 `J33` | L829-1J1T-43 | 17.0 × 15.0 at x 58.803 | −0.5…14.5 | 8P8C standard body |
 | USB-C `J30` | USB4105 | 10.5 × 5.0 at x 37.762, outer relief | −0.6…4.4 | receptacle 8.94 × 3.16 |
 | OCuLink `J21` | AMP G14A42121B12HR | 24.0 × 9.0 at x 118.305 | −0.5…8.5 | **estimate** |
-| DC jack `J23` | PJ-002BH | Ø11.0 at x 171.283 | centre 6.5 | 2.5 mm barrel |
+| DC jack `J23` | PJ-002BH | Ø11.0 at x 171.283 | centre 6.5 | **estimated** axis height |
 | Power switch `SW3` | ESW-500SSP1S1M6QEA | 14.0 × 7.5 at x 188.110 | −0.5…7.0 | **estimate** |
 | Reset `SW2` | 1825027-5 | Ø6.0 at x 21.844 | centre 3.5 | **estimate** |
 
@@ -126,15 +132,48 @@ bottom-side pads   1734 apertures inside the outline
   source.
 * **PCB thickness 1.535 mm**, 4 layers — §A.2 of the user's guide.
 
-Still not derived from data: `INNER_H = 26`, the clearance above the board.
-Gerbers carry no heights. The board photos in Figures 4-1/4-2 put the tallest
-parts (vertical expansion header, red DC/DC modules, SMA jacks) under 20 mm, but
-print the tray first and measure before ordering the lid.
+### Why `INNER_H` is 26 mm, and what it should be
+
+This is the only number in the repo that is not from a source, so here is
+exactly what it rests on. `board_mock.py` lists every significant part with the
+height it was given:
+
+| Part | Height above PCB | Source |
+|---|---|---|
+| MATEnet `J11/J12` ×7 | 13.5 mm | TE 9-2304372-9 |
+| RJ45 `J33` | 13.5 mm | 8P8C with magnetics |
+| DC jack `J23` | 11.0 mm | PJ-002BH body |
+| Alu cap `C324` | 10.2 mm | F case |
+| SFP+ cage ×4 | 9.8 mm | SFP MSA |
+| Expansion header `J4` (2×20) | **5.84 mm** | `5.84MH` in the board's own BOM line |
+| **DC-DC modules ×5** | **?** | `MOD_DC-DC_ADM00987` ×3 + `MOD_DC-DC_PM-LV2` ×2 |
+
+So **the tallest part with a real source is 13.5 mm**, and the expansion header
+— which the board photo made look like the tall one — is actually the shortest
+of the candidates at 5.84 mm. The whole 26 mm exists for one reason: the five
+DC-DC daughter modules. They are PCB assemblies (`ADM00987` is Microchip's
+MCP19035 8 A power module, mounted on Samtec TMM 2 mm headers) and no released
+document gives their stack height. They are the red blocks in Figure 4-2.
+
+Measure one of them and `INNER_H` can drop to about *height + 4 mm*:
+
+* if they are ≤ 14 mm → `INNER_H = 18`, box 8 mm shorter, ~15% less material
+* if they stand vertically and reach 22 mm → 26 is already correct
+
+Nothing else moves: every port window rides on the PCB top face, and the
+tallest one tops out 14.5 mm above it.
+
+While on heights, the other direction is now settled from data rather than
+guessed: the bottom side carries **365 parts, all 0402/0603 passives, TSSOP and
+3.2 × 2.5 mm inductors — about 1.6 mm at worst**, so the 8 mm of underboard
+space is verified clear with room to spare.
 
 ## Regenerating
 
 ```bash
 pip3 install --break-system-packages trimesh manifold3d
+python3 board_mock.py              # board preview + port-window clearance check
+python3 assembly_preview.py        # every img/*.png with the board in place
 python3 lan9692_case.py            # -> lan9692_tray.stl, lan9692_lid.stl
 python3 lan9692_box.py             # -> lan9692_box_{tray,front,rear,lid}.stl
 python3 lan9692_box.py --solid     # -> lan9692_boxsolid_*.stl (ports only)
@@ -170,6 +209,29 @@ creeps under a warm board.
 MJF PA12 also prints it as-is (min wall 1.0 mm, everything here is ≥2.0 mm) and
 gives much better threads, but at 122 cm³ for the pair it is the expensive
 option.
+
+## Port-window check
+
+`board_mock.py` measures every window in `lan9692_box.py` against the connector
+that has to pass through it:
+
+```
+window                      part span            window span    x margin  z margin
+MATEnet x7         2.81..  134.86 x 13.5h     2.06..  135.61 x 14.5      0.75      0.50  ok
+SFP+ A           138.35..  152.85 x  9.8h   138.10..  153.10 x 10.4      0.25      0.40  ok
+RJ45 J33          50.86..   66.74 x 13.5h    50.30..   67.30 x 14.5      0.56      0.50  ok
+USB-C J30         33.26..   42.26 x  3.2h    32.51..   43.01 x  4.4      0.75      0.60  ok
+OCuLink J21      107.31..  129.31 x  7.0h   106.31..  130.31 x  8.5      1.00      0.50  ok
+switch SW3       182.11..  194.11 x  6.0h   181.11..  195.11 x  7.0      1.00      0.50  ok
+DC jack J23      168.53..  174.03 x  9.2h   165.78..  176.78 x 12.0      2.75      2.75  ok
+reset SW2         20.09..   23.59 x  5.2h    18.84..   24.84 x  6.5      1.25      1.25  ok
+```
+
+Two of these are compared against the feature that actually goes through the
+panel rather than the whole body — the DC jack's 5.5 mm barrel and the tact
+switch's plunger — because their bodies sit behind the panel. The SFP row is
+checked against the 14.5 mm cage body, which is stricter than the 14.25 mm MSA
+aperture that has to line up, so its 0.25 mm is pessimistic.
 
 ## What happens if the derived numbers are off
 

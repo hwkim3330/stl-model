@@ -101,7 +101,7 @@ PORTS = dict(
     ],
 )
 ROUND_PORTS = dict(
-    rear=[dict(name='DC jack J23', x=171.283, z=6.5, d=11.0, src='ds'),
+    rear=[dict(name='DC jack J23', x=171.283, z=6.5, d=11.0, src='est'),
           dict(name='reset SW2', x=21.844, z=3.5, d=6.0, src='est')],
 )
 

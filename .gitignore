@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 board-data/
 *.zip
+board_mock.stl
