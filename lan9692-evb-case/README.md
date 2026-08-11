@@ -8,8 +8,8 @@ exists, so the geometry is generated from the official hardware documentation.
 
 | | |
 |---|---|
-| Tray | 237 × 173 × 40 mm, 72.3 cm³ |
-| Lid | 237 × 173 × 7 mm, 43.9 cm³ |
+| Tray | 237 × 173 × 40 mm, 77.7 cm³ |
+| Lid | 237 × 173 × 7 mm, 44.5 cm³ |
 | Assembled height | 39.5 mm |
 | Fasteners | 8 × M3 × 8 (PCB), 4 × M3 × 10 (lid) |
 
@@ -89,5 +89,24 @@ perimeters on the tray so the standoffs and posts hold a thread. PLA works but
 creeps under a warm board.
 
 MJF PA12 also prints it as-is (min wall 1.0 mm, everything here is ≥2.0 mm) and
-gives much better threads, but at 116 cm³ for the pair it is the expensive
+gives much better threads, but at 122 cm³ for the pair it is the expensive
 option.
+
+## What happens if the derived numbers are off
+
+Everything load-bearing degrades gracefully, on purpose:
+
+* **A mounting hole off by a few tenths** — the standoff top is a flat 7 mm
+  boss, so the board still rests on it; only the screw is affected, and a
+  2.9 mm pilot swallows ±0.3 mm. Worst case you drill that one pilot to 3.2 mm
+  or leave the screw out — seven others hold.
+* **Board width tolerance** — the wall gap is 1.2 mm per side, chosen from the
+  process tolerance (MJF ±0.4% = ±0.86 mm at 214 mm, FDM shrinkage similar),
+  not from a nominal fit. The board is located by its screws, not the walls.
+* **Bottom-side parts near the left/right edge** — set `RAIL_IN = 0` and the
+  ledges disappear; the eight standoffs still carry the board.
+* **`INNER_H` too low** — only the lid is affected, and the lid is a separate
+  STL. Print the tray first, measure the real stack height, then order it.
+
+The one thing that cannot be recovered by a parameter is the board outline
+itself, and that number is stated in the guide as text, not read off a drawing.

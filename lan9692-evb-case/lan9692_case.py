@@ -35,12 +35,18 @@ from trimesh.creation import box, cylinder
 BW, BH = 214.0, 150.0        # PCB outline, per DS50003848B A.1
 PCB_T = 1.535                # PCB thickness, per DS50003848B
 
-FIT = 0.4                    # clearance between PCB edge and wall
+FIT = 1.2                    # clearance between PCB edge and wall. Sized off
+                             # the process tolerance, not the fit: MJF is
+                             # +/-0.4% above 100 mm, i.e. +/-0.86 mm on this
+                             # 214 mm span, and FDM shrinkage over 214 mm is
+                             # the same order. The screws locate the board;
+                             # the walls only protect its edges.
 WALL = 3.0                   # side wall thickness
 FLOOR_T = 2.0                # floor plate thickness
 STANDOFF_H = 8.0             # gap under the PCB
 WALL_H = 14.0                # side wall height above the floor
-RAIL_IN = 1.6                # how far the PCB support ledge reaches inboard
+RAIL_IN = 3.0                # PCB support ledge, wide enough that it still
+                             # carries the board at the loose end of FIT
 INNER_H = 26.0               # clearance above the PCB. Per the Figure 4-1/4-2
                              # board photos the tallest parts are the vertical
                              # expansion header, the red DC/DC modules and the
