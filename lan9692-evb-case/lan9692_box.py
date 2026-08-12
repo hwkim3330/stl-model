@@ -62,6 +62,15 @@ VENTS = True             # False -> sealed box, port windows only. See README:
 VENT_CELL, VENT_RIB, VENT_MARGIN = 16.0, 4.5, 3.5
 RIB_W, RIB_H = 3.0, 5.0
 
+# Lid fan. Centred over U1, the LAN9692 itself (BGA-356 at 167.31, 78.69 in the
+# pick-and-place file) - the 0.9 V rail alone budgets 6.7 A there. None = no fan.
+FAN = dict(size=40.0, bore=38.0, pitch=32.0, screw=3.4, x=167.31, y=78.69)
+
+# Deck for stacking a second box on the lid: 4 bosses on a square, on the half
+# of the lid the fan does not use. The ESP32-S31 and TC397 trays carry matching
+# ears. None = plain lid.
+DECK = dict(pitch=45.0, x=62.0, y=75.0, boss_d=9.0, boss_h=4.0, pilot=2.9)
+
 # --------------------------------------------------------------------------
 # Derived
 # --------------------------------------------------------------------------
@@ -227,14 +236,41 @@ def build_lid():
     for ry in bands:
         parts.append(bx(WX0, WX1, ry - RIB_W / 2, ry + RIB_W / 2, LID_T - 0.1,
                         LID_T + RIB_H))
+    if DECK:
+        for dx, dy in deck_points():
+            parts.append(cyl(DECK['boss_d'], LID_T - 0.1, LID_T + DECK['boss_h'],
+                             dx, dy))
     lid = union(parts)
     holes = [((WX0 - (LID_BOSS_D - WALL) + -FIT) / 2, by) for by in BOSS_Y]
     holes += [((BW + FIT + WX1 + (LID_BOSS_D - WALL)) / 2, by) for by in BOSS_Y]
     keep = [(hx, hy, LID_BOSS_D) for hx, hy in holes]
+    if FAN:
+        keep.append((FAN['x'], FAN['y'], FAN['size'] / 2 + 4))
+    if DECK:
+        keep += [(dx, dy, DECK['boss_d'] / 2 + 3) for dx, dy in deck_points()]
     cuts = vent_grid(WX0, WX1, LID_Y[0], LID_Y[1], keep, -1, LID_T + RIB_H + 1)
     for hx, hy in holes:
         cuts.append(cyl(SCREW_CLEAR, -1, LID_T + 1, hx, hy, sections=32))
+    if FAN:
+        cuts.append(cyl(FAN['bore'], -1, LID_T + RIB_H + 1, FAN['x'], FAN['y'],
+                        sections=64))
+        h = FAN['pitch'] / 2
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                cuts.append(cyl(FAN['screw'], -1, LID_T + RIB_H + 1,
+                                FAN['x'] + sx * h, FAN['y'] + sy * h, sections=32))
+    if DECK:
+        for dx, dy in deck_points():
+            cuts.append(cyl(DECK['pilot'], LID_T + DECK['boss_h'] - 6.0,
+                            LID_T + DECK['boss_h'] + 1, dx, dy, sections=32))
     return difference(lid, cuts)
+
+
+def deck_points():
+    """Square, so a stacked case can be bolted on in either orientation."""
+    h = DECK['pitch'] / 2
+    return [(DECK['x'] + sx * h, DECK['y'] + sy * h)
+            for sx in (-1, 1) for sy in (-1, 1)]
 
 
 def lid_rib_rows():
@@ -279,3 +315,10 @@ if __name__ == '__main__':
     print(f"  {'total':24s} {'':29s}{total / 1000:6.2f} cm3")
     print(f"\n  outside {WX1 + 2 * (LID_BOSS_D - WALL) - WX0:.1f} x {RY1 - FY0:.1f} "
           f"x {Z_LID + LID_T:.1f} mm")
+    if FAN:
+        print(f"  lid fan  {FAN['size']:.0f} mm, Ø{FAN['bore']:.0f} bore, "
+              f"{FAN['pitch']:.0f} mm screw pitch, centred on U1 "
+              f"({FAN['x']:.1f}, {FAN['y']:.1f})")
+    if DECK:
+        print(f"  deck     4 x M3 on a {DECK['pitch']:.0f} mm square at "
+              f"({DECK['x']:.0f}, {DECK['y']:.0f})")

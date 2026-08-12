@@ -26,6 +26,35 @@ that the windows line up:
 ![ports](img/box_front_ports.png)
 ![sealed box](img/boxsolid_assembly.png)
 
+### Lid fan
+
+`FAN` in `lan9692_box.py` puts a **40 mm fan** on the lid, Ø38 bore with a 32 mm
+M3 screw pitch, centred on **U1 — the LAN9692 itself**, a BGA-356 at
+(167.31, 78.69) per the pick-and-place file. That is where the heat is: the
+0.9 V rail alone budgets 6.7 A into that package. The seven LAN8870 PHYs sit in
+a row at y = 36.85 and take 2.8 A off 1.1 V between them.
+
+Two things worth knowing before wiring it:
+
+* **There is no fan header on the board.** The pick-and-place file has no fan or
+  thermal connector of any kind.
+* Power it from the **expansion header J4**, which the board's own power tree
+  budgets at **5.0 V @ 2.0 A** and 3.3 V @ 2.0 A — a 40 mm fan wants about
+  0.1 A. Or tap 12 V at the jack net if you want a quieter 12 V fan. Do not
+  back-feed those header pins; they are outputs.
+
+Set `FAN = None` for a plain lid. A fan makes the sealed variant below actually
+viable — sealed plus fan beats vented plus nothing.
+
+### Deck for stacking
+
+`DECK` puts four M3 bosses on a **45 mm square** at (62, 75) on the lid, clear
+of the fan. The ESP32-S31 and TC397 trays carry matching Ø3.4 holes through
+their floors, so either bolts straight on — the square is deliberate so they
+can go on rotated. Their feet are shorter than the 4 mm bosses and hang clear.
+
+![stacked](../img/stack_s31.png)
+
 ### On sealing it completely
 
 The sealed variant is what `--solid` gives you: solid floor, solid walls, solid
@@ -177,6 +206,7 @@ python3 assembly_preview.py        # every img/*.png with the board in place
 python3 lan9692_case.py            # -> lan9692_tray.stl, lan9692_lid.stl
 python3 lan9692_box.py             # -> lan9692_box_{tray,front,rear,lid}.stl
 python3 lan9692_box.py --solid     # -> lan9692_boxsolid_*.stl (ports only)
+python3 ../stack_preview.py        # -> img/stack_*.png, a case on the deck
 python3 assembly_preview.py        # -> assembly.png
 python3 render_preview.py lan9692_tray.stl tray.png --elev 28 --azim -50
 ```

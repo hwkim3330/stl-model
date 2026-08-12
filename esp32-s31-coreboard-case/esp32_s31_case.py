@@ -37,6 +37,11 @@ SCREW_PILOT, SCREW_CLEAR = 2.9, 3.4
 FOOT_D, FOOT_H = 10.0, 2.0
 VENT_CELL, VENT_RIB, VENT_MARGIN = 11.0, 4.0, 3.0
 
+# Bolts this tray onto the LAN9692 box lid: same square as DECK in
+# lan9692_box.py. M3 clearance through the floor, screw heads sit under the
+# board in the 6 mm of standoff space. None = plain floor.
+DECK_HOLES = dict(pitch=45.0, d=3.4)
+
 # 2x20 header along the y = 55 edge, derived from the dimensioned pin grid
 HDR_PIN1 = (8.370, 53.270)
 HDR_PITCH = 2.54
@@ -151,11 +156,23 @@ def build_tray():
     keep = [(px, py, POST_D / 2 + 3.0) for px, py in POSTS]
     keep += [(fx, fy, FOOT_D / 2 + 2.0)
              for fx, fy in ((5, 5), (BW - 5, 5), (5, BH - 5), (BW - 5, BH - 5))]
+    if DECK_HOLES:
+        keep += [(dx, dy, DECK_HOLES['d'] / 2 + 4.0) for dx, dy in deck_points()]
     cuts = vents(-FOOT_H - 1, Z_FLOOR, keep)
     for px, py in POSTS:
         cuts.append(cyl(SCREW_PILOT, Z_FLOOR + POST_H - 8.0, Z_FLOOR + POST_H + 1,
                         px, py, sections=32))
+    if DECK_HOLES:
+        for dx, dy in deck_points():
+            cuts.append(cyl(DECK_HOLES['d'], -FOOT_H - 1, Z_FLOOR + 1, dx, dy,
+                            sections=32))
     return difference(tray, cuts)
+
+
+def deck_points():
+    h = DECK_HOLES['pitch'] / 2
+    return [(BW / 2 + sx * h, BH / 2 + sy * h)
+            for sx in (-1, 1) for sy in (-1, 1)]
 
 
 def build_lid():
@@ -192,3 +209,7 @@ if __name__ == '__main__':
     print(f"  header slot {hdr[0]:.2f} x {hdr[1]:.2f} mm at "
           f"x {HDR_PIN1[0] - HDR_MARGIN:.2f}, y {HDR_PIN1[1] - (HDR_ROWS - 1) * HDR_PITCH - HDR_MARGIN:.2f}")
     print(f"  assembled   {Z_LID + LID_T:.1f} mm tall")
+    if DECK_HOLES:
+        pts = ', '.join(f"({x:.1f},{y:.1f})" for x, y in deck_points())
+        print(f"  deck holes  4 x Ø{DECK_HOLES['d']} on a "
+              f"{DECK_HOLES['pitch']:.0f} mm square: {pts}")

@@ -8,13 +8,30 @@
 | [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box, vented | tray + 2 panels + lid | 163.5 cm³ |
 | [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box, ports only | tray + 2 panels + lid | 237.2 cm³ |
 | [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite + PoE base board | bottom + top | 17.1 cm³ |
-| [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 26.6 cm³ |
+| [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 26.5 cm³ |
+| [`tc397-triboard-case/`](tc397-triboard-case/) | AURIX TC397 TriBoard (Eurocard 100 × 160) | tray + vented lid | 89.5 cm³ |
 
 Everything is dimensioned from primary sources, not from drawings or eyeballing:
 the LAN9692 parts from Microchip's released Gerber/Excellon and pick-and-place
 files, the LilyGo `_fit` variants from measurements of the published STLs checked
 against LilyGo's own board CAD, the ESP32-S31 tray from Espressif's dimension
 DXF. Each folder's README states which numbers are data and which are not.
+
+## Stacking and cooling
+
+![stacked](img/stack_s31.png)
+
+The LAN9692 box lid carries a **40 mm fan** centred on the switch die and a
+**deck of 4 × M3 bosses on a 45 mm square**. The ESP32-S31 and TC397 trays have
+matching Ø3.4 holes through their floors, so either bolts on top in either
+orientation:
+
+```bash
+python3 stack_preview.py    # -> img/stack_s31.png, img/stack_tc397.png
+```
+
+The board has no fan header — run the fan off the expansion header's 5 V
+(budgeted 2.0 A) or off the 12 V jack net.
 
 ## Ordering
 
