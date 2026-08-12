@@ -5,6 +5,7 @@ Three laser-cut plates instead of a printed box. Order file:
 for the material/thickness/quantity table and the hardware list.
 
 ![assembly](img/assembly.png)
+![exploded](img/exploded.png)
 
 `assembly.py` builds the whole stack in 3D from the same constants the DXFs come
 from, so the plates here and the plates the cutter gets cannot drift apart. It
@@ -118,6 +119,25 @@ photo:
   Slots, not holes, so a tray shifts ±6 mm. 84 mm apart, which clears two
   85 × 75 mm trays by 9 mm and keeps both away from the fan.
 * **Plate C** — five 8 × 60 mm intake slots over the fan.
+
+## How the sub-plates attach to plate B
+
+Four M3 through the **45 mm deck square**, which every plate and tray in this
+repo shares:
+
+```
+        board on M2.5 / M3 standoffs
+   ┌──────────────────────────────┐
+   │   plate D or E   3 mm        │   Ø3.4 holes on the 45 mm square
+   ╞══════════════════════════════╡ ← M3 x 12 pan head, from above
+   │   plate B        5 mm        │   3.4 x 16 mm SLOTS on the same square
+   └──────────────────────────────┘ ← M3 nut underneath
+```
+
+The sub-plate has plain holes, plate B has **slots** running in X, so the
+module shifts ±6.3 mm without a new plate. Checked: the hole and slot centres
+coincide to **0.000 mm**, and the nut hangs into 19.5 mm of clear space above
+the LAN9692's tallest part, so nothing fouls.
 
 ## Fan power
 

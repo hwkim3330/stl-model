@@ -80,6 +80,10 @@ ETH_PLATE = (76.0, 60.0)
 # nothing, whereas two screws on one edge leaves the port edge cantilevered.
 TC_BOARD = (100.0, 100.0)
 TC_HOLES = [(11.0, 4.0), (89.0, 4.0), (96.99, 59.0), (16.0, 82.0)]
+# Anything you find on the real board that the drawing does not dimension goes
+# here, measured from the PCB's bottom-left corner. Extra holes in acrylic are
+# free; an unused one costs nothing.
+TC_EXTRA_HOLES = []
 TC_HOLE_D = 3.4
 TC_PLATE = (110.0, 110.0)
 
@@ -198,7 +202,7 @@ def plate_tc397():
     w, h = TC_PLATE
     d.rounded_rect(0, 0, w, h, 4.0)
     ox, oy = (w - TC_BOARD[0]) / 2, (h - TC_BOARD[1]) / 2
-    for hx, hy in TC_HOLES:
+    for hx, hy in TC_HOLES + TC_EXTRA_HOLES:
         d.circle(ox + hx, oy + hy, TC_HOLE_D / 2)
     for sx in (-1, 1):
         for sy in (-1, 1):

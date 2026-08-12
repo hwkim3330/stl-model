@@ -291,6 +291,21 @@ def checks():
     return ok
 
 
+def exploded(parts, gap=28.0):
+    """Lift each layer apart along Z so the joints are visible."""
+    out = []
+    for m, c in parts:
+        z = float(m.bounds[0][2])
+        lift = 0.0
+        if z >= Z_C - 1: lift = 3 * gap
+        elif z >= Z_B + T_B - 1: lift = 2 * gap
+        elif z >= Z_B - FAN_THICK - 1: lift = gap
+        n = m.copy()
+        n.apply_translation((0, 0, lift))
+        out.append((n, c))
+    return out
+
+
 if __name__ == '__main__':
     parts, cols = build()
     fc = np.vstack([c if np.ndim(c) == 2 else np.tile(c, (len(m.faces), 1))
@@ -304,6 +319,12 @@ if __name__ == '__main__':
     render(scene, 22, -54, face_colors=fc).save(os.path.join(HERE, 'img/assembly.png'))
     render(scene, 6, -2, face_colors=fc).save(os.path.join(HERE, 'img/assembly_front.png'))
     render(scene, 89, 0, face_colors=fc).save(os.path.join(HERE, 'img/assembly_top.png'))
+
+    ex = exploded(list(zip(parts, cols)))
+    exf = np.vstack([c if np.ndim(c) == 2 else np.tile(c, (len(m.faces), 1))
+                     for m, c in ex])
+    render(trimesh.util.concatenate([m for m, _ in ex]), 20, -56,
+           face_colors=exf).save(os.path.join(HERE, 'img/exploded.png'))
 
     # plate A + board only, straight down: the hole-alignment view
     aparts, acols = build(upto='A')
