@@ -16,6 +16,28 @@ Send `acrylic-frame-dxf.zip`. Three plates, all 250 × 180 mm with R6 corners.
 * Total cut area 3 × 0.045 m². Kerf compensation: leave it to the shop, the
   fits here are all clearance, nothing is press-fit.
 
+## Power — one 12 V adapter, split before the board
+
+The fan is 12 V and so is the board, so **do not tap anything on the PCB**.
+Split on the DC side:
+
+```
+12 V 5 A adapter ──> Y splitter ─┬─> LAN9692 J23   (5.5 x 2.5 mm, centre +)
+                                 └─> 40 mm 12 V fan
+```
+
+* The board's jack is **5.5 / 2.5 mm** (PJ-002BH, centre positive). Most cheap
+  splitters are 5.5 / **2.1** — a 2.1 mm plug in a 2.5 mm jack makes poor
+  contact. Buy the 2.5 mm one, or a 2.1→2.5 adapter for the board leg.
+* Sizing: the board budgets 12 V @ 4.1 A worst case (<50 W); a 40 mm fan is
+  about 0.15 A. **A 12 V 5 A adapter covers both.**
+* The board's own PTC fuse (4 A hold / 8 A trip, 15 V) only protects its own
+  leg. The fan leg is unfused — fine at 2 W, add an inline fuse if you care.
+* Do **not** feed 24 V. The input TVS is an SMBJ13D, 13 V standoff.
+
+The alternative is a 5 V fan off expansion header J4, which does budget
+5 V @ 2 A — no splitter, but it puts fan inrush on the switch's own rail.
+
 ## Hardware
 
 | Part | Size | Qty |
@@ -27,6 +49,21 @@ Send `acrylic-frame-dxf.zip`. Three plates, all 250 × 180 mm with R6 corners.
 | M3 nut | — | a few |
 | 40 × 40 fan | 10 mm thick, 12 V | 1 |
 | Rubber feet | self-adhesive | 4 |
+| 12 V DC Y splitter | 5.5 × 2.5 mm | 1 |
+| 12 V adapter | 5 A, 5.5 × 2.5 mm | 1 |
+
+## What mounts where
+
+| | Where | How |
+|---|---|---|
+| LAN9692 | plate A | 8 × M3 × 10 standoffs, its real hole pattern |
+| 40 mm fan | under plate B, over the switch | 4 × M3 through the plate |
+| **ESP32-S31** | plate B, zone at **(60, 48)** | its printed tray already has 4 × Ø3.4 on the 45 mm square — bolt through the slots |
+| FIM / spare | plate B, zone at **(60, 132)** | same square; print an adapter tray for whatever it is |
+| **TC397** | **not on the stack** | separate printed case, one Ethernet cable |
+
+The two zones are 84 mm apart, so two 85 × 75 mm trays clear each other by
+9 mm and both stay clear of the fan.
 
 Stack height comes out ≈ 5 + 45 + 5 + 40 + 3 = **98 mm**.
 

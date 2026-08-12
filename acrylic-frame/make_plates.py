@@ -38,7 +38,9 @@ FAN_BORE = 38.0                   # 40 mm fan
 FAN_PITCH = 32.0
 SLOT_W, SLOT_L = 3.4, 16.0        # adjustment slots for the module trays
 DECK_PITCH = 45.0                 # same square the printed trays already use
-ZONES = [('FIM tray', 62.0, 128.0), ('ESP32 tray', 62.0, 52.0)]
+ZONES = [('FIM tray', 60.0, 132.0), ('ESP32-S31 tray', 60.0, 48.0)]
+# 84 mm apart: the printed ESP32-S31 tray is 85 x 75 mm, so two of them clear
+# each other by 9 mm and both stay clear of the fan at x = 185.6
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 
 BOARD_OFF = ((PW - BW) / 2, (PH - BH) / 2)     # board centred on the plate
