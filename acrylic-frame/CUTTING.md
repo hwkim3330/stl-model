@@ -1,6 +1,18 @@
 # Cutting order — LAN9692 acrylic frame
 
-Send `acrylic-frame-dxf.zip`. Three plates, all 250 × 180 mm with R6 corners.
+Send `acrylic-frame-dxf.zip`. Five plates in two thicknesses.
+
+**Easiest way to order: the two nested sheets.** Same parts, laid out by
+thickness so the shop cuts two sheets instead of five separate pieces — the two
+small plates ride in what would otherwise be offcut.
+
+| File | Material | Sheet | Contains |
+|---|---|---|---|
+| `nested-5T.dxf` | clear acrylic **5 mm** | 260 × 380 mm | plates A and B |
+| `nested-3T.dxf` | clear acrylic **3 mm** | 260 × 310 mm | plates C, D and E |
+
+The individual plate files are also in the zip if the shop would rather have
+them separately:
 
 | File | Material | Thickness | Qty |
 |---|---|---|---|
@@ -9,6 +21,10 @@ Send `acrylic-frame-dxf.zip`. Three plates, all 250 × 180 mm with R6 corners.
 | `plate-c-top-3T.dxf` | clear acrylic | **3 mm** | 1 |
 | `plate-d-eth-elite-3T.dxf` | clear acrylic, 76 × 60 mm | **3 mm** | 1 |
 | `plate-e-tc397-3T.dxf` | clear acrylic, 110 × 110 mm | **3 mm** | 1 |
+
+The rectangle around each nested sheet is a **reference outline on layer
+`SHEET`** — it marks the stock size, it is not a cut path. Everything to cut is
+on layer `CUT`.
 
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
 * Every closed shape is a cut path — outline, holes and slots alike. There is no
@@ -40,11 +56,13 @@ Split on the DC side:
 The alternative is a 5 V fan off expansion header J4, which does budget
 5 V @ 2 A — no splitter, but it puts fan inrush on the switch's own rail.
 
-## No, the acrylic shop cannot make the standoffs
+## Ask about the standoffs, but do not count on it
 
-They cut sheet. A 45 mm threaded M3 standoff is turned metal or moulded nylon —
-different trade entirely. You could laser acrylic *washers*, but stacking nine
-5 mm rings to reach 45 mm is worse than a 500-won standoff in every way.
+The shop cuts sheet. A 45 mm threaded M3 standoff is turned metal or moulded
+nylon — a different trade — and lasering nine 5 mm acrylic rings to stack up to
+45 mm is worse than a standoff in every way. Some shops do resell hardware as
+an add-on though, so it costs nothing to ask in the order note. If they say no,
+the whole hardware table below goes to a parts supplier instead.
 
 ## Two separate orders
 

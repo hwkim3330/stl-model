@@ -17,8 +17,8 @@ coordinate (167.31, 78.69). See ../lan9692-evb-case/README.md.
 Output is R12 DXF in millimetres, polyline-free: outlines are LINE + ARC,
 holes are CIRCLE, slots are two LINEs plus two ARCs. Any laser shop reads it.
 """
-import math
 import os
+import re
 import zipfile
 
 # --------------------------------------------------------------------------
@@ -217,6 +217,34 @@ PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
           ('plate-e-tc397-3T', plate_tc397, 3)]
 
 
+# Nesting: plates of the same thickness laid out on one sheet, so a shop that
+# quotes by sheet area does not charge three separate offcuts. (x, y) is the
+# lower-left corner of each plate on its sheet.
+NESTS = {
+    '5T': dict(sheet=(260, 380),
+               place=[('plate-a-bottom-5T', 5, 5), ('plate-b-middle-5T', 5, 195)]),
+    '3T': dict(sheet=(260, 310),
+               place=[('plate-c-top-3T', 5, 5), ('plate-e-tc397-3T', 5, 193),
+                      ('plate-d-eth-elite-3T', 125, 193)]),
+}
+
+
+def nest(tag, spec, builders):
+    """One DXF per thickness with every plate of that thickness on it."""
+    d = Dxf()
+    w, h = spec['sheet']
+    d.rounded_rect(0, 0, w, h, 0.1, layer='SHEET')     # reference outline only
+    for name, ox, oy in spec['place']:
+        sub = builders[name]()
+        for e in sub.e:
+            def shift(m):
+                code, val = m.group(1), float(m.group(2))
+                off = ox if code in ('10', '11') else oy
+                return f"{code}\n{val + off:.4f}"
+            d.e.append(re.sub(r'\b(1[01]|2[01])\n(-?[\d.]+)', shift, e))
+    return d
+
+
 def main():
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dxf')
     os.makedirs(out, exist_ok=True)
@@ -227,6 +255,13 @@ def main():
         made.append(path)
         print(f"  {name + '.dxf':24s} {PW:.0f} x {PH:.0f} mm, {thick} mm acrylic, "
               f"{n} entities")
+    builders = {n: fn for n, fn, _ in PLATES}
+    for tag, spec in NESTS.items():
+        path = os.path.join(out, f'nested-{tag}.dxf')
+        n = nest(tag, spec, builders).save(path)
+        made.append(path)
+        print(f"  {'nested-' + tag + '.dxf':24s} {spec['sheet'][0]} x "
+              f"{spec['sheet'][1]} mm sheet, {len(spec['place'])} plates, {n} entities")
     import bom
     root = os.path.dirname(out)
     bom.write_csv(os.path.join(root, 'BOM.csv'))
