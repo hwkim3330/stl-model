@@ -172,12 +172,15 @@ def main():
         made.append(path)
         print(f"  {name + '.dxf':24s} {PW:.0f} x {PH:.0f} mm, {thick} mm acrylic, "
               f"{n} entities")
-    zpath = os.path.join(os.path.dirname(out), 'acrylic-frame-dxf.zip')
+    import bom
+    root = os.path.dirname(out)
+    bom.write_csv(os.path.join(root, 'BOM.csv'))
+    zpath = os.path.join(root, 'acrylic-frame-dxf.zip')
     with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
         for p in made:
             z.write(p, os.path.join('acrylic-frame', os.path.basename(p)))
-        z.write(os.path.join(os.path.dirname(out), 'CUTTING.md'),
-                'acrylic-frame/CUTTING.md')
+        for extra in ('CUTTING.md', 'BOM.csv'):
+            z.write(os.path.join(root, extra), 'acrylic-frame/' + extra)
     print(f"\n  {os.path.basename(zpath)}  ({os.path.getsize(zpath)} bytes)")
     print(f"  board centred at offset ({BOARD_OFF[0]:.2f}, {BOARD_OFF[1]:.2f})")
     print(f"  fan centre ({FAN_C[0]:.2f}, {FAN_C[1]:.2f}) = U1 + offset")

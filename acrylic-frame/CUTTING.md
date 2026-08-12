@@ -38,6 +38,12 @@ Split on the DC side:
 The alternative is a 5 V fan off expansion header J4, which does budget
 5 V @ 2 A — no splitter, but it puts fan inrush on the switch's own rail.
 
+## No, the acrylic shop cannot make the standoffs
+
+They cut sheet. A 45 mm threaded M3 standoff is turned metal or moulded nylon —
+different trade entirely. You could laser acrylic *washers*, but stacking nine
+5 mm rings to reach 45 mm is worse than a 500-won standoff in every way.
+
 ## Two separate orders
 
 The laser shop cuts plates and nothing else. Standoffs, screws, the fan and the
@@ -83,8 +89,16 @@ the drill file. The other two do not have a pattern worth drilling to:
 
 The printed cases are cheap next to the rest of the build — TC397 82.9 cm³,
 T-ETH-Elite 17.1 cm³, adapter 14.5 cm³ — and both are already checked to fit on
-plate B. If you would rather mount bare, measure the real boards first and the
-zone slots become plain holes.
+plate B. **Standoff-mounting them is a fine idea — the blocker is only the coordinates,
+and one caliper session removes it.** Measure the T-ETH-Elite's four Ø2.5 hole
+centres and the TC397's two Ø6 centres, and a small 3 mm acrylic sub-plate
+replaces each printed case: the boards then sit ~10 mm off plate B instead of
+inside a 38 mm box, the stack gets shorter, and nothing needs printing.
+
+Slots instead of holes would absorb the uncertainty in principle, but not here:
+the T-ETH-Elite's hole span is 41.6 mm in Y against the 45 mm deck square, so a
+slot long enough to cover the CAD's 2.25 mm discrepancy comes within 0.7 mm of
+a deck hole. Too thin to survive in 3 mm acrylic. Measured holes, not slots.
 
 ## What mounts where
 
