@@ -86,8 +86,7 @@ VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 # Engraving on the top plate. Single-stroke vector text on its own layer, so the
 # shop runs it at engrave power and it is never mistaken for a cut. A real KETI
 # logo would need the logo as vector (AI/SVG/DXF) - drop it in on this layer.
-ENGRAVE = [(20.0, 150.0, 14.0, 'KETI'),
-           (20.0, 132.0, 7.0, 'LAN9692 TSN BENCH')]
+ENGRAVE = [(38.0, 74.0, 32.0, 'KETI')]
 
 # Optional 4th plate: the LilyGo T-ETH-Elite bolted straight down instead of
 # living in its printed case. Its four mounting holes genuinely are NOT a
@@ -301,6 +300,20 @@ def plate_middle():
     for _, cx, cy in ZONES:
         deck_holes(d, cx, cy)
     return d
+
+
+def engrave_segments():
+    """The ENGRAVE layer as plain line segments, for the 3D preview."""
+    d = Dxf()
+    for x, y, h, txt in ENGRAVE:
+        d.stroke_text(x, y, h, txt)
+    segs = []
+    for e in d.e:
+        n = [float(v) for k, v in zip(e.split('\n')[::2], e.split('\n')[1::2])
+             if k in ('10', '20', '11', '21')]
+        if len(n) == 4:
+            segs.append(tuple(n))
+    return segs
 
 
 def board_mounts():

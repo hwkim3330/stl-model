@@ -86,6 +86,22 @@ def slot_solid(cx, cy, length, width, z0, z1, horizontal=True):
         [core] + [cyl(width, z0, z1, x, y) for x, y in ends], engine='manifold')
 
 
+ENGRAVE_W = 0.9                        # laser kerf-ish stroke width
+ENGRAVE_DEPTH = 0.6
+
+
+def groove(x1, y1, x2, y2, z0, z1, w=None):
+    """A rounded-end bar along a segment, for engraved strokes."""
+    w = w or ENGRAVE_W
+    L = math.hypot(x2 - x1, y2 - y1)
+    m = bx(-L / 2, L / 2, -w / 2, w / 2, z0, z1)
+    ang = math.atan2(y2 - y1, x2 - x1)
+    m.apply_transform(trimesh.transformations.rotation_matrix(ang, [0, 0, 1]))
+    m.apply_translation(((x1 + x2) / 2, (y1 + y2) / 2, 0))
+    ends = [cyl(w, z0, z1, x1, y1, sections=8), cyl(w, z0, z1, x2, y2, sections=8)]
+    return trimesh.boolean.union([m] + ends, engine='manifold')
+
+
 def plate(kind, z0, thick):
     """3D version of the DXF plates, from the same constants."""
     body = bx(0, P.PW, 0, P.PH, z0, z0 + thick)
@@ -112,6 +128,10 @@ def plate(kind, z0, thick):
             cuts.append(slot_solid(P.FAN_C[0] + i * (P.VENT_SLOT[0] + 6), P.FAN_C[1],
                                    P.VENT_SLOT[1], P.VENT_SLOT[0],
                                    z0 - 1, z0 + thick + 1, horizontal=False))
+        # the ENGRAVE layer, as real grooves so the preview shows the lettering
+        for x1, y1, x2, y2 in P.engrave_segments():
+            cuts.append(groove(x1, y1, x2, y2, z0 + thick - ENGRAVE_DEPTH,
+                               z0 + thick + 0.2))
     return trimesh.boolean.difference([body] + cuts, engine='manifold')
 
 

@@ -28,9 +28,9 @@ rather have them separately.
 
 ## Engraving on the top plate
 
-Plate C carries **"KETI"** at 14 mm and **"LAN9692 TSN BENCH"** at 7 mm on layer
-`ENGRAVE`. Ask the shop for **각인 (engrave)** on that layer — it is a second
-operation and usually a small extra charge.
+Plate C carries **"KETI"** at 32 mm high on layer `ENGRAVE`, in the clear area
+left of the intake slots. Ask the shop for **각인 (engrave)** on that layer — a
+second operation, usually a small extra charge.
 
 The real KETI logo is not in here: engraving artwork has to be **vector**
 (AI / SVG / DXF). Send me the logo file and it drops onto the same layer. Change

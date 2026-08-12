@@ -5,6 +5,7 @@ Three laser-cut plates instead of a printed box. Order file:
 for the material/thickness/quantity table and the hardware list.
 
 ![assembly](img/assembly.png)
+![KETI](img/keti_top.png)
 ![joints](img/joint_detail.png)
 ![exploded](img/exploded.png)
 
