@@ -104,18 +104,28 @@ a 45 mm threaded standoff is turned metal or moulded nylon, a different trade.
 
 ## Hardware
 
-| Part | Size | Qty | Note |
-|---|---|---:|---|
-| Hex standoff F/F | M3 × 10 mm | 8 | LAN9692 on plate A |
-| Hex standoff F/F | M3 × 45 mm | 8 | 4 for A→B, 4 for B→C |
-| Hex standoff F/F | M3 × 8 mm | 4 | TC397 |
-| Hex standoff F/F | M2.5 × 8 mm | 4 | T-ETH-Elite |
-| Screw, pan head | M3 × 6 / 8 / 10 / 20 mm | 8 / 16 / 12 / 4 | `BOM.csv` says which goes where |
-| Screw, pan head | M2.5 × 6 / 10 mm | 4 / 4 | T-ETH-Elite |
-| Nut | M3 | 12 | 4 for the fan, rest spare |
-| Washer | M3 nylon | 20 | under any head landing on acrylic |
-| Nylon standoff, adhesive base | 8 mm | 2 | fallback props for the TC397 |
-| Rubber foot | self-adhesive | 4 | under plate A |
+Part numbers in `BOM.csv`. Split it across three suppliers: **RS Korea** for
+screws, nuts, standoffs and feet; **DigiKey Korea** for the washers, the power
+supply and the barrel socket; a domestic shop for the fan and the Y splitter.
+
+| Part | Size | Qty | Part number | Note |
+|---|---|---:|---|---|
+| Hex standoff F/F | M3 × 10 mm | 8 | RS 224-0443 | LAN9692 on plate A |
+| Hex standoff F/F | M3 × 45 mm | 8 | RS 224-0449 | 4 for A→B, 4 for B→C |
+| Hex standoff F/F | M3 × 8 mm | 4 | Würth 970080324 | TC397 |
+| Hex standoff F/F | M2.5 × 8 mm | 4 | Würth 970080144 | T-ETH-Elite |
+| Screw, pan head | M3 × 6 / 8 / 10 mm | 12 / 16 / 12 | RS 190-428 / 797-6193 / 528-744 | `BOM.csv` says which goes where |
+| Screw, pan head | **M3 × 25 mm** | 4 | RS 914-1490 | fan only — see below |
+| Screw, pan head | M2.5 × 6 / 10 mm | 4 / 4 | RS 528-716 / 797-6190 | T-ETH-Elite |
+| Nut, nyloc | M3 | 12 | RS 521-917 | 4 for the fan, rest spare |
+| Washer, nylon | M3 | 20 | Essentra MFW030A | under any head landing on acrylic |
+| Nylon standoff, adhesive base | 8 mm | 2 | — | fallback props for the TC397 |
+| Rubber foot | self-adhesive | 4 | RS 136-8964 | under plate A |
+
+The two 45 mm and 10 mm standoffs are confirmed **Female/Female** on RS's own
+page; RS's M/F parts in the same range have a 6 mm stud, which is exactly why
+they cannot be used here. The rest of the numbers came in unverified — read the
+description before you click buy.
 
 **The LAN9692's own drill is Ø3.048 mm**, so an M3 screw is a very tight fit
 through the board. Try one by hand first; if it binds, use M2.5 for the
@@ -134,28 +144,67 @@ Stack height ≈ 5 + 45 + 5 + 45 + 3 = **103 mm**.
 
 ## Electrical
 
-| Part | Spec | Qty |
-|---|---|---:|
-| Fan | 40 × 40 × 10 mm, **12 V** — Noctua NF-A4x10 FLX | 1 |
-| DC adapter | 12 V 5 A, barrel 5.5 × 2.5 mm, centre + | 1 |
-| DC splitter | barrel 5.5 × 2.5, **1 female in → 2 male out** | 1 |
-| Barrel socket (female), solder type | 5.5 × 2.5 mm | 1 |
+| Part | Spec | Qty | Part number |
+|---|---|---:|---|
+| Fan | 40 × 40 × 10 mm, **12 V**, 0.6 W | 1 | Noctua NF-A4x10 FLX |
+| DC adapter | 12 V 5 A, barrel 5.5 × 2.5 × 11 mm, centre + | 1 | Mean Well **GST60A12-P1M** |
+| Barrel socket, female → bare leads | 5.5 × 2.5 mm, 18 AWG, 305 mm | 1 | Tensility **10-02879** (DK 839-10-02879-ND) |
+| DC splitter | barrel 5.5 × 2.5, **1 female in → 2 male out** | 1 | domestic, generic |
 
 ```
-12 V 5 A adapter ──> splitter ─┬─> LAN9692 J23   (5.5 x 2.5, centre +)
-                               └─> 40 mm 12 V fan
+GST60A12-P1M ──> Y splitter ─┬─> LAN9692 J23    (5.5 x 2.5, centre +)
+  12 V 5 A                   └─> 10-02879 socket ──> Noctua NF-A4x10
 ```
 
 * Nothing is tapped on the PCB — **the board has no fan header.**
 * The board's jack is 5.5 / **2.5** mm (PJ-002BH). Most cheap splitters are
-  5.5 / 2.1 and contact badly; get the 2.5.
+  5.5 / 2.1 and contact badly; get the 2.5. On the Mean Well the suffix is what
+  decides it — **P1M is 2.5 mm, P1J is 2.1** on the otherwise identical supply.
 * **Genders**: the adapter is male, so the splitter is female-in / male-out and
   the fan lead needs a **female socket**. A plug leaves you male-to-male.
-* On a Noctua, solder that socket to the **included extension cable**, not the
-  fan's own lead.
-* The fan bolts through plate B with **M3 × 20 and a nut** — the screws in the
-  fan's box are fatter and would want Ø4.5 holes.
 * Never feed 24 V: the board's input TVS is an SMBJ13D, 13 V standoff.
+
+### Wiring the fan to the socket
+
+The 10-02879 is a female barrel jack on a 305 mm 18 AWG red/black pigtail, rated
+6 A — far more than the fan's 0.05 A. Join it to the fan's **included extension
+cable**, not to the fan's own lead: if the socket ever has to change, the fan is
+still original.
+
+1. Cut the extension cable a comfortable distance from its female end and keep
+   the length that plugs into the fan.
+2. The Noctua lead has three conductors. **Only two are used** — supply and
+   ground. The third is the tacho signal and goes nowhere; cut it back and
+   insulate it separately.
+3. **Meter the socket before soldering.** Which of red/black is the centre pin
+   is not in Tensility's datasheet, and the centre pin is the one that must be
+   +12 V. Put a plug in the socket, or probe the barrel's inner sleeve, and
+   check continuity to each lead.
+4. Solder centre-pin lead → fan supply, sleeve lead → fan ground. Heatshrink
+   each joint separately, then a larger piece over both.
+5. Before it goes near the board: plug the socket into the adapter on its own
+   and confirm the fan spins and blows **downward**, toward plate A. The label
+   side of a fan is its outlet.
+
+Getting this backwards will not usually kill a Noctua — it stalls or turns the
+wrong way — but a reversed feed reaching the LAN9692 through the splitter would
+be a different story, which is why the fan is tested on its own first.
+
+### Why M3 × 25 for the fan and not M3 × 20
+
+```
+plate B      5.0 mm
+fan frame   10.0        Noctua NF-A4x10, published
+washer       0.5
+nyloc nut    4.0        DIN 985 is taller than a plain M3 nut
+-------------------
+            19.5 mm engaged
+```
+
+An M3 × 20 has 0.5 mm to spare, and a nyloc needs the screw to come *through*
+the nylon insert to lock at all. M3 × 25 leaves 5.5 mm proud, which is untidy and
+works. The Ø3.4 holes in plate B do not change either way. The screws in the
+fan's own box are fatter and want Ø4.5 holes — do not use them.
 
 ## The one measurement still worth taking
 

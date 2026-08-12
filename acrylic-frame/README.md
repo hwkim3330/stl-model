@@ -170,14 +170,20 @@ there is a one-line crossing, but as generated they do not interchange.
 **One 12 V adapter, split before the board — nothing is tapped on the PCB.**
 
 ```
-12 V 5 A adapter ──> Y splitter ─┬─> LAN9692 J23   (5.5 x 2.5 mm, centre +)
-                                 └─> 40 mm 12 V fan
+GST60A12-P1M ──> Y splitter ─┬─> LAN9692 J23    (5.5 x 2.5, centre +)
+  12 V 5 A                   └─> 10-02879 socket ──> Noctua NF-A4x10
 ```
 
 The board's jack is 5.5 / **2.5** mm (PJ-002BH, centre positive) and most cheap
-splitters are 5.5 / 2.1, which contacts badly — get the 2.5 mm one. The board
-budgets 4.1 A worst case and the fan draws ~0.15 A, so 5 A covers both. Never
-feed it 24 V: the input TVS is an SMBJ13D with a 13 V standoff.
+splitters are 5.5 / 2.1, which contacts badly — get the 2.5 mm one. On the Mean
+Well supply the suffix is what decides it: **P1M is 2.5 mm, P1J is 2.1**. The
+board budgets 4.1 A worst case and the fan draws 0.05 A (0.6 W at 12 V), so 5 A
+covers both. Never feed it 24 V: the input TVS is an SMBJ13D with a 13 V
+standoff.
+
+Soldering the fan onto the socket, including which lead is the centre pin and
+why the fan is bench-tested before it goes near the board, is in
+[CUTTING.md](CUTTING.md#wiring-the-fan-to-the-socket).
 
 ## Regenerating
 

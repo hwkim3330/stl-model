@@ -321,8 +321,8 @@ def fastener_audit():
         need['plate D + E to plate B'] = 8
         need['T-ETH-Elite to plate D'] = 2 * len(M.ETH_HOLES)
         need['TC397 to plate E'] = 2 * len(M.TC_HOLES + M.TC_EXTRA_HOLES)
-    ordered = sum(q for g, item, spec, q, note in bom.BOM
-                  if g == 'hardware' and item.startswith('Screw'))
+    ordered = sum(b[3] for b in bom.BOM
+                  if b[0] == 'hardware' and b[1].startswith('Screw'))
     print(f"\nfasteners: {sum(need.values())} screw positions in the design, "
           f"{ordered} screws in the BOM"
           f"   {'OK' if ordered >= sum(need.values()) else 'SHORT'}")
