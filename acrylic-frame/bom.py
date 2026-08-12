@@ -22,10 +22,9 @@ BOM = [
      'fan under, modules on top'),
     ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180, plate-c-top-3T.dxf', 1,
      'guard + intake slots'),
-    ('acrylic', 'Plate D - T-ETH-Elite', 'clear acrylic 3 mm, 76 x 60, plate-d-eth-elite-3T.dxf', 1,
-     'bare board, no printed case'),
-    ('acrylic', 'Plate E - TC397', 'clear acrylic 3 mm, 110 x 110, plate-e-tc397-3T.dxf', 1,
-     'bare board, no printed case'),
+    # DIRECT_MOUNT = True: both boards bolt to plate B on its own holes, so
+    # there are no sub-plates. Set it False in make_plates.py to get plates D
+    # and E back.
 
     ('hardware', 'Hex standoff F/F', 'M3 x 10 mm', 8, 'PCB standoffs on plate A'),
     ('hardware', 'Hex standoff F/F', 'M3 x 45 mm', 8,
@@ -37,19 +36,18 @@ BOM = [
     ('hardware', 'Screw, pan head', 'M3 x 8 mm', 16,
      '8 up through plate A into the PCB standoffs, 4 up through plate B and '
      '4 down through plate C, into the B->C standoffs'),
-    ('hardware', 'Screw, pan head', 'M3 x 12 mm', 8,
-     '4 plate E, 4 plate D, through the plate B slots'),
+    ('hardware', 'Screw, pan head', 'M3 x 10 mm', 4,
+     'up through plate B into the TC397 standoffs'),
     ('hardware', 'Screw, self-tapping', 'M3 x 16 mm', 4,
      'fan, through plate B into the fan frame - NOT with a nut, there is no room'),
-    ('hardware', 'Nut', 'M3', 12, '8 module trays, spares - the standoff '
-     'columns need none now'),
+    ('hardware', 'Nut', 'M3', 8, 'spares - no joint in this build needs one'),
     ('hardware', 'Washer', 'M3 nylon', 20, 'under every head that lands on acrylic'),
-    ('hardware', 'Hex standoff F/F', 'M2.5 x 6 mm', 4, 'T-ETH-Elite on plate D'),
-    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 8, 'T-ETH-Elite on plate D'),
-    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm', 4, 'TC397 on plate E'),
-    ('hardware', 'Screw, pan head', 'M3 x 6 mm', 4, 'TC397 down onto plate E'),
-    ('hardware', 'Screw, pan head', 'M3 x 8 mm', 4,
-     'up through plate E into the TC397 standoffs'),
+    ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm', 4, 'T-ETH-Elite on plate B'),
+    ('hardware', 'Screw, pan head', 'M2.5 x 10 mm', 4,
+     'up through plate B into the T-ETH-Elite standoffs'),
+    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 4, 'T-ETH-Elite down onto them'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm', 4, 'TC397 on plate B'),
+    ('hardware', 'Screw, pan head', 'M3 x 6 mm', 4, 'TC397 down onto them'),
     ('hardware', 'Nylon standoff, adhesive base', '8 mm', 2,
      'spares - only needed if the two less certain TC397 holes are not holes'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'under plate A'),

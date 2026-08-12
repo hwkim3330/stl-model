@@ -127,14 +127,17 @@ def review(path):
 def hole_census():
     """Count the holes the DXFs actually contain, per plate."""
     import make_plates as M
-    return {
+    mounts = sum(len(h) for _, _, h, _ in M.board_mounts()) if M.DIRECT_MOUNT else 8
+    c = {
         'plate-a-bottom-5T': len(M.lower_columns()) + len(M.LAN_HOLES),
         'plate-b-middle-5T': (len(M.lower_columns()) + len(M.upper_columns())
-                              + 1 + 4 + 8 * 1),          # fan bore, fan screws, slots
+                              + 1 + 4 + mounts),        # fan bore, fan screws
         'plate-c-top-3T': len(M.upper_columns()) + 5,   # + intake slots
-        'plate-d-eth-elite-3T': len(M.ETH_HOLES) + 4,   # + deck
-        'plate-e-tc397-3T': len(M.TC_HOLES + M.TC_EXTRA_HOLES) + 4,   # + deck
     }
+    if not M.DIRECT_MOUNT:
+        c['plate-d-eth-elite-3T'] = len(M.ETH_HOLES) + 4
+        c['plate-e-tc397-3T'] = len(M.TC_HOLES + M.TC_EXTRA_HOLES) + 4
+    return c
 
 
 def fastener_audit():
@@ -146,10 +149,14 @@ def fastener_audit():
         'B->C standoff column': 2 * len(M.upper_columns()),
         'LAN9692 to plate A': 2 * len(M.LAN_HOLES),
         'fan to plate B': 4,
-        'plate D + E to plate B': 8,                    # one screw + nut each
-        'T-ETH-Elite to plate D': 2 * len(M.ETH_HOLES),
-        'TC397 to plate E': 2 * len(M.TC_HOLES + M.TC_EXTRA_HOLES),
     }
+    if M.DIRECT_MOUNT:
+        for (name, _, _), _, holes, _ in M.board_mounts():
+            need[f'{name} to plate B'] = 2 * len(holes)
+    else:
+        need['plate D + E to plate B'] = 8
+        need['T-ETH-Elite to plate D'] = 2 * len(M.ETH_HOLES)
+        need['TC397 to plate E'] = 2 * len(M.TC_HOLES + M.TC_EXTRA_HOLES)
     ordered = sum(q for g, item, spec, q, note in bom.BOM
                   if g == 'hardware' and item.startswith('Screw'))
     print(f"\nfasteners: {sum(need.values())} screw positions in the design, "

@@ -1,14 +1,12 @@
 # Cutting order — LAN9692 acrylic frame
 
-Send `acrylic-frame-dxf.zip`. Five plates in two thicknesses — one file each:
+Send `acrylic-frame-dxf.zip`. **Three plates** in two thicknesses:
 
 | File | Material | Thickness | Qty |
 |---|---|---|---|
 | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) | **5 mm** | 1 |
 | `plate-b-middle-5T.dxf` | clear or smoke acrylic | **5 mm** | 1 |
 | `plate-c-top-3T.dxf` | clear acrylic | **3 mm** | 1 |
-| `plate-d-eth-elite-3T.dxf` | clear acrylic, 76 × 60 mm | **3 mm** | 1 |
-| `plate-e-tc397-3T.dxf` | clear acrylic, 110 × 110 mm | **3 mm** | 1 |
 
 Optional: `nested-5T.dxf` and `nested-3T.dxf` in the same zip hold the same
 plates pre-laid-out on one sheet per thickness, for a shop that prices by sheet
@@ -78,21 +76,27 @@ four corners** (8, 8) … (242, 172), and the **B→C column** at (8, 40), (242,
 (8, 140), (242, 140). Plate A carries only the lower set, plate C only the
 upper, and **plate B carries both — eight holes**.
 
-### Could the boards skip their sub-plates?
+### The small boards bolt straight to plate B
 
-Measured against everything already cut into plate B:
+There are no sub-plates. Plate B is cut with each board's **own** mounting
+pattern, so a board goes on four standoffs directly:
 
-| | nearest existing cut | verdict |
+| | holes in plate B | worst web to anything else |
 |---|---|---|
-| TC397, 4 holes | 5.2 mm at worst | **would fit** directly on plate B |
-| T-ETH-Elite, 4 holes | −3.2 mm | **overlaps the deck slots** — needs plate D |
+| TC397 | 4, its real pattern | 23.9 mm |
+| T-ETH-Elite | 4, its real (asymmetric) pattern | 14.6 mm |
 
-The T-ETH-Elite's hole span is 58–60 × 41.6 mm against a 45 mm deck square, so
-its screws land on top of the slots. Plate D is not optional for it.
+This replaced an earlier design where plate B had four *slots* per module on a
+shared 45 mm square and each board rode on its own 3 mm sub-plate. The slots
+existed to keep plate B generic, but they cost two extra plates, 8 extra screws
+and 3 mm of height — and for the T-ETH-Elite they did not even work: its hole
+span is 60.25 × 41.60 mm against a 45 mm square, so its screws landed **on top
+of** the slots, overlapping by up to 3.18 mm.
 
-The TC397 could go straight onto plate B, and plate E dropped — but then plate
-B is cut for that one board. Plate E is 3 mm offcut; re-cutting a 250 × 180
-plate to change modules is not. Keeping both sub-plates is the cheaper mistake.
+One hole set per board instead of two is simpler, and the thinnest web on
+plate B went from 3.36 mm to 14.6 mm. `DIRECT_MOUNT = False` in
+`make_plates.py` brings the slots and plates D/E back if you would rather keep
+plate B board-agnostic.
 
 ## Two separate orders
 

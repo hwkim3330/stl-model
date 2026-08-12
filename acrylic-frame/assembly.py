@@ -214,17 +214,19 @@ def place(path, cx, cy, z):
     return m
 
 
-def sub_stack(cx, cy, plate_wh, board_wh, holes, standoff, parts_h, z_top):
-    """A sub-plate, its standoffs, the bare PCB and a block for its parts."""
+def sub_stack(cx, cy, plate_wh, board_wh, holes, standoff, parts_h, z_top,
+              plate=True):
+    """A sub-plate (optional), its standoffs, the bare PCB and a parts block."""
     pw, ph = plate_wh
     bw, bh = board_wh
     ox, oy = cx - pw / 2, cy - ph / 2
     bx0, by0 = ox + (pw - bw) / 2, oy + (ph - bh) / 2
-    out = [(bx(ox, ox + pw, oy, oy + ph, z_top, z_top + SUB_T), ACRYLIC)]
+    t = SUB_T if plate else 0.0
+    out = [(bx(ox, ox + pw, oy, oy + ph, z_top, z_top + SUB_T), ACRYLIC)] if plate else []
     for hx, hy in holes:
-        out.append((cyl(5.0, z_top + SUB_T, z_top + SUB_T + standoff,
+        out.append((cyl(5.0, z_top + t, z_top + t + standoff,
                         bx0 + hx, by0 + hy), METAL))
-    z = z_top + SUB_T + standoff
+    z = z_top + t + standoff
     out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
     out.append((bx(bx0 + 4, bx0 + bw - 4, by0 + 4, by0 + bh - 4,
                    z + 1.6, z + 1.6 + parts_h), (0.13, 0.14, 0.16)))
@@ -234,6 +236,13 @@ def sub_stack(cx, cy, plate_wh, board_wh, holes, standoff, parts_h, z_top):
 def modules(z_top):
     """Whatever the current plate-B layout carries, at its real height."""
     out = []
+    if ACRYLIC_ONLY and P.DIRECT_MOUNT:
+        for (_, cx, cy), (bw, bh), holes, _ in P.board_mounts():
+            standoff = TC_STANDOFF if bw > 80 else ETH_STANDOFF
+            parts_h = TC_PARTS_H if bw > 80 else ETH_PARTS_H
+            out += sub_stack(cx, cy, (bw, bh), (bw, bh), holes,
+                             standoff, parts_h, z_top, plate=False)
+        return out
     if ACRYLIC_ONLY:
         (_, tx, ty), (_, lx, ly) = P.ZONES
         out += sub_stack(tx, ty, P.TC_PLATE, P.TC_BOARD, P.TC_HOLES,

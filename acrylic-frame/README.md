@@ -32,7 +32,7 @@ vertical stack
   tallest part top     30.5   (DC-DC U3, ADM00987, assumed)
   fan                  40.0 ..   50.0   clearance to board   9.5 mm
   plate B              50.0 ..   55.0
-  tallest module top   87.6   clearance to plate C  12.4 mm
+  tallest module top   84.6   clearance to plate C  15.4 mm
   plate C             100.0 ..  103.0
 
 fastener engagement  (screw length - what it passes through)
@@ -50,15 +50,17 @@ nothing else in the design changes.
 
 ![plates](img/plates.png)
 
-**Nothing here is 3D printed.** Five laser-cut plates and hardware.
+**Nothing here is 3D printed.** Three laser-cut plates and hardware.
 
 | Plate | Material | Size | Carries |
 |---|---|---|---|
 | A — bottom | 5 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
-| B — middle | 5 mm clear/smoke | 250 × 180 mm | 40 mm fan underneath; plates D + E on top |
+| B — middle | 5 mm clear/smoke | 250 × 180 mm | 40 mm fan underneath; both small boards on top |
 | C — top | 3 mm clear | 250 × 180 mm | guard, intake slots over the fan |
-| D — sub | 3 mm clear | 76 × 60 mm | bare T-ETH-Elite on 4 × M2.5 standoffs |
-| E — sub | 3 mm clear | 110 × 110 mm | bare TC397 on its 2 real holes + 2 adhesive props |
+
+Both small boards bolt **straight to plate B**, which is cut with each board's
+own mounting pattern — the TC397's four holes and the T-ETH-Elite's four
+asymmetric ones. No sub-plates.
 
 Stack ≈ 5 + 45 + 5 + 45 + 3 = **103 mm** tall.
 

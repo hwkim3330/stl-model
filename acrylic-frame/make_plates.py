@@ -61,6 +61,12 @@ LAYOUTS = {
     'two-s31': [('module A', 60.0, 132.0), ('module B', 60.0, 48.0)],
 }
 LAYOUT = 'tc397+eth-elite'
+
+# True  = the boards bolt straight to plate B on its own holes, cut to each
+#         board's real pattern. Three plates, no sub-plates, 3 mm lower.
+# False = plate B gets deck slots instead and the boards ride on sub-plates D
+#         and E, which keeps plate B generic if you swap modules later.
+DIRECT_MOUNT = True
 ZONES = LAYOUTS[LAYOUT]
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 
@@ -204,6 +210,12 @@ def plate_middle():
     return d
 
 
+def board_mounts():
+    """(zone, board size, hole list, hole Ø) for whatever plate B carries."""
+    return [(ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D),
+            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D)]
+
+
 def plate_eth_elite():
     """3 mm. Carries a bare T-ETH-Elite on M2.5 standoffs, bolts to plate B."""
     d = Dxf()
@@ -247,9 +259,10 @@ def plate_top():
 
 PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
           ('plate-b-middle-5T', plate_middle, 5),
-          ('plate-c-top-3T', plate_top, 3),
-          ('plate-d-eth-elite-3T', plate_eth_elite, 3),
-          ('plate-e-tc397-3T', plate_tc397, 3)]
+          ('plate-c-top-3T', plate_top, 3)]
+if not DIRECT_MOUNT:
+    PLATES += [('plate-d-eth-elite-3T', plate_eth_elite, 3),
+               ('plate-e-tc397-3T', plate_tc397, 3)]
 
 
 # Nesting: plates of the same thickness laid out on one sheet, so a shop that
@@ -258,9 +271,7 @@ PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
 NESTS = {
     '5T': dict(sheet=(260, 380),
                place=[('plate-a-bottom-5T', 5, 5), ('plate-b-middle-5T', 5, 195)]),
-    '3T': dict(sheet=(260, 310),
-               place=[('plate-c-top-3T', 5, 5), ('plate-e-tc397-3T', 5, 193),
-                      ('plate-d-eth-elite-3T', 125, 193)]),
+    '3T': dict(sheet=(260, 190), place=[('plate-c-top-3T', 5, 5)]),
 }
 
 
