@@ -4,6 +4,39 @@ Three laser-cut plates instead of a printed box. Order file:
 **[`acrylic-frame-dxf.zip`](acrylic-frame-dxf.zip)** — see [CUTTING.md](CUTTING.md)
 for the material/thickness/quantity table and the hardware list.
 
+![assembly](img/assembly.png)
+
+`assembly.py` builds the whole stack in 3D from the same constants the DXFs come
+from, so the plates here and the plates the cutter gets cannot drift apart. It
+is a picture, not a printable part — `assembly.stl`, 250 × 180 × 98 mm.
+
+![plate A with the board](img/plate_a_board.png)
+![plate A holes](img/plate_a_holes.png)
+
+Plate A with the LAN9692 on it, and the same plate with the board hidden so the
+eight standoffs are visible in their holes. It runs its own checks:
+
+```
+hole 1 board (  3.556,146.304) -> plate ( 21.876,161.374)  on plate=True  nearest corner standoff  17.5 mm
+...
+fan bore centre  (185.63, 93.76)
+  switch at plate (185.63, 93.76)   offset 0.000 mm
+
+vertical stack
+  plate A               0.0 ..    5.0
+  PCB                  15.0 ..   16.5
+  tallest part top     30.5   (DC-DC U3, ADM00987, assumed)
+  fan                  40.0 ..   50.0   clearance to board   9.5 mm
+  plate B              50.0 ..   55.0
+  ESP32-S31 case top   86.6   clearance to plate C   8.4 mm
+  plate C              95.0 ..   98.0
+```
+
+The two clearances are the ones worth watching. Both are computed against the
+**assumed** 14 mm DC-DC module height — measure a module and rerun; if it comes
+out taller, `H_AB` at the top of `assembly.py` is the standoff to lengthen, and
+nothing else in the design changes.
+
 ![plates](img/plates.png)
 
 | Plate | Material | Size | Carries |
@@ -80,6 +113,7 @@ feed it 24 V: the input TVS is an SMBJ13D with a 13 V standoff.
 
 ```bash
 python3 make_plates.py     # -> dxf/*.dxf + acrylic-frame-dxf.zip
+python3 assembly.py        # -> assembly.stl, img/*.png, fit checks
 ```
 
 Plate size, corner radius, fan size, slot pattern and zone positions are all
