@@ -161,10 +161,11 @@ python3 assembly.py        # -> assembly.stl, img/*.png, fit checks
 python3 review.py          # web-thickness check on the generated DXFs
 ```
 
-`review.py` rasterises the actual DXF output and measures the acrylic left
-between every pair of cut features and between each cut and the plate edge —
-thin webs are what snap, and they do not show up in a render. It is what caught
-the fan bore leaving 1.93 mm to its screw holes.
+`review.py` checks the generated DXFs three ways: the acrylic left between
+every pair of cut features and between each cut and the plate edge, the hole
+count per plate against what the design should contain, and every screw
+position in the build against the quantities in the BOM. It caught the fan bore
+leaving 1.93 mm to its screw holes, and four screws missing from the BOM.
 
 Plate size, corner radius, fan size, slot pattern and zone positions are all
 constants at the top of the script. `PW, PH = 260, 190` if you want more room

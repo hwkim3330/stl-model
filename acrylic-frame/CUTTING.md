@@ -60,6 +60,19 @@ nylon — a different trade — and lasering nine 5 mm acrylic rings to stack up
 an add-on though, so it costs nothing to ask in the order note. If they say no,
 the whole hardware table below goes to a parts supplier instead.
 
+### Why F/F standoffs, and why plate B has eight corner holes
+
+An M/F standoff's male stud is 6 mm. Through a 5 mm plate that leaves 1 mm —
+not enough for a nut underneath plate A, and not enough thread to bite into the
+standoff below at plate B. So every joint is a plain **F/F standoff with a screw
+at each end** instead.
+
+That means a plate cannot share one hole between the column below it and the
+column above it, so the two columns sit at different Y: the **A→B column at the
+four corners** (8, 8) … (242, 172), and the **B→C column** at (8, 40), (242, 40),
+(8, 140), (242, 140). Plate A carries only the lower set, plate C only the
+upper, and **plate B carries both — eight holes**.
+
 ## Two separate orders
 
 The laser shop cuts plates and nothing else. Standoffs, screws, the fan and the
@@ -79,9 +92,9 @@ replace them.
 
 | Part | Size | Qty |
 |---|---|---|
-| M3 hex standoff, board → plate A | 10 mm F/F | 8 |
-| M3 hex standoff, plate A → B | **45 mm** M/F | 4 |
-| M3 hex standoff, plate B → C | **45 mm** M/F | 4 |
+| M3 hex standoff, board → plate A | 10 mm **F/F** | 8 |
+| M3 hex standoff, plate A → B | 45 mm **F/F** | 4 |
+| M3 hex standoff, plate B → C | 45 mm **F/F** | 4 |
 | M3 screw | 8 mm | ~20 |
 | M3 nut | — | a few |
 | 40 × 40 fan | 10 mm thick, **12 V**, 32 × 32 mm pitch | 1 |

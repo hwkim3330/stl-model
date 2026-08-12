@@ -32,7 +32,12 @@ U1 = (167.31, 78.69)              # LAN9692 BGA-356 centre, from the PnP file
 # Plate
 PW, PH = 250.0, 180.0             # plate outline
 PLATE_R = 6.0                     # corner radius
-CORNER_INSET = 8.0                # spacer holes in from each corner
+CORNER_INSET = 8.0                # lower standoff column, in from each corner
+# The plate-to-plate joints use plain F/F standoffs with a screw at each end,
+# because an M/F standoff's 6 mm male stud cannot pass a 5 mm plate and still
+# bite. That means each plate must not share a hole between the column below it
+# and the column above it, so the two columns sit at different Y.
+UPPER_Y = (40.0, 140.0)           # B -> C column, on the same X lines
 M3_FREE = 3.4                     # M3 clearance in acrylic
 FAN_BORE = 36.0                   # 40 mm fan. Ø38 would match the impeller but
                                   # leaves only 1.93 mm of acrylic to the M3
@@ -150,10 +155,21 @@ class Dxf:
         return len(self.e)
 
 
-def corner_holes(d):
-    for x in (CORNER_INSET, PW - CORNER_INSET):
-        for y in (CORNER_INSET, PH - CORNER_INSET):
-            d.circle(x, y, M3_FREE / 2)
+def lower_columns():
+    return [(x, y) for x in (CORNER_INSET, PW - CORNER_INSET)
+            for y in (CORNER_INSET, PH - CORNER_INSET)]
+
+
+def upper_columns():
+    return [(x, y) for x in (CORNER_INSET, PW - CORNER_INSET) for y in UPPER_Y]
+
+
+def corner_holes(d, which='both'):
+    pts = (lower_columns() if which == 'lower' else
+           upper_columns() if which == 'upper' else
+           lower_columns() + upper_columns())
+    for x, y in pts:
+        d.circle(x, y, M3_FREE / 2)
 
 
 def deck_slots(d, cx, cy):
@@ -167,7 +183,7 @@ def plate_bottom():
     """5 mm. Carries the LAN9692 on M3 standoffs."""
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
-    corner_holes(d)
+    corner_holes(d, 'lower')
     for hx, hy in LAN_HOLES:
         d.circle(BOARD_OFF[0] + hx, BOARD_OFF[1] + hy, M3_FREE / 2)
     return d
@@ -177,7 +193,7 @@ def plate_middle():
     """5 mm. Fan hangs underneath blowing down onto the switch; trays on top."""
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
-    corner_holes(d)
+    corner_holes(d, 'both')          # 8: the column below and the one above
     d.circle(FAN_C[0], FAN_C[1], FAN_BORE / 2)
     h = FAN_PITCH / 2
     for sx in (-1, 1):
@@ -222,7 +238,7 @@ def plate_top():
     """3 mm. Hand and cable guard, with intake slots over the fan."""
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
-    corner_holes(d)
+    corner_holes(d, 'upper')
     for i in range(-2, 3):
         d.slot(FAN_C[0] + i * (VENT_SLOT[0] + 6), FAN_C[1],
                VENT_SLOT[1], VENT_SLOT[0], horizontal=False)

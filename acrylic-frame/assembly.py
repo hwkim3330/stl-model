@@ -116,9 +116,8 @@ def standoffs(z0, z1, points, d=6.0):
     return [cyl(d, z0, z1, x, y, sections=24) for x, y in points]
 
 
-def corner_points():
-    return [(x, y) for x in (P.CORNER_INSET, P.PW - P.CORNER_INSET)
-            for y in (P.CORNER_INSET, P.PH - P.CORNER_INSET)]
+def corner_points(which='lower'):
+    return P.lower_columns() if which == 'lower' else P.upper_columns()
 
 
 def build(upto='C'):
@@ -139,7 +138,7 @@ def build(upto='C'):
     add(board, bcol)
     if upto == 'A':
         return parts, cols
-    for s in standoffs(T_A, Z_B, corner_points()):
+    for s in standoffs(T_A, Z_B, corner_points('lower')):
         add(s, METAL)
 
     fan = trimesh.boolean.difference(
@@ -150,7 +149,7 @@ def build(upto='C'):
     add(fan, FAN_COL)
 
     add(plate('B', Z_B, T_B), ACRYLIC)
-    for s in standoffs(Z_B + T_B, Z_C, corner_points()):
+    for s in standoffs(Z_B + T_B, Z_C, corner_points('upper')):
         add(s, METAL)
 
     for m, c in modules(Z_B + T_B):
@@ -245,7 +244,8 @@ def checks():
     for i, (hx, hy) in enumerate(P.LAN_HOLES, 1):
         px, py = P.BOARD_OFF[0] + hx, P.BOARD_OFF[1] + hy
         inside = 6 < px < P.PW - 6 and 6 < py < P.PH - 6
-        near = min(np.hypot(px - cx, py - cy) for cx, cy in corner_points())
+        near = min(np.hypot(px - cx, py - cy)
+                   for cx, cy in corner_points('lower') + corner_points('upper'))
         ok &= inside and near > 8
         print(f"  hole {i} board ({hx:7.3f},{hy:7.3f}) -> plate ({px:7.3f},{py:7.3f})"
               f"  on plate={inside}  nearest corner standoff {near:5.1f} mm")

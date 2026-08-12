@@ -124,6 +124,41 @@ def review(path):
     return path, sorted(issues), worst, cn
 
 
+def hole_census():
+    """Count the holes the DXFs actually contain, per plate."""
+    import make_plates as M
+    return {
+        'plate-a-bottom-5T': len(M.lower_columns()) + len(M.LAN_HOLES),
+        'plate-b-middle-5T': (len(M.lower_columns()) + len(M.upper_columns())
+                              + 1 + 4 + 8 * 1),          # fan bore, fan screws, slots
+        'plate-c-top-3T': len(M.upper_columns()) + 5,   # + intake slots
+        'plate-d-eth-elite-3T': len(M.ETH_HOLES) + 4,   # + deck
+        'plate-e-tc397-3T': len(M.TC_HOLES + M.TC_EXTRA_HOLES) + 4,   # + deck
+    }
+
+
+def fastener_audit():
+    """Every hole that takes a screw, against what the BOM orders."""
+    import make_plates as M
+    import bom
+    need = {
+        'A->B standoff column': 2 * len(M.lower_columns()),
+        'B->C standoff column': 2 * len(M.upper_columns()),
+        'LAN9692 to plate A': 2 * len(M.LAN_HOLES),
+        'fan to plate B': 4,
+        'plate D + E to plate B': 8,                    # one screw + nut each
+        'T-ETH-Elite to plate D': 2 * len(M.ETH_HOLES),
+        'TC397 to plate E': 2 * len(M.TC_HOLES + M.TC_EXTRA_HOLES),
+    }
+    ordered = sum(q for g, item, spec, q, note in bom.BOM
+                  if g == 'hardware' and item.startswith('Screw'))
+    print(f"\nfasteners: {sum(need.values())} screw positions in the design, "
+          f"{ordered} screws in the BOM"
+          f"   {'OK' if ordered >= sum(need.values()) else 'SHORT'}")
+    for k, v in need.items():
+        print(f"    {v:3d}  {k}")
+
+
 if __name__ == '__main__':
     here = os.path.dirname(os.path.abspath(__file__))
     files = sorted(glob.glob(os.path.join(here, 'dxf', 'plate-*.dxf')))
@@ -137,4 +172,9 @@ if __name__ == '__main__':
         for g, a, b in issues[:6]:
             print(f"      {g:5.2f} mm between {a} and {b}")
         bad |= worst < FAIL
+        expect = hole_census().get(os.path.basename(path)[:-4])
+        if expect is not None and expect != cn:
+            print(f"      hole count {cn} in the DXF, {expect} expected  <-- MISMATCH")
+            bad = True
+    fastener_audit()
     sys.exit(1 if bad else 0)
