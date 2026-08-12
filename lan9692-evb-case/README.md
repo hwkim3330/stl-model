@@ -53,6 +53,10 @@ of the fan. The ESP32-S31 and TC397 trays carry matching Ø3.4 holes through
 their floors, so either bolts straight on — the square is deliberate so they
 can go on rotated. Their feet are shorter than the 4 mm bosses and hang clear.
 
+This square is the *printed* system's pattern. The acrylic frame's plate B uses
+35 × 45, so a tray drilled for this lid does not fit that plate and vice versa;
+see the deck table in the [top-level README](../README.md).
+
 ![stacked](../img/stack_s31.png)
 
 ### On sealing it completely

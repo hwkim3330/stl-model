@@ -81,7 +81,7 @@ Stack ≈ 5 + 45 + 5 + 45 + 3 = **103 mm** tall.
 ### Plate B layout
 
 `LAYOUT` at the top of `make_plates.py` picks what plate B carries. Both options
-use the same 45 mm deck square, so any tray in this repo fits either:
+use the same 35 × 45 mm deck pattern, so a sub-plate fits either:
 
 | `LAYOUT` | Zones | Fits? |
 |---|---|---|
@@ -94,7 +94,9 @@ T-ETH-Elite case is 72 × 53, which does fit, in the space under the fan.
 
 The T-ETH-Elite case is a third-party design with no deck holes, so print
 **`adapter_lilygo.stl`** (79 × 60 × 8.5 mm, 14.5 cm³): it bolts to the plate on
-the 45 mm square through counterbored holes and the case drops into its rim.
+the 35 × 45 deck through counterbored holes and the case drops into its rim. It
+takes that pattern from `make_plates` rather than repeating the number, because
+it did once and stopped fitting when the deck changed.
 
 ## You cannot order acrylic from an STL
 
@@ -116,7 +118,7 @@ Rough guide to what each process eats:
 
 The printed enclosures in this repo are sound — every dimension comes from the
 Gerber and pick-and-place files — but a 213 × 150 mm board makes them big:
-118 cm³ for the open tray, 163 cm³ vented, 237 cm³ fully sealed. Flat plates
+119 cm³ for the open tray, 170 cm³ vented, 235 cm³ fully sealed. Flat plates
 turn most of that volume into three sheets and a bag of standoffs, keep the
 board visible, and make the *one* number nobody has published — how much
 clearance the five DC-DC daughter modules need — a standoff swap instead of a
@@ -143,22 +145,25 @@ photo:
 
 ## How the sub-plates attach to plate B
 
-Four M3 through the **45 mm deck square**, which every plate and tray in this
-repo shares:
+Four M3 through a **35 × 45 mm deck pattern**, Ø3.4 round on both plates:
 
 ```
         board on M2.5 / M3 standoffs
    ┌──────────────────────────────┐
-   │   plate D or E   3 mm        │   Ø3.4 holes on the 45 mm square
+   │   plate D or E   3 mm        │   4 x Ø3.4 on 35 x 45
    ╞══════════════════════════════╡ ← M3 x 12 pan head, from above
-   │   plate B        5 mm        │   3.4 x 16 mm SLOTS on the same square
+   │   plate B        5 mm        │   4 x Ø3.4 on 35 x 45, same centres
    └──────────────────────────────┘ ← M3 nut underneath
 ```
 
-The sub-plate has plain holes, plate B has **slots** running in X, so the
-module shifts ±6.3 mm without a new plate. Checked: the hole and slot centres
-coincide to **0.000 mm**, and the nut hangs into 19.5 mm of clear space above
-the LAN9692's tallest part, so nothing fouls.
+35 × 45 rather than a square because a 45 mm square fouled the T-ETH-Elite's own
+mount slots. The centres coincide to **0.000 mm**, and the nut hangs into
+19.5 mm of clear space above the LAN9692's tallest part, so nothing fouls.
+
+**This is not the pattern the printed trays use.** The TC397 and ESP32-S31 trays
+and the printed LAN9692 box lid are all on a 45 mm square, which matches each
+other and not plate B. Changing `DECK_X, DECK_Y` here or `DECK_HOLES['pitch']`
+there is a one-line crossing, but as generated they do not interchange.
 
 ## Fan power
 

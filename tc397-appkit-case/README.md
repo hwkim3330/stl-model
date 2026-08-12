@@ -55,7 +55,9 @@ are the tall parts. Measure before ordering if you care about the height.
   5.7 × 93.8 mm, placed on the measured footprints — ribbon cables drop
   straight in with the lid on.
 * Tray floor carries **4 × Ø3.4 on a 45 mm square**, matching the deck bosses
-  on the LAN9692 box lid, so it bolts on top in either orientation.
+  on the printed LAN9692 box lid, so it bolts on top in either orientation.
+  The acrylic frame's plate B is on 35 × 45 and does not take this tray as
+  generated — change `DECK_HOLES['pitch']` to a `(35, 45)` pattern for that.
 
 ## Regenerating
 

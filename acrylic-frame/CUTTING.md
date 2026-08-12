@@ -82,9 +82,12 @@ the top; the T-ETH-Elite's corner holes are 58.00 mm apart at the bottom against
 | TC397 (96.99, 59), (16, 82) | Ø4 pads, dimensioned but not proven | leave that screw out and prop the corner with an adhesive nylon standoff |
 | T-ETH-Elite, 4 holes | LilyGo 2D DXF + 3D CAD | measure and re-cut plate B |
 
-The board mounts are cut as **9 mm slots**, not round holes, so a misread of
-±2.8 mm in X still bolts up. `MOUNT_SLOT = 3.4` in `make_plates.py` turns them
-into plain holes once measured.
+Two of the four mounts per board are cut as **9 mm slots** rather than round
+holes, so a misread of ±2.8 mm in X still bolts up; the other two are round and
+locate the board so it cannot slide while being tightened. Setting
+`MOUNT_SLOT = 0` in `make_plates.py` turns all of them into plain holes once the
+boards have been measured. (`3.4` is not enough — it only rounds the Ø3.4 TC397
+mounts and leaves the Ø2.9 T-ETH-Elite pair as short stadiums.)
 
 ## Two separate orders
 

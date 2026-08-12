@@ -1,81 +1,144 @@
 # stl-model
 
-3D-printable enclosures for the boards on the KETI TSN bench.
+Enclosures for the boards on the KETI TSN bench: one laser-cut acrylic frame
+that is the actual build, and printable cases for the individual boards.
 
-| Model | Board | Parts | Material volume |
+**Building the bench → [`acrylic-frame/`](acrylic-frame/)**, and
+[`acrylic-frame/CUTTING.md`](acrylic-frame/CUTTING.md) is what goes to the shop.
+Nothing in that build is 3D printed.
+
+![stack](acrylic-frame/img/assembly.png)
+
+## The build
+
+Five clear acrylic plates and threaded standoffs. The LAN9692 lies on the bottom
+plate, a 40 mm fan hangs under the middle plate over the switch die, the two
+small boards bolt to the top of the middle plate, and the top plate is a guard
+with intake slots and a KETI engraving.
+
+| Plate | Thickness | Size | Carries |
 |---|---|---|---|
-| [`acrylic-frame/`](acrylic-frame/) | LAN9692 + fan + module trays | **3 laser-cut plates (DXF)** | 250 × 180 mm × 3 |
-| [`lan9692-evb-case/`](lan9692-evb-case/) | Microchip EVB-LAN9692-LM (EV09P11A) | open tray + lid | 118.5 cm³ |
-| [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box, vented | tray + 2 panels + lid | 163.5 cm³ |
-| [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box, ports only | tray + 2 panels + lid | 237.2 cm³ |
-| [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite + PoE base board | bottom + top | 17.1 cm³ |
-| [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 26.5 cm³ |
-| [`tc397-appkit-case/`](tc397-appkit-case/) | AURIX Application Kit TC3X7 (TC397/TC387, 100 × 100) | tray + vented lid | 82.9 cm³ |
+| A bottom | 5 mm | 250 × 180 | LAN9692 on 8 standoffs |
+| B middle | 5 mm | 250 × 180 | fan under, TC397 + T-ETH-Elite on top |
+| C top | 3 mm | 250 × 180 | vents, engraving |
+| D | 3 mm | 76 × 60 | optional sub-plate, T-ETH-Elite |
+| E | 3 mm | 110 × 110 | optional sub-plate, TC397 |
 
-Everything is dimensioned from primary sources, not from drawings or eyeballing:
-the LAN9692 parts from Microchip's released Gerber/Excellon and pick-and-place
-files, the LilyGo `_fit` variants from measurements of the published STLs checked
-against LilyGo's own board CAD, the ESP32-S31 tray from Espressif's dimension
-DXF, the TC397 tray from Infineon's Application Kit manual drawing. Each folder's README states which numbers are data and which are not.
+Order it as **DXF**, never as STL — laser cutting wants 2D paths and a stated
+thickness, not a mesh. `acrylic-frame/dxf/combined-order.dxf` is the single file
+to send; `acrylic-frame/acrylic-frame-dxf.zip` is that plus the individual
+plates, the cutting notes and the BOM.
 
-## Plates or a printed box
+`acrylic-frame/assembly.stl` is a **preview of the assembled frame**, not
+something to order. It is cut from the same DXFs the shop gets.
 
-For the LAN9692 the printed enclosures are big — 118 to 237 cm³ depending on
-style. [`acrylic-frame/`](acrylic-frame/) does the same job as three laser-cut
-250 × 180 mm plates plus standoffs: cheaper, board visible, and the unverified
-clearance above the board becomes a standoff length instead of a reprint. The
-printed trays stay useful for the small boards, and plate B's slots use the same
-45 mm square as the printed lid's deck, so they interchange.
+## Printable cases
 
-**Acrylic is ordered from DXF, never from STL** — laser cutting needs 2D vector
-paths and a stated thickness, not a mesh. See
-[`acrylic-frame/CUTTING.md`](acrylic-frame/CUTTING.md).
+Each of these is a complete alternative to putting that board on the frame.
+They are not part of the acrylic order.
 
-## Stacking and cooling
+| Model | Board | Parts | Volume |
+|---|---|---|---|
+| [`lan9692-evb-case/`](lan9692-evb-case/) | EVB-LAN9692-LM (EV09P11A) | open tray + lid | 118.5 cm³ |
+| ″ | ″ — closed box, vented | tray + 2 panels + lid | 170.2 cm³ |
+| ″ | ″ — closed box, ports only | tray + 2 panels + lid | 235.2 cm³ |
+| [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite | bottom + top | 17.1 cm³ |
+| [`tc397-appkit-case/`](tc397-appkit-case/) | AURIX Application Kit TC3X7 | tray + vented lid | 82.9 cm³ |
+| [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 20.7 cm³ |
 
-![stacked](img/stack_s31.png)
+The ESP32-S31 case is **for a different board than the one on this bench** — it
+was drawn before the ESP32 board was identified as the LilyGo T-ETH-Elite. The
+design is sound and sourced from Espressif's own drawing; it just has no board
+here to hold.
 
-The LAN9692 box lid carries a **40 mm fan** centred on the switch die and a
-**deck of 4 × M3 bosses on a 45 mm square**. The ESP32-S31 and TC397 trays have
-matching Ø3.4 holes through their floors, so either bolts on top in either
-orientation:
+For the LAN9692 the printed options are 119–235 cm³, which is where the acrylic
+frame came from: cheaper, board visible, and the one unverified dimension
+(clearance above the board) becomes a standoff length instead of a reprint.
+
+## Two deck patterns, and they do not interchange
+
+Anything that stacks bolts on four M3. There are two patterns, and mixing them
+across the boundary does not fit:
+
+| Pattern | Used by |
+|---|---|
+| **35 × 45 mm** | acrylic plate B, plates D and E, `adapter_lilygo.stl` |
+| **45 × 45 mm square** | printed LAN9692 box lid bosses, TC397 tray, ESP32-S31 tray |
+
+Plate B went to 35 × 45 because a 45 mm square fouled the T-ETH-Elite's own
+mount slots. The printed trays stayed on the square that matches the printed
+box lid. To cross over, change one constant and regenerate — `DECK_X, DECK_Y`
+in `acrylic-frame/make_plates.py`, or `DECK_HOLES['pitch']` in the tray script.
+
+## Where the numbers come from
+
+Dimensioned from primary sources, not from eyeballing renders:
+
+* **LAN9692** — Microchip's released Gerber/Excellon and pick-and-place files.
+  The board outline and all 8 mounting holes are the drill file's own
+  coordinates, so plate A cannot be wrong about them.
+* **LilyGo T-ETH-Elite** — the published case STLs, measured, checked against
+  LilyGo's board CAD.
+* **TC397** — Infineon's Application Kit manual drawing.
+* **ESP32-S31** — Espressif's dimension PDF, which carries more than the DXF.
+
+Each folder's README says which of its numbers are data and which are
+assumptions. The two hole patterns still worth measuring against real hardware
+are called out in [`acrylic-frame/CUTTING.md`](acrylic-frame/CUTTING.md).
+
+## Checks
 
 ```bash
-python3 stack_preview.py    # -> img/stack_s31.png, img/stack_tc397.png
+pip3 install --break-system-packages trimesh manifold3d numpy scipy pillow
+
+python3 check_stls.py                  # every STL: watertight, single body, no degenerate faces
+cd acrylic-frame && python3 review.py  # webs, geometry vs DXF, mesh vs DXF, zip freshness, fasteners
 ```
 
-The board has no fan header — run the fan off the expansion header's 5 V
-(budgeted 2.0 A) or off the 12 V jack net.
+`review.py` is the one that matters. It rasterises each plate's real DXF to
+measure the material left between cuts, matches every intended cut by position
+*and* size with stray detection, checks that the 3D preview was cut from those
+same DXFs, checks the order zip against the files on disk, and counts screw
+positions against the BOM. It exists because counting features per plate once
+passed a plate whose coordinates were wrong.
 
-## Ordering
+## Regenerating
 
-JLC3DP and JLCPCB share one cart, so these can ship with a PCB order — from the
-JLC3DP order page use the PCB/PCBA tab in the nav bar, then combine payment.
+```bash
+cd acrylic-frame
+python3 make_plates.py     # dxf/*.dxf + acrylic-frame-dxf.zip
+python3 bom.py             # BOM.csv
+python3 render_all.py      # img/*.png + assembly.stl
+python3 review.py
+
+cd ../lan9692-evb-case  && python3 lan9692_case.py && python3 lan9692_box.py && python3 lan9692_box.py --solid
+cd ../tc397-appkit-case && python3 tc397_appkit_case.py
+cd ../lilygo-t-eth-elite-case && python3 fit_for_print.py
+cd .. && python3 stack_preview.py
+```
+
+## Printing, if you print
+
+JLC3DP and JLCPCB share one cart, so printed parts can ship with a PCB order —
+from the JLC3DP order page use the PCB/PCBA tab, then combine payment.
 <https://jlc3dp.com/help/article/how-to-combine-orders-for-jlc3dp-and-jlcpcb-products>
 
-| | LilyGo case | LAN9692 tray + lid |
+| | LilyGo case | LAN9692 case |
 |---|---|---|
 | Files | the **`_fit`** pair, not the originals | open tray, or the 4-part closed box |
-| Material | MJF PA12-HP Nylon | MJF PA12-HP Nylon, or FDM ABS/PETG to save money |
-| Why | flexing button tabs, PoE heat, no support marks | PA12 prints it as-is; at 119 cm³ the volume-priced MJF costs ~7× the small case |
+| Material | MJF PA12-HP Nylon | MJF PA12, or FDM ABS/PETG to save money |
+| Why | flexing button tabs, PoE heat, no support marks | at 119 cm³ volume-priced MJF costs ~7× the small case |
 
-One material for everything is fine — the split is purely a cost call, and
-mixing processes does not stop the order shipping together.
+The `_fit` variants exist because the published LilyGo case has a 0.4 mm/side
+cavity clearance and a 0.5 mm lip, both inside MJF's ±0.3 mm tolerance — it
+would print unassemblable. `fit_for_print.py` opens them up.
 
-```bash
-python3 check_stls.py    # every STL: watertight, single body, no degenerate faces
-```
+**Order a LAN9692 tray before its lid.** Everything else is fab data, but the
+clearance above the board is a judgement call from photos, and it is the only
+number the lid depends on.
 
-## What to actually order
+## Licence
 
-| | Qty | File(s) | Material |
-|---|---|---|---|
-| LilyGo case | 2 sets (buttons get lost) | `*_bottom_fit.stl`, `*_top_fit.stl` | MJF PA12 |
-| ESP32-S31 case | 1 | `esp32_s31_tray.stl`, `esp32_s31_lid.stl` | MJF PA12 or FDM |
-| LAN9692 | 1 | pick **one** of the three styles | FDM ABS/PETG if the 163–237 cm³ MJF price stings |
-| Fasteners | — | 8 × M3 × 8 + 4 × M3 × 10 per LAN9692 case, 4 × M3 × 10 for the S31 | thread-forming |
-
-**Order the LAN9692 tray before the lid.** Everything else is fab data, but the
-26 mm of clearance above the board is a judgement call from board photos, and it
-is the only number the lid depends on. Print the tray, fit the board, measure,
-then order.
+`lilygo-t-eth-elite-case/` contains Cicicok's Printables model 1154843, CC BY —
+the `_fit` variants and `adapter_lilygo` are derivatives of it. Everything else
+is original.

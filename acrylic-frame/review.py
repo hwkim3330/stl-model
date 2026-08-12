@@ -225,6 +225,44 @@ def geometry_audit(tol=0.02):
     return not bad
 
 
+def zip_audit():
+    """The order zip against the files it was built from.
+
+    The zip carries CUTTING.md and the DXFs, so editing either without
+    rerunning make_plates.py ships the shop a stale copy - which is exactly
+    what happened to CUTTING.md once. Compare contents, not timestamps.
+    """
+    import hashlib
+    import zipfile
+    here = os.path.dirname(os.path.abspath(__file__))
+    zp = os.path.join(here, 'acrylic-frame-dxf.zip')
+    print("\norder zip: every member against the file on disk")
+    if not os.path.exists(zp):
+        print("  acrylic-frame-dxf.zip MISSING")
+        return False
+    bad = []
+    with zipfile.ZipFile(zp) as z:
+        for member in z.namelist():
+            # the zip flattens dxf/ into its top level, so try both
+            rel = os.path.relpath(member, 'acrylic-frame')
+            for cand in (os.path.join(here, rel), os.path.join(here, 'dxf', rel)):
+                if os.path.exists(cand):
+                    local = cand
+                    break
+            else:
+                bad.append((member, 'no such file on disk'))
+                continue
+            a = hashlib.md5(z.read(member)).hexdigest()
+            b = hashlib.md5(open(local, 'rb').read()).hexdigest()
+            if a != b:
+                bad.append((member, 'differs from disk'))
+        n = len(z.namelist())
+    for m, why in bad:
+        print(f"        {m}: {why}")
+    print(f"  {n} members, {len(bad)} stale   {'OK' if not bad else 'FAIL'}")
+    return not bad
+
+
 def model_audit(tol=0.01):
     """The 3D preview's cuts against the DXFs, feature by feature.
 
@@ -308,6 +346,8 @@ if __name__ == '__main__':
     if not geometry_audit():
         bad = True
     if not model_audit():
+        bad = True
+    if not zip_audit():
         bad = True
     fastener_audit()
     sys.exit(1 if bad else 0)

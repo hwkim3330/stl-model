@@ -2,6 +2,12 @@
 
 Tray + vented lid for Espressif's ESP32-S31 CoreBoard-1.
 
+> **Not the board on this bench.** This was drawn before the ESP32 board here
+> was identified as the LilyGo T-ETH-Elite ESP32-S3, which is a different board
+> with a different footprint — see [`../lilygo-t-eth-elite-case/`](../lilygo-t-eth-elite-case/).
+> The design below is sourced from Espressif's own drawing and is correct for
+> the S31 CoreBoard; it just has no board here to hold.
+
 ![assembly](img/assembly.png)
 
 | | |
@@ -38,8 +44,10 @@ USB-A are. The board screws down onto four real standoffs instead of resting on
 a shelf, and the lid no longer needs hold-down pads.
 
 The lid keeps its slot for the 40-pin header, and the tray floor keeps the
-4 × Ø3.4 deck holes on the 45 mm square so it bolts to the acrylic frame's
-plate B or to the LAN9692 box lid.
+4 × Ø3.4 deck holes on the 45 mm square, matching the bosses on the printed
+LAN9692 box lid. It does **not** match the acrylic frame's plate B, whose deck
+went to 35 × 45 to clear the T-ETH-Elite's mount slots — set
+`DECK_HOLES['pitch']` accordingly if that is where this tray has to go.
 
 ## Regenerating
 
