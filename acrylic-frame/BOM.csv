@@ -2,22 +2,22 @@ order from,group,item,spec,qty,note
 laser / acrylic shop,acrylic,Plate A - bottom,"clear acrylic 5 mm, 250 x 180, plate-a-bottom-5T.dxf",1,carries the LAN9692
 laser / acrylic shop,acrylic,Plate B - middle,"clear or smoke acrylic 5 mm, 250 x 180, plate-b-middle-5T.dxf",1,"fan under, modules on top"
 laser / acrylic shop,acrylic,Plate C - top,"clear acrylic 3 mm, 250 x 180, plate-c-top-3T.dxf",1,guard + intake slots
-laser / acrylic shop,acrylic,Plate D - T-ETH-Elite,"clear acrylic 3 mm, 76 x 60, plate-d-eth-elite-3T.dxf",1,optional - replaces the printed case + adapter
+laser / acrylic shop,acrylic,Plate D - T-ETH-Elite,"clear acrylic 3 mm, 76 x 60, plate-d-eth-elite-3T.dxf",1,"bare board, no printed case"
+laser / acrylic shop,acrylic,Plate E - TC397,"clear acrylic 3 mm, 110 x 110, plate-e-tc397-3T.dxf",1,"bare board, no printed case"
 electronics parts supplier,hardware,Hex standoff F/F,M3 x 10 mm,8,PCB standoffs on plate A
 electronics parts supplier,hardware,Hex standoff M/F,M3 x 45 mm,8,"4 for A->B, 4 for B->C"
 electronics parts supplier,hardware,"Screw, pan head",M3 x 6 mm,8,LAN9692 down onto its standoffs
 electronics parts supplier,hardware,"Screw, pan head",M3 x 8 mm,12,"8 up through plate A into the PCB standoffs, 4 down through plate C"
-electronics parts supplier,hardware,"Screw, pan head",M3 x 12 mm,8,"4 TC397 tray, 4 T-ETH-Elite adapter, through the plate B slots"
+electronics parts supplier,hardware,"Screw, pan head",M3 x 12 mm,8,"4 plate E, 4 plate D, through the plate B slots"
 electronics parts supplier,hardware,"Screw, pan head",M3 x 16 mm,4,"fan, through plate B"
 electronics parts supplier,hardware,Nut,M3,20,"4 under plate A corners, 4 fan, 8 module trays, spares"
 electronics parts supplier,hardware,Washer,M3 nylon,20,under every head that lands on acrylic
-electronics parts supplier,hardware,Hex standoff F/F,M2.5 x 6 mm,4,"plate D only, T-ETH-Elite"
-electronics parts supplier,hardware,"Screw, pan head",M2.5 x 6 mm,8,plate D only
+electronics parts supplier,hardware,Hex standoff F/F,M2.5 x 6 mm,4,T-ETH-Elite on plate D
+electronics parts supplier,hardware,"Screw, pan head",M2.5 x 6 mm,8,T-ETH-Elite on plate D
+electronics parts supplier,hardware,Hex standoff F/F,M3 x 8 mm,2,TC397 on plate E - only 2 holes exist
+electronics parts supplier,hardware,"Nylon standoff, adhesive base",8 mm,2,"props the TC397 port edge, which has no holes"
 electronics parts supplier,hardware,Rubber foot,"self-adhesive, ~10 mm",4,under plate A
 electronics parts supplier,electrical,Fan,"40 x 40 x 10 mm, 12 V DC",1,blows down onto the switch
 electronics parts supplier,electrical,"DC splitter, 1 to 2",barrel 5.5 x 2.5 mm,1,NOT 5.5 x 2.1 - the board jack is 2.5
 electronics parts supplier,electrical,DC adapter,"12 V 5 A, barrel 5.5 x 2.5 mm, centre +",1,"board budgets 4.1 A, fan ~0.15 A"
 electronics parts supplier,electrical,"Barrel plug, solder type",5.5 x 2.5 mm,1,to wire the fan onto the splitter
-3D print (self or JLC3DP),printed,TC397 Application Kit case,tc397_appkit_tray.stl + _lid.stl,1,82.9 cm3
-3D print (self or JLC3DP),printed,LilyGo T-ETH-Elite case,lilygo_*_bottom_fit.stl + _top_fit.stl,1,"17.1 cm3, order 2 sets - the buttons come loose"
-3D print (self or JLC3DP),printed,T-ETH-Elite adapter,adapter_lilygo.stl,1,"14.5 cm3, bolts to plate B, case drops in"

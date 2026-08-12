@@ -7,7 +7,8 @@ Send `acrylic-frame-dxf.zip`. Three plates, all 250 × 180 mm with R6 corners.
 | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) | **5 mm** | 1 |
 | `plate-b-middle-5T.dxf` | clear or smoke acrylic | **5 mm** | 1 |
 | `plate-c-top-3T.dxf` | clear acrylic | **3 mm** | 1 |
-| `plate-d-eth-elite-3T.dxf` | clear acrylic, 76 × 60 mm | **3 mm** | 1 (optional) |
+| `plate-d-eth-elite-3T.dxf` | clear acrylic, 76 × 60 mm | **3 mm** | 1 |
+| `plate-e-tc397-3T.dxf` | clear acrylic, 110 × 110 mm | **3 mm** | 1 |
 
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
 * Every closed shape is a cut path — outline, holes and slots alike. There is no
@@ -55,7 +56,10 @@ time so they arrive together, but they are not part of the acrylic job.
 |---|---|---|
 | 1 | laser / acrylic shop | `acrylic-frame-dxf.zip` — 3 plates |
 | 2 | electronics parts supplier | the hardware table below |
-| 3 | 3D print (self or JLC3DP) | TC397 case, T-ETH-Elite case, `adapter_lilygo.stl` |
+
+**Nothing is 3D printed in this build.** The printed cases elsewhere in the
+repo still work if you would rather box the small boards up, but plates D and E
+replace them.
 
 ## Hardware
 
@@ -71,7 +75,7 @@ time so they arrive together, but they are not part of the acrylic job.
 | 12 V DC Y splitter | 5.5 × 2.5 mm | 1 |
 | 12 V adapter | 5 A, 5.5 × 2.5 mm | 1 |
 
-## Optional: bare T-ETH-Elite on plate D
+## Plates D and E — the small boards, bare
 
 `plate-d-eth-elite-3T.dxf` replaces the printed T-ETH-Elite case and its
 adapter with one 76 × 60 mm sheet: the board bolts to it on M2.5 standoffs and

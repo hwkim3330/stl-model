@@ -65,6 +65,16 @@ ETH_HOLES = [(3.33, 4.63), (61.33, 4.63), (2.98, 46.23), (63.23, 46.20)]
 ETH_HOLE_D = 2.9                  # M2.5 free fit
 ETH_PLATE = (76.0, 60.0)
 
+# Optional 5th plate: the TC397 Application Kit bolted down instead of living in
+# its printed tray. Only two mounting holes exist, both on the y = 0 edge
+# (Application Kit Manual TC3X7 V2.0, figure 7-7 - the chain carries 11, 89
+# and 4 explicitly, and all four corners were checked for more). The port edge
+# is supported by two self-adhesive nylon standoffs, which need no holes.
+TC_BOARD = (100.0, 100.0)
+TC_HOLES = [(11.0, 4.0), (89.0, 4.0)]
+TC_HOLE_D = 3.4
+TC_PLATE = (110.0, 110.0)
+
 BOARD_OFF = ((PW - BW) / 2, (PH - BH) / 2)     # board centred on the plate
 FAN_C = (BOARD_OFF[0] + U1[0], BOARD_OFF[1] + U1[1])
 
@@ -174,6 +184,21 @@ def plate_eth_elite():
     return d
 
 
+def plate_tc397():
+    """3 mm. Carries a bare TC397 Application Kit, bolts to plate B."""
+    d = Dxf()
+    w, h = TC_PLATE
+    d.rounded_rect(0, 0, w, h, 4.0)
+    ox, oy = (w - TC_BOARD[0]) / 2, (h - TC_BOARD[1]) / 2
+    for hx, hy in TC_HOLES:
+        d.circle(ox + hx, oy + hy, TC_HOLE_D / 2)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            d.circle(w / 2 + sx * DECK_PITCH / 2, h / 2 + sy * DECK_PITCH / 2,
+                     M3_FREE / 2)
+    return d
+
+
 def plate_top():
     """3 mm. Hand and cable guard, with intake slots over the fan."""
     d = Dxf()
@@ -188,7 +213,8 @@ def plate_top():
 PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
           ('plate-b-middle-5T', plate_middle, 5),
           ('plate-c-top-3T', plate_top, 3),
-          ('plate-d-eth-elite-3T', plate_eth_elite, 3)]
+          ('plate-d-eth-elite-3T', plate_eth_elite, 3),
+          ('plate-e-tc397-3T', plate_tc397, 3)]
 
 
 def main():

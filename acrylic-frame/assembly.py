@@ -36,6 +36,15 @@ H_BC = 45.0                            # plate B -> plate C. 40 leaves only
                                        # 2 mm over the 38 mm TC397 case
 FAN_THICK = 10.0
 
+# True  = all-acrylic: bare boards on their own sub-plates, nothing printed
+# False = the printed TC397 / T-ETH-Elite cases
+ACRYLIC_ONLY = True
+SUB_T = 3.0                            # sub-plate thickness
+ETH_STANDOFF = 6.0                     # M2.5 under the T-ETH-Elite
+TC_STANDOFF = 8.0                      # M3 under the TC397
+ETH_PARTS_H = 15.2                     # over the PCB, from LilyGo's 3D CAD
+TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
+
 Z_A = 0.0
 Z_PCB = T_A + H_BOARD                  # PCB underside
 Z_B = T_A + H_AB                       # plate B underside
@@ -173,9 +182,33 @@ def place(path, cx, cy, z):
     return m
 
 
+def sub_stack(cx, cy, plate_wh, board_wh, holes, standoff, parts_h, z_top):
+    """A sub-plate, its standoffs, the bare PCB and a block for its parts."""
+    pw, ph = plate_wh
+    bw, bh = board_wh
+    ox, oy = cx - pw / 2, cy - ph / 2
+    bx0, by0 = ox + (pw - bw) / 2, oy + (ph - bh) / 2
+    out = [(bx(ox, ox + pw, oy, oy + ph, z_top, z_top + SUB_T), ACRYLIC)]
+    for hx, hy in holes:
+        out.append((cyl(5.0, z_top + SUB_T, z_top + SUB_T + standoff,
+                        bx0 + hx, by0 + hy), METAL))
+    z = z_top + SUB_T + standoff
+    out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
+    out.append((bx(bx0 + 4, bx0 + bw - 4, by0 + 4, by0 + bh - 4,
+                   z + 1.6, z + 1.6 + parts_h), (0.13, 0.14, 0.16)))
+    return out
+
+
 def modules(z_top):
     """Whatever the current plate-B layout carries, at its real height."""
     out = []
+    if ACRYLIC_ONLY:
+        (_, tx, ty), (_, lx, ly) = P.ZONES
+        out += sub_stack(tx, ty, P.TC_PLATE, P.TC_BOARD, P.TC_HOLES,
+                         TC_STANDOFF, TC_PARTS_H, z_top)
+        out += sub_stack(lx, ly, P.ETH_PLATE, P.ETH_BOARD, P.ETH_HOLES,
+                         ETH_STANDOFF, ETH_PARTS_H, z_top)
+        return out
     if P.LAYOUT == 'tc397+eth-elite':
         (_, tx, ty), (_, lx, ly) = P.ZONES
         sys.path.insert(0, TC)
@@ -231,7 +264,8 @@ def checks():
     print(f"  fan                {Z_B - FAN_THICK:6.1f} .. {Z_B:6.1f}"
           f"   clearance to board {Z_B - FAN_THICK - top:5.1f} mm")
     print(f"  plate B            {Z_B:6.1f} .. {Z_B + T_B:6.1f}")
-    print(f"\nmodules on plate B (layout '{P.LAYOUT}')")
+    print(f"\nmodules on plate B (layout '{P.LAYOUT}'"
+          f"{', all-acrylic' if ACRYLIC_ONLY else ', printed cases'})")
     boxes = []
     for m, _ in modules(Z_B + T_B):
         lo, hi = m.bounds[0], m.bounds[1]

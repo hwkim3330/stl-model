@@ -8,7 +8,9 @@ for the material/thickness/quantity table and the hardware list.
 
 `assembly.py` builds the whole stack in 3D from the same constants the DXFs come
 from, so the plates here and the plates the cutter gets cannot drift apart. It
-is a picture, not a printable part — `assembly.stl`, 250 × 180 × 98 mm.
+is a picture, not a printable part — `assembly.stl`, 250 × 180 × 103 mm.
+`ACRYLIC_ONLY = False` at the top swaps the bare boards back for the printed
+cases.
 
 ![plate A with the board](img/plate_a_board.png)
 ![plate A holes](img/plate_a_holes.png)
@@ -28,8 +30,8 @@ vertical stack
   tallest part top     30.5   (DC-DC U3, ADM00987, assumed)
   fan                  40.0 ..   50.0   clearance to board   9.5 mm
   plate B              50.0 ..   55.0
-  ESP32-S31 case top   86.6   clearance to plate C   8.4 mm
-  plate C              95.0 ..   98.0
+  tallest module top   87.6   clearance to plate C  12.4 mm
+  plate C             100.0 ..  103.0
 ```
 
 The two clearances are the ones worth watching. Both are computed against the
@@ -39,11 +41,15 @@ nothing else in the design changes.
 
 ![plates](img/plates.png)
 
+**Nothing here is 3D printed.** Five laser-cut plates and hardware.
+
 | Plate | Material | Size | Carries |
 |---|---|---|---|
 | A — bottom | 5 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
-| B — middle | 5 mm clear/smoke | 250 × 180 mm | 40 mm fan underneath; TC397 + T-ETH-Elite on top |
+| B — middle | 5 mm clear/smoke | 250 × 180 mm | 40 mm fan underneath; plates D + E on top |
 | C — top | 3 mm clear | 250 × 180 mm | guard, intake slots over the fan |
+| D — sub | 3 mm clear | 76 × 60 mm | bare T-ETH-Elite on 4 × M2.5 standoffs |
+| E — sub | 3 mm clear | 110 × 110 mm | bare TC397 on its 2 real holes + 2 adhesive props |
 
 Stack ≈ 5 + 45 + 5 + 45 + 3 = **103 mm** tall.
 

@@ -23,7 +23,9 @@ BOM = [
     ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180, plate-c-top-3T.dxf', 1,
      'guard + intake slots'),
     ('acrylic', 'Plate D - T-ETH-Elite', 'clear acrylic 3 mm, 76 x 60, plate-d-eth-elite-3T.dxf', 1,
-     'optional - replaces the printed case + adapter'),
+     'bare board, no printed case'),
+    ('acrylic', 'Plate E - TC397', 'clear acrylic 3 mm, 110 x 110, plate-e-tc397-3T.dxf', 1,
+     'bare board, no printed case'),
 
     ('hardware', 'Hex standoff F/F', 'M3 x 10 mm', 8, 'PCB standoffs on plate A'),
     ('hardware', 'Hex standoff M/F', 'M3 x 45 mm', 8, '4 for A->B, 4 for B->C'),
@@ -31,12 +33,15 @@ BOM = [
     ('hardware', 'Screw, pan head', 'M3 x 8 mm', 12,
      '8 up through plate A into the PCB standoffs, 4 down through plate C'),
     ('hardware', 'Screw, pan head', 'M3 x 12 mm', 8,
-     '4 TC397 tray, 4 T-ETH-Elite adapter, through the plate B slots'),
+     '4 plate E, 4 plate D, through the plate B slots'),
     ('hardware', 'Screw, pan head', 'M3 x 16 mm', 4, 'fan, through plate B'),
     ('hardware', 'Nut', 'M3', 20, '4 under plate A corners, 4 fan, 8 module trays, spares'),
     ('hardware', 'Washer', 'M3 nylon', 20, 'under every head that lands on acrylic'),
-    ('hardware', 'Hex standoff F/F', 'M2.5 x 6 mm', 4, 'plate D only, T-ETH-Elite'),
-    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 8, 'plate D only'),
+    ('hardware', 'Hex standoff F/F', 'M2.5 x 6 mm', 4, 'T-ETH-Elite on plate D'),
+    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 8, 'T-ETH-Elite on plate D'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm', 2, 'TC397 on plate E - only 2 holes exist'),
+    ('hardware', 'Nylon standoff, adhesive base', '8 mm', 2,
+     'props the TC397 port edge, which has no holes'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'under plate A'),
 
     ('electrical', 'Fan', '40 x 40 x 10 mm, 12 V DC', 1, 'blows down onto the switch'),
@@ -46,17 +51,14 @@ BOM = [
      'board budgets 4.1 A, fan ~0.15 A'),
     ('electrical', 'Barrel plug, solder type', '5.5 x 2.5 mm', 1, 'to wire the fan onto the splitter'),
 
-    ('printed', 'TC397 Application Kit case', 'tc397_appkit_tray.stl + _lid.stl', 1, '82.9 cm3'),
-    ('printed', 'LilyGo T-ETH-Elite case', 'lilygo_*_bottom_fit.stl + _top_fit.stl', 1,
-     '17.1 cm3, order 2 sets - the buttons come loose'),
-    ('printed', 'T-ETH-Elite adapter', 'adapter_lilygo.stl', 1,
-     '14.5 cm3, bolts to plate B, case drops in'),
+    # nothing printed in the all-acrylic build. The printed cases in this repo
+    # remain valid if you would rather box the small boards up:
+    #   tc397_appkit_{tray,lid}.stl, lilygo_*_fit.stl + adapter_lilygo.stl
 ]
 
 SUPPLIER = {'acrylic': 'laser / acrylic shop',
             'hardware': 'electronics parts supplier',
-            'electrical': 'electronics parts supplier',
-            'printed': '3D print (self or JLC3DP)'}
+            'electrical': 'electronics parts supplier'}
 
 
 def write_csv(path):
@@ -70,7 +72,7 @@ def write_csv(path):
 
 def as_markdown():
     out = []
-    for g in ('acrylic', 'hardware', 'electrical', 'printed'):
+    for g in ('acrylic', 'hardware', 'electrical'):
         out.append(f"\n### {g} — {SUPPLIER[g]}\n")
         out.append('| Item | Spec | Qty | Note |')
         out.append('|---|---|---:|---|')
