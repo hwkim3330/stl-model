@@ -52,6 +52,19 @@ LAYOUT = 'tc397+eth-elite'
 ZONES = LAYOUTS[LAYOUT]
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 
+# Optional 4th plate: the LilyGo T-ETH-Elite bolted straight down instead of
+# living in its printed case. Its four mounting holes genuinely are NOT a
+# rectangle - the bottom pair is 58.0 mm apart and the top pair 60.25 - and two
+# independent LilyGo files agree on that to 0.04 mm, so it is the real design
+# and not a CAD slip:
+#   3D CAD  shell/3D/T-ETH-ELite.7z   -> 58.00 / 60.25
+#   2D DXF  shell/T-ETH-ELite.dxf     -> 58.04 / 60.24
+# Positions below are from the PCB's bottom-left corner, top view.
+ETH_BOARD = (66.191, 49.192)
+ETH_HOLES = [(3.33, 4.63), (61.33, 4.63), (2.98, 46.23), (63.23, 46.20)]
+ETH_HOLE_D = 2.9                  # M2.5 free fit
+ETH_PLATE = (76.0, 60.0)
+
 BOARD_OFF = ((PW - BW) / 2, (PH - BH) / 2)     # board centred on the plate
 FAN_C = (BOARD_OFF[0] + U1[0], BOARD_OFF[1] + U1[1])
 
@@ -146,6 +159,21 @@ def plate_middle():
     return d
 
 
+def plate_eth_elite():
+    """3 mm. Carries a bare T-ETH-Elite on M2.5 standoffs, bolts to plate B."""
+    d = Dxf()
+    w, h = ETH_PLATE
+    d.rounded_rect(0, 0, w, h, 4.0)
+    ox, oy = (w - ETH_BOARD[0]) / 2, (h - ETH_BOARD[1]) / 2
+    for hx, hy in ETH_HOLES:
+        d.circle(ox + hx, oy + hy, ETH_HOLE_D / 2)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            d.circle(w / 2 + sx * DECK_PITCH / 2, h / 2 + sy * DECK_PITCH / 2,
+                     M3_FREE / 2)
+    return d
+
+
 def plate_top():
     """3 mm. Hand and cable guard, with intake slots over the fan."""
     d = Dxf()
@@ -159,7 +187,8 @@ def plate_top():
 
 PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
           ('plate-b-middle-5T', plate_middle, 5),
-          ('plate-c-top-3T', plate_top, 3)]
+          ('plate-c-top-3T', plate_top, 3),
+          ('plate-d-eth-elite-3T', plate_eth_elite, 3)]
 
 
 def main():

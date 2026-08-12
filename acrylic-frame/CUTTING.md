@@ -7,6 +7,7 @@ Send `acrylic-frame-dxf.zip`. Three plates, all 250 × 180 mm with R6 corners.
 | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) | **5 mm** | 1 |
 | `plate-b-middle-5T.dxf` | clear or smoke acrylic | **5 mm** | 1 |
 | `plate-c-top-3T.dxf` | clear acrylic | **3 mm** | 1 |
+| `plate-d-eth-elite-3T.dxf` | clear acrylic, 76 × 60 mm | **3 mm** | 1 (optional) |
 
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
 * Every closed shape is a cut path — outline, holes and slots alike. There is no
@@ -70,7 +71,32 @@ time so they arrive together, but they are not part of the acrylic job.
 | 12 V DC Y splitter | 5.5 × 2.5 mm | 1 |
 | 12 V adapter | 5 A, 5.5 × 2.5 mm | 1 |
 
-## Why the ESP and the TC397 keep their printed cases
+## Optional: bare T-ETH-Elite on plate D
+
+`plate-d-eth-elite-3T.dxf` replaces the printed T-ETH-Elite case and its
+adapter with one 76 × 60 mm sheet: the board bolts to it on M2.5 standoffs and
+it bolts to plate B on the usual 45 mm deck square. Lower, cheaper, nothing to
+print.
+
+This is now safe to cut because the hole pattern is confirmed. **The four holes
+really are not a rectangle** — the bottom pair is 58.0 mm apart and the top pair
+60.25 — and two independent LilyGo files agree on that to 0.04 mm, so it is the
+design and not a CAD slip:
+
+| Source | bottom pair | top pair |
+|---|---|---|
+| `shell/3D/T-ETH-ELite.7z` (3D CAD) | 58.00 | 60.25 |
+| `shell/T-ETH-ELite.dxf` (2D mechanical) | 58.04 | 60.24 |
+
+Holes from the PCB's bottom-left corner: **(3.33, 4.63), (61.33, 4.63),
+(2.98, 46.23), (63.23, 46.20)**, Ø2.5 → cut Ø2.9 for M2.5 free fit. The PCB is
+**66.191 × 49.192 mm** — LilyGo's "50 × 67 mm" is rounded, and the sub-plate
+uses the measured figure. Closest board hole to a deck hole is 6.27 mm, so
+nothing clashes.
+
+Needs 4 × M2.5 × 6 standoffs and 4 × M2.5 screws instead of the printed case.
+
+## Why the TC397 keeps its printed case
 
 Mounting the bare boards on standoffs straight to plate B would be neater, and
 for the LAN9692 that is exactly what plate A does — it has **8 × M3 holes** in
@@ -81,15 +107,8 @@ the drill file. The other two do not have a pattern worth drilling to:
   all four corners were checked). Two screws on one edge leaves the opposite
   edge — the one with POWER, USB, RJ45, CAN and the SD slot — cantilevered
   every time something is plugged in.
-* **LilyGo T-ETH-Elite** — four **Ø2.5** holes near the corners in LilyGo's own
-  CAD, but they are **not a clean rectangle**: the bottom pair is 58.00 mm apart
-  and the top pair 60.25 mm. That is far more than tessellation noise, so the
-  positions are not trustworthy enough to cut acrylic to, and they would need
-  M2.5 hardware rather than M3.
-
-The printed cases are cheap next to the rest of the build — TC397 82.9 cm³,
-T-ETH-Elite 17.1 cm³, adapter 14.5 cm³ — and both are already checked to fit on
-plate B. **Standoff-mounting them is a fine idea — the blocker is only the coordinates,
+The T-ETH-Elite is the opposite case — its hole pattern *is* confirmed, so
+plate D above lets it mount bare. The TC397's printed case stays. **Standoff-mounting them is a fine idea — the blocker is only the coordinates,
 and one caliper session removes it.** Measure the T-ETH-Elite's four Ø2.5 hole
 centres and the TC397's two Ø6 centres, and a small 3 mm acrylic sub-plate
 replaces each printed case: the boards then sit ~10 mm off plate B instead of

@@ -22,6 +22,8 @@ BOM = [
      'fan under, modules on top'),
     ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180, plate-c-top-3T.dxf', 1,
      'guard + intake slots'),
+    ('acrylic', 'Plate D - T-ETH-Elite', 'clear acrylic 3 mm, 76 x 60, plate-d-eth-elite-3T.dxf', 1,
+     'optional - replaces the printed case + adapter'),
 
     ('hardware', 'Hex standoff F/F', 'M3 x 10 mm', 8, 'PCB standoffs on plate A'),
     ('hardware', 'Hex standoff M/F', 'M3 x 45 mm', 8, '4 for A->B, 4 for B->C'),
@@ -33,6 +35,8 @@ BOM = [
     ('hardware', 'Screw, pan head', 'M3 x 16 mm', 4, 'fan, through plate B'),
     ('hardware', 'Nut', 'M3', 20, '4 under plate A corners, 4 fan, 8 module trays, spares'),
     ('hardware', 'Washer', 'M3 nylon', 20, 'under every head that lands on acrylic'),
+    ('hardware', 'Hex standoff F/F', 'M2.5 x 6 mm', 4, 'plate D only, T-ETH-Elite'),
+    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 8, 'plate D only'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'under plate A'),
 
     ('electrical', 'Fan', '40 x 40 x 10 mm, 12 V DC', 1, 'blows down onto the switch'),
