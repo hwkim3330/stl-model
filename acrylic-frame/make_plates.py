@@ -216,6 +216,14 @@ class Dxf:
                (0,.35),(0,.15),(.5,0),(1,.15),(1,.35),(.5,.5)]],
         '-': [[(.1,.5),(.9,.5)]],
         '.': [[(.4,0),(.6,0)]],
+        '=': [[(.1,.62),(.9,.62)],[(.1,.38),(.9,.38)]],
+        ':': [[(.45,.7),(.55,.7)],[(.45,.25),(.55,.25)]],
+        '/': [[(.1,0),(.9,1)]],
+        '(': [[(.7,1),(.3,.6),(.3,.4),(.7,0)]],
+        ')': [[(.3,1),(.7,.6),(.7,.4),(.3,0)]],
+        ',': [[(.5,.15),(.35,-.1)]],
+        '+': [[(.5,.15),(.5,.85)],[(.15,.5),(.85,.5)]],
+        '#': [[(.3,0),(.4,1)],[(.6,0),(.7,1)],[(.1,.35),(.9,.35)],[(.1,.68),(.9,.68)]],
         '2': [[(0,.85),(.5,1),(1,.85),(1,.6),(0,0),(1,0)]],
         '6': [[(1,.9),(.5,1),(0,.75),(0,.15),(.5,0),(1,.15),(1,.35),(.5,.5),(0,.35)]],
         '9': [[(0,.1),(.5,0),(1,.25),(1,.85),(.5,1),(0,.85),(0,.65),(.5,.5),(1,.65)]],
@@ -406,6 +414,111 @@ def shift_entities(sub, ox, oy):
     return out
 
 
+# ---- order drawing ------------------------------------------------------
+# Laid out the way the shop's own example sheet is: one framed cell per part,
+# part name and quantity at the top left of the cell, material and thickness
+# stacked at the top right, overall dimensions on the part. Text is ASCII
+# single-stroke so it always renders - the Korean equivalents go in the email.
+ORDER_PLATES = ['plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-3T',
+                'plate-d-eth-elite-3T', 'plate-e-tc397-3T']
+ORDER_SPEC = {
+    'plate-a-bottom-5T': ('BOTTOM PLATE A', '5T', 1),
+    'plate-b-middle-5T': ('MIDDLE PLATE B', '5T', 1),
+    'plate-c-top-3T': ('TOP PLATE C', '3T', 1),
+    'plate-d-eth-elite-3T': ('SUB PLATE D', '3T', 1),
+    'plate-e-tc397-3T': ('SUB PLATE E', '3T', 1),
+}
+# cell box: x, y, w, h
+ORDER_CELLS = {
+    'plate-a-bottom-5T': (10.0, 300.0, 335.0, 250.0),
+    'plate-b-middle-5T': (355.0, 300.0, 335.0, 250.0),
+    'plate-c-top-3T': (10.0, 30.0, 335.0, 250.0),
+    'plate-e-tc397-3T': (355.0, 30.0, 185.0, 190.0),
+    'plate-d-eth-elite-3T': (550.0, 30.0, 140.0, 155.0),
+}
+ORDER_SHEET = (700.0, 600.0)
+ARROW = 2.4
+DIM_H = 5.0
+
+
+def plate_size(name):
+    if name == 'plate-d-eth-elite-3T':
+        return ETH_PLATE
+    if name == 'plate-e-tc397-3T':
+        return TC_PLATE
+    return (PW, PH)
+
+
+def dim_h(d, x1, x2, y, label, layer='DIM'):
+    d.line(x1, y, x2, y, layer)
+    for x, sgn in ((x1, 1), (x2, -1)):
+        d.line(x, y, x + sgn * ARROW, y + ARROW * 0.4, layer)
+        d.line(x, y, x + sgn * ARROW, y - ARROW * 0.4, layer)
+    w = len(label) * DIM_H * 0.76
+    d.stroke_text((x1 + x2) / 2 - w / 2, y + 2.0, DIM_H, label, layer)
+
+
+def dim_v(d, y1, y2, x, label, layer='DIM'):
+    d.line(x, y1, x, y2, layer)
+    for y, sgn in ((y1, 1), (y2, -1)):
+        d.line(x, y, x + ARROW * 0.4, y + sgn * ARROW, layer)
+        d.line(x, y, x - ARROW * 0.4, y + sgn * ARROW, layer)
+    d.stroke_text(x - 4 - len(label) * DIM_H * 0.76, (y1 + y2) / 2 - DIM_H / 2,
+                  DIM_H, label, layer)
+
+
+def order_cell(d, name, builders):
+    cx, cy, cw, ch = ORDER_CELLS[name]
+    title, thick, qty = ORDER_SPEC[name]
+    w, h = plate_size(name)
+    d.line(cx, cy, cx + cw, cy, 'DIM')
+    d.line(cx, cy + ch, cx + cw, cy + ch, 'DIM')
+    d.line(cx, cy, cx, cy + ch, 'DIM')
+    d.line(cx + cw, cy, cx + cw, cy + ch, 'DIM')
+    # part name + quantity, top left inside the cell
+    d.stroke_text(cx + 8, cy + ch - 16, 7.0, f'{title}   {qty} EA', 'DIM')
+    # material stack: top right if the cell is wide enough, else under the title
+    lines = ('CLEAR ACRYLIC ' + thick, f'{w:.0f} X {h:.0f} MM', 'CUT ON LAYER CUT')
+    widest = max(len(t) for t in lines) * 4.6 * 0.76
+    title_w = len(f'{title}   {qty} EA') * 7.0 * 0.76
+    right_aligned = cw - 16 - title_w > widest
+    for i, line in enumerate(lines):
+        tw = len(line) * 4.6 * 0.76
+        if right_aligned:
+            d.stroke_text(cx + cw - 8 - tw, cy + ch - 14 - i * 9, 4.6, line, 'DIM')
+        else:
+            d.stroke_text(cx + 8, cy + ch - 27 - i * 8, 4.6, line, 'DIM')
+    # the part itself, with room left and below for the dimensions
+    ox = cx + (cw - w) / 2 + 6
+    oy = cy + 34
+    if not right_aligned:          # material text took a band under the title
+        oy = cy + 30
+    d.e += shift_entities(builders[name](), ox, oy)
+    dim_h(d, ox, ox + w, oy - 13, f'{w:.0f}')
+    dim_v(d, oy, oy + h, ox - 13, f'{h:.0f}')
+    return ox, oy
+
+
+def combined_order(builders):
+    """The sheet that goes to the shop."""
+    d = Dxf()
+    W, H = ORDER_SHEET
+    d.rounded_rect(0, 0, W, H, 0.1, layer='SHEET')
+    d.stroke_text(12, H - 22, 9.0, 'LAN9692 ACRYLIC FRAME', 'DIM')
+    d.stroke_text(12, H - 36, 5.0,
+                  'UNIT MM   MATERIAL CLEAR ACRYLIC PMMA   5 PARTS   1 SET', 'DIM')
+    d.stroke_text(12, H - 46, 5.0,
+                  'LAYER CUT = CUT   LAYER ENGRAVE = ENGRAVE ONLY   '
+                  'LAYER DIM AND SHEET DO NOT CUT', 'DIM')
+    for name in ORDER_PLATES:
+        order_cell(d, name, builders)
+    d.stroke_text(355, 244, 5.0, 'HOLES  O36 FAN BORE   O3.4 FOR M3   '
+                                 'O2.9 FOR M2.5', 'DIM')
+    d.stroke_text(355, 232, 5.0, 'SLOTS AS DRAWN   TOP PLATE C HAS ENGRAVED '
+                                 'TEXT ON LAYER ENGRAVE', 'DIM')
+    return d
+
+
 def combined(builders):
     """All five plates on one annotated sheet."""
     d = Dxf()
@@ -451,11 +564,12 @@ def main():
         print(f"  {name + '.dxf':24s} {PW:.0f} x {PH:.0f} mm, {thick} mm acrylic, "
               f"{n} entities")
     builders = {n: fn for n, fn, _ in PLATES}
-    path = os.path.join(out, 'combined-all-plates.dxf')
-    n = combined(builders).save(path)
+    path = os.path.join(out, 'combined-order.dxf')
+    n = combined_order(builders).save(path)
     made.append(path)
-    print(f"  {'combined-all-plates.dxf':24s} {COMBINED_SHEET[0]:.0f} x "
-          f"{COMBINED_SHEET[1]:.0f} mm sheet, 5 plates annotated, {n} entities")
+    print(f"  {'combined-order.dxf':24s} {ORDER_SHEET[0]:.0f} x {ORDER_SHEET[1]:.0f}"
+          f" mm sheet, {len(ORDER_PLATES)} plates dimensioned, {n} entities"
+          f"   <- SEND THIS")
     for tag, spec in NESTS.items():
         path = os.path.join(out, f'nested-{tag}.dxf')
         n = nest(tag, spec, builders).save(path)

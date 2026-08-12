@@ -1,9 +1,23 @@
 # Cutting order — LAN9692 acrylic frame
 
-**Send `combined-all-plates.dxf`.** One 580 × 430 mm sheet with all five plates
-laid out and annotated with thickness, colour and quantity — the format acrylic
-shops ask for. The individual plate files are in the same zip if they would
-rather have them separately.
+**Send `combined-order.dxf`.** One 700 × 600 mm sheet laid out the way the
+shop's own example sheet is: a framed cell per part, part name and quantity at
+the top left, material / thickness / size stacked at the top right, and the
+overall dimensions on each part. The individual plate files are in the same zip
+if they would rather have them separately.
+
+![order drawing](img/order_drawing.png)
+
+Text on the drawing is ASCII so it always renders, whatever CAD the shop uses.
+The Korean equivalents for the order mail:
+
+```
+투명 아크릴 5T   250 x 180 mm   1EA   (하판 A, 중판 B)
+투명 아크릴 3T   250 x 180 mm   1EA   (상판 C)
+투명 아크릴 3T   110 x 110 mm   1EA   (보조판 E)
+투명 아크릴 3T    76 x  60 mm   1EA   (보조판 D)
+CUT 레이어 = 절단,  ENGRAVE 레이어 = 각인만,  DIM/SHEET 레이어 = 가공 없음
+```
 
 | Plate | File | Material | Size | Qty |
 |---|---|---|---|---:|
