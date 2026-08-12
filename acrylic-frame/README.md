@@ -5,6 +5,7 @@ Three laser-cut plates instead of a printed box. Order file:
 for the material/thickness/quantity table and the hardware list.
 
 ![assembly](img/assembly.png)
+![joints](img/joint_detail.png)
 ![exploded](img/exploded.png)
 
 `assembly.py` builds the whole stack in 3D from the same constants the DXFs come
@@ -33,6 +34,13 @@ vertical stack
   plate B              50.0 ..   55.0
   tallest module top   87.6   clearance to plate C  12.4 mm
   plate C             100.0 ..  103.0
+
+fastener engagement  (screw length - what it passes through)
+  LAN9692 standoff, from under plate A   M3 x  8.0 through 5.0 mm -> 3.0 mm   OK
+  A->B standoff, from under plate A      M3 x 10.0 through 5.0 mm -> 5.0 mm   OK
+  A->B standoff, from above plate B      M3 x 10.0 through 5.0 mm -> 5.0 mm   OK
+  B->C standoff, from under plate B      M3 x  8.0 through 5.0 mm -> 3.0 mm   OK
+  B->C standoff, from above plate C      M3 x  8.0 through 3.0 mm -> 5.0 mm   OK
 ```
 
 The two clearances are the ones worth watching. Both are computed against the

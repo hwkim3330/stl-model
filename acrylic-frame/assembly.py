@@ -11,6 +11,7 @@ Plate geometry comes from make_plates.py, so the plates here and the DXFs sent
 to the cutter cannot drift apart. The board comes from ../lan9692-evb-case/
 board_mock.py, which places a block per part at its pick-and-place coordinate.
 """
+import math
 import os
 import sys
 
@@ -112,8 +113,24 @@ def plate(kind, z0, thick):
     return trimesh.boolean.difference([body] + cuts, engine='manifold')
 
 
-def standoffs(z0, z1, points, d=6.0):
-    return [cyl(d, z0, z1, x, y, sections=24) for x, y in points]
+def hexs(z0, z1, points, af=5.5):
+    """Hex standoff, across-flats `af` - M3 standoffs are 5.5 mm A/F."""
+    return [cyl(af / math.cos(math.pi / 6), z0, z1, x, y, sections=6)
+            for x, y in points]
+
+
+def screw(x, y, z_head, length, up=False, d=3.0, head_d=5.5, head_h=2.0):
+    """Pan-head M3. z_head is the face the head sits on; `up` = pointing +Z."""
+    s = -1 if not up else 1
+    shank = cyl(d, min(z_head, z_head + s * length), max(z_head, z_head + s * length),
+                x, y, sections=12)
+    head = cyl(head_d, min(z_head, z_head - s * head_h),
+               max(z_head, z_head - s * head_h), x, y, sections=12)
+    return trimesh.util.concatenate([shank, head])
+
+
+# joint: name, screw length, material it passes through, standoff it enters
+JOINTS = []
 
 
 def corner_points(which='lower'):
@@ -124,22 +141,29 @@ def build(upto='C'):
     """upto='A' gives just plate A, its standoffs and the board - the view that
     shows whether the drilled pattern really lines up."""
     parts, cols = [], []
+    JOINTS.clear()          # build() may be called more than once per run
 
     def add(m, c):
         parts.append(m)
         cols.append(c)
 
     add(plate('A', Z_A, T_A), ACRYLIC)
-    for s in standoffs(T_A, Z_PCB, [(P.BOARD_OFF[0] + x, P.BOARD_OFF[1] + y)
-                                    for x, y in P.LAN_HOLES]):
+    pcb_pts = [(P.BOARD_OFF[0] + x, P.BOARD_OFF[1] + y) for x, y in P.LAN_HOLES]
+    for s in hexs(T_A, Z_PCB, pcb_pts):
         add(s, METAL)
+    for x, y in pcb_pts:                                  # M3x8 up from below
+        add(screw(x, y, Z_A, 8.0, up=True), METAL)
+    JOINTS.append(('LAN9692 standoff, from under plate A', 8.0, T_A, 10.0))
     board, bcol = board_mock.build(Z_PCB, colors=True)
     board.apply_translation((P.BOARD_OFF[0], P.BOARD_OFF[1], 0))
     add(board, bcol)
     if upto == 'A':
         return parts, cols
-    for s in standoffs(T_A, Z_B, corner_points('lower')):
+    for s in hexs(T_A, Z_B, corner_points('lower')):
         add(s, METAL)
+    for x, y in corner_points('lower'):
+        add(screw(x, y, Z_A, 10.0, up=True), METAL)       # into the A->B standoff
+    JOINTS.append(('A->B standoff, from under plate A', 10.0, T_A, H_AB))
 
     fan = trimesh.boolean.difference(
         [bx(P.FAN_C[0] - 20, P.FAN_C[0] + 20, P.FAN_C[1] - 20, P.FAN_C[1] + 20,
@@ -149,13 +173,22 @@ def build(upto='C'):
     add(fan, FAN_COL)
 
     add(plate('B', Z_B, T_B), ACRYLIC)
-    for s in standoffs(Z_B + T_B, Z_C, corner_points('upper')):
+    for x, y in corner_points('lower'):                   # down into the same one
+        add(screw(x, y, Z_B + T_B, 10.0), METAL)
+    JOINTS.append(('A->B standoff, from above plate B', 10.0, T_B, H_AB))
+    for s in hexs(Z_B + T_B, Z_C, corner_points('upper')):
         add(s, METAL)
+    for x, y in corner_points('upper'):
+        add(screw(x, y, Z_B, 8.0, up=True), METAL)
+    JOINTS.append(('B->C standoff, from under plate B', 8.0, T_B, H_BC))
 
     for m, c in modules(Z_B + T_B):
         add(m, c)
 
     add(plate('C', Z_C, T_C), ACRYLIC)
+    for x, y in corner_points('upper'):
+        add(screw(x, y, Z_C + T_C, 8.0), METAL)
+    JOINTS.append(('B->C standoff, from above plate C', 8.0, T_C, H_BC))
     return parts, cols
 
 
@@ -255,6 +288,20 @@ def checks():
           f"{P.BOARD_OFF[1] + P.U1[1]:.2f})   offset "
           f"{np.hypot(P.FAN_C[0] - P.BOARD_OFF[0] - P.U1[0], P.FAN_C[1] - P.BOARD_OFF[1] - P.U1[1]):.3f} mm")
 
+    print("\nfastener engagement  (screw length - what it passes through)")
+    ok2 = True
+    for name, length, through, depth in globals().get('FULL_JOINTS', JOINTS):
+        eng = length - through
+        verdict = 'OK' if 3.0 <= eng <= depth else ('too little' if eng < 3.0
+                                                    else 'bottoms out')
+        ok2 &= verdict == 'OK'
+        print(f"  {name:38s} M3 x {length:4.1f} through {through:4.1f} mm"
+              f"  -> {eng:4.1f} mm of thread   {verdict}")
+    if not ok2:
+        ok = False
+    print("  (an M/F standoff's 6 mm stud through a 5 mm plate gives 1.0 mm - "
+          "this is the check that rules that out)")
+
     tall = max(board_mock.PARTS, key=lambda p: p[5])
     top = Z_PCB + board_mock.PCB_T + tall[5]
     print(f"\nvertical stack")
@@ -308,6 +355,7 @@ def exploded(parts, gap=28.0):
 
 if __name__ == '__main__':
     parts, cols = build()
+    FULL_JOINTS = list(JOINTS)      # build('A') later would truncate it
     fc = np.vstack([c if np.ndim(c) == 2 else np.tile(c, (len(m.faces), 1))
                     for m, c in zip(parts, cols)])
     scene = trimesh.util.concatenate(parts)
