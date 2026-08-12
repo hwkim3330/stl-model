@@ -4,3 +4,4 @@ board-data/
 board_mock.stl
 # vendor archives live outside the repo (board-data/); the acrylic order zip
 # is a deliverable and is tracked
+acrylic-frame/assembly.stl

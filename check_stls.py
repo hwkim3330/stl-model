@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Validate every printable STL in the repo the way a print service's uploader does.
 
-(`*mock*.stl` is skipped - board_mock.stl is a preview aid, not a part.)
+(board_mock.stl and assembly.stl are skipped - they are multi-body previews,
+not printable parts.)
 
     python3 check_stls.py
 
@@ -10,6 +11,7 @@ degenerate faces and of positive volume, and prints its bounding box and
 material volume so an order can be priced at a glance.
 """
 import glob
+import os
 import sys
 
 import trimesh
@@ -27,7 +29,10 @@ def check(path):
 
 
 def main():
-    paths = [p for p in sorted(glob.glob('*/*.stl')) if 'mock' not in p]
+    # board_mock.stl and assembly.stl are multi-body previews, not parts
+    skip = ('mock', 'assembly')
+    paths = [p for p in sorted(glob.glob('*/*.stl'))
+             if not any(k in os.path.basename(p) for k in skip)]
     if not paths:
         sys.exit('no STLs found - run from the repo root')
     width = max(len(p) for p in paths)
