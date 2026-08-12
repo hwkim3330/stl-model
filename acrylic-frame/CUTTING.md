@@ -129,11 +129,23 @@ description before you click buy.
 
 ### Buying it all domestically instead
 
-Nothing on this list has to be imported. Every hardware line is a generic item —
-M3 / M2.5 F/F hex standoffs, pan-head screws, nyloc nuts, nylon washers, rubber
-feet — and so are the barrel socket and the Y splitter. The part numbers above
-exist to pin the *specification*, not the shop. A domestic order works as long
-as three things are checked, because they are the three that break the build:
+The part numbers above exist to pin the *specification*, not the shop — every
+line is a generic item, so a domestic order is reasonable. How far that was
+actually confirmed, rather than assumed:
+
+| Line | Domestic stock |
+|---|---|
+| M3 45 mm metal support | listed at plabs.co.kr, ₩2,200, with an `F` option — but the listing's F/M wording does not prove **both** ends are female. Ask. |
+| Y splitter | 디바이스마트 `[BU140]`, DC(F) → DC(M) × 2 — right genders, **inner diameter not confirmed** |
+| **female 5.5 × 2.5 pigtail** | not found. The nearest domestic part, `AM2825`, is **male** |
+| M2.5 standoffs, nyloc nuts, nylon washers, feet, screws | not checked — assumed, as ordinary stock |
+
+So two lines carry real risk: the **fan's female socket** and the **splitter's
+inner diameter**. Both are the 2.1-instead-of-2.5 failure. Ordering just those
+two from DigiKey against the verified part numbers, and the rest domestically,
+costs one extra delivery and removes the risk entirely.
+
+Whichever way it is bought, three things decide whether it assembles:
 
 | Check | Why |
 |---|---|
