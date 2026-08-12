@@ -102,34 +102,93 @@ def groove(x1, y1, x2, y2, z0, z1, w=None):
     return trimesh.boolean.union([m] + ends, engine='manifold')
 
 
+PLATE_DXF = {'A': 'plate-a-bottom-5T', 'B': 'plate-b-middle-5T',
+             'C': 'plate-c-top-3T'}
+
+
+def dxf_features(stem, layer='CUT'):
+    """Read a plate's features straight out of the DXF the cutter is sent.
+
+    Returned as ('circle', x, y, d) / ('slot', x, y, length, width, horizontal)
+    / ('line', x1, y1, x2, y2) for the ENGRAVE layer.
+
+    This used to re-derive the geometry from the constants a second time, and it
+    drifted: plate B went on being modelled with the legacy 45 mm deck slots
+    long after the DXF had moved to real board mounts, so the preview showed a
+    plate that was never going to be cut. Reading the shipped file is the only
+    arrangement in which the two cannot disagree.
+
+    Slot ends are told apart from the outline's rounded corners by arc span -
+    a cap is a half circle, a corner is a quarter - and each cap's start angle
+    says which end of which axis it is, so pairing is unambiguous even for the
+    five vent slots that share a centre line.
+    """
+    import review
+    ents = [(k, b) for k, b in
+            review.parse(os.path.join(HERE, 'dxf', stem + '.dxf'))
+            if b.get('8') == layer]
+    if not ents:
+        raise ValueError(f"{stem}: nothing on layer {layer}")
+    if layer != 'CUT':
+        return [('line', float(b['10']), float(b['20']),
+                 float(b['11']), float(b['21'])) for k, b in ents if k == 'LINE']
+
+    out, caps = [], {90: [], 270: [], 0: [], 180: []}
+    for k, b in ents:
+        if k == 'CIRCLE':
+            out.append(('circle', float(b['10']), float(b['20']),
+                        float(b['40']) * 2))
+        elif k == 'ARC':
+            a0, a1 = float(b['50']), float(b['51'])
+            if abs((a1 - a0) % 360 - 180) > 1e-6:
+                continue                       # 90 deg: a rounded plate corner
+            key = round(a0 % 360)              # 90 left, 270 right, 180 bottom, 0 top
+            if key not in caps:
+                raise ValueError(f"{stem}: slot cap at odd angle {a0}")
+            caps[key].append((float(b['10']), float(b['20']),
+                              float(b['40']) * 2))
+
+    # 90 pairs with 270 across X, 180 with 0 across Y; the shared coordinate
+    # must match exactly and the far cap must lie on the far side.
+    for lo, hi, horizontal in ((90, 270, True), (180, 0, False)):
+        same, along = (1, 0) if horizontal else (0, 1)
+        for cap in caps[lo]:
+            mate = [p for p in caps[hi] if abs(p[same] - cap[same]) < 1e-6
+                    and abs(p[2] - cap[2]) < 1e-6 and p[along] > cap[along]]
+            if not mate:
+                raise ValueError(f"{stem}: unpaired slot cap at "
+                                 f"({cap[0]:.3f}, {cap[1]:.3f})")
+            m = min(mate, key=lambda p: p[along])
+            caps[hi].remove(m)
+            out.append(('slot', (cap[0] + m[0]) / 2, (cap[1] + m[1]) / 2,
+                        m[along] - cap[along] + cap[2], cap[2], horizontal))
+        caps[lo] = []
+    left = [p for v in caps.values() for p in v]
+    if left:
+        raise ValueError(f"{stem}: {len(left)} slot caps left unpaired")
+    return out
+
+
 def plate(kind, z0, thick):
-    """3D version of the DXF plates, from the same constants."""
-    body = bx(0, P.PW, 0, P.PH, z0, z0 + thick)
-    cuts = [cyl(P.M3_FREE, z0 - 1, z0 + thick + 1, x, y)
-            for x in (P.CORNER_INSET, P.PW - P.CORNER_INSET)
-            for y in (P.CORNER_INSET, P.PH - P.CORNER_INSET)]
-    if kind == 'A':
-        cuts += [cyl(P.M3_FREE, z0 - 1, z0 + thick + 1,
-                     P.BOARD_OFF[0] + hx, P.BOARD_OFF[1] + hy)
-                 for hx, hy in P.LAN_HOLES]
-    elif kind == 'B':
-        cuts.append(cyl(P.FAN_BORE, z0 - 1, z0 + thick + 1, *P.FAN_C, sections=64))
-        h = P.FAN_PITCH / 2
-        cuts += [cyl(P.M3_FREE, z0 - 1, z0 + thick + 1,
-                     P.FAN_C[0] + sx * h, P.FAN_C[1] + sy * h)
-                 for sx in (-1, 1) for sy in (-1, 1)]
-        for _, cx, cy in P.ZONES:
-            d = P.DECK_PITCH / 2
-            cuts += [slot_solid(cx + sx * d, cy + sy * d, P.SLOT_L, P.SLOT_W,
-                                z0 - 1, z0 + thick + 1)
-                     for sx in (-1, 1) for sy in (-1, 1)]
-    else:
-        for i in range(-2, 3):
-            cuts.append(slot_solid(P.FAN_C[0] + i * (P.VENT_SLOT[0] + 6), P.FAN_C[1],
-                                   P.VENT_SLOT[1], P.VENT_SLOT[0],
-                                   z0 - 1, z0 + thick + 1, horizontal=False))
+    """3D version of a plate, cut from its own DXF - see dxf_features."""
+    r = P.PLATE_R
+    body = trimesh.boolean.union(
+        [bx(r, P.PW - r, 0, P.PH, z0, z0 + thick),
+         bx(0, P.PW, r, P.PH - r, z0, z0 + thick)] +
+        [cyl(2 * r, z0, z0 + thick, x, y, sections=32)
+         for x in (r, P.PW - r) for y in (r, P.PH - r)], engine='manifold')
+    z1, z2 = z0 - 1, z0 + thick + 1
+    cuts = []
+    for f in dxf_features(PLATE_DXF[kind]):
+        if f[0] == 'circle':
+            cuts.append(cyl(f[3], z1, z2, f[1], f[2],
+                            sections=64 if f[3] > 20 else 40))
+        else:
+            cuts.append(slot_solid(f[1], f[2], f[3], f[4], z1, z2,
+                                   horizontal=f[5]))
+    if kind == 'C':
         # the ENGRAVE layer, as real grooves so the preview shows the lettering
-        for x1, y1, x2, y2 in P.engrave_segments():
+        for _, x1, y1, x2, y2 in dxf_features(PLATE_DXF[kind], 'ENGRAVE'):
             cuts.append(groove(x1, y1, x2, y2, z0 + thick - ENGRAVE_DEPTH,
                                z0 + thick + 0.2))
     return trimesh.boolean.difference([body] + cuts, engine='manifold')

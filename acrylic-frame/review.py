@@ -225,6 +225,47 @@ def geometry_audit(tol=0.02):
     return not bad
 
 
+def model_audit(tol=0.01):
+    """The 3D preview's cuts against the DXFs, feature by feature.
+
+    assembly.py used to build the plates from the constants a second time, so a
+    change to the DXF did not have to reach the mesh - plate B was previewed
+    with the legacy 45 mm deck slots while its DXF carried real board mounts.
+    It now reads the shipped DXF, and this proves it kept doing so.
+    """
+    import assembly as A
+    print("\n3D preview: every cut in the mesh, against the DXF it was cut from")
+    exp = expected_features()
+    bad = False
+    for kind, stem in A.PLATE_DXF.items():
+        got = A.dxf_features(stem)
+        want = exp[stem]
+        miss = []
+        for f in want:
+            if f[0] == 'circle':
+                hit = any(g[0] == 'circle' and abs(g[1] - f[1]) < tol
+                          and abs(g[2] - f[2]) < tol and abs(g[3] - f[3]) < tol
+                          for g in got)
+            else:
+                hit = any(g[0] == 'slot' and abs(g[1] - f[1]) < tol
+                          and abs(g[2] - f[2]) < tol and abs(g[3] - f[3]) < tol
+                          and abs(g[4] - f[4]) < tol
+                          and g[5] == (f[0] == 'slot') for g in got)
+            if not hit:
+                miss.append(f)
+        stray = len(got) - len(want)
+        tag = 'OK' if not miss and stray == 0 else 'FAIL'
+        bad |= tag == 'FAIL'
+        print(f"  plate {kind}  {len(got):2d} cuts in the mesh, "
+              f"{len(miss)} missing, {stray:+d} stray   {tag}")
+        for m in miss[:4]:
+            print(f"        missing {m}")
+    n = len(A.dxf_features(A.PLATE_DXF['C'], 'ENGRAVE'))
+    print(f"  plate C engraving: {n} strokes read from the ENGRAVE layer"
+          f"   {'OK' if n else 'MISSING'}")
+    return not bad and n > 0
+
+
 def fastener_audit():
     """Every hole that takes a screw, against what the BOM orders."""
     import make_plates as M
@@ -265,6 +306,8 @@ if __name__ == '__main__':
             print(f"      {g:5.2f} mm between {a} and {b}")
         bad |= worst < FAIL
     if not geometry_audit():
+        bad = True
+    if not model_audit():
         bad = True
     fastener_audit()
     sys.exit(1 if bad else 0)
