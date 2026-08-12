@@ -179,7 +179,8 @@ feed it 24 V: the input TVS is an SMBJ13D with a 13 V standoff.
 ```bash
 python3 make_plates.py     # -> dxf/*.dxf + acrylic-frame-dxf.zip
 python3 assembly.py        # -> assembly.stl, img/*.png, fit checks
-python3 review.py          # web-thickness check on the generated DXFs
+python3 review.py          # web, geometry and fastener audits on the DXFs
+python3 render_all.py      # every img/*.png and assembly.stl, from one place
 ```
 
 `review.py` checks the generated DXFs three ways: the acrylic left between
