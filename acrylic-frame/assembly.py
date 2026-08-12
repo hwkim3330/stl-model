@@ -259,7 +259,7 @@ def modules(z_top):
     """Whatever the current plate-B layout carries, at its real height."""
     out = []
     if ACRYLIC_ONLY and P.DIRECT_MOUNT:
-        for (_, cx, cy), (bw, bh), holes, _ in P.board_mounts():
+        for (_, cx, cy), (bw, bh), holes, _, _ in P.board_mounts():
             standoff = TC_STANDOFF if bw > 80 else ETH_STANDOFF
             parts_h = TC_PARTS_H if bw > 80 else ETH_PARTS_H
             out += sub_stack(cx, cy, (bw, bh), (bw, bh), holes,

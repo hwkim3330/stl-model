@@ -153,10 +153,13 @@ def expected_features():
         for sy in (-1, 1):
             exp[B].append(('circle', M.FAN_C[0] + sx * h, M.FAN_C[1] + sy * h,
                            M.FAN_SCREW_D, 0))
-    for (_, cx, cy), (bw, bh), holes, hd in M.board_mounts():
-        for hx, hy in holes:
-            exp[B].append(('slot', cx - bw / 2 + hx, cy - bh / 2 + hy,
-                           max(M.MOUNT_SLOT, hd), hd))
+    for (_, cx, cy), (bw, bh), holes, hd, slotted in M.board_mounts():
+        for i, (hx, hy) in enumerate(holes):
+            X, Y = cx - bw / 2 + hx, cy - bh / 2 + hy
+            if i in slotted and M.MOUNT_SLOT > hd:
+                exp[B].append(('slot', X, Y, M.MOUNT_SLOT, hd))
+            else:
+                exp[B].append(('circle', X, Y, hd, 0))
     for _, cx, cy in M.ZONES:
         for x, y in M.deck_points(cx, cy):
             exp[B].append(('circle', x, y, M.M3_FREE, 0))
@@ -233,7 +236,7 @@ def fastener_audit():
         'fan to plate B': 4,
     }
     if M.DIRECT_MOUNT:
-        for (name, _, _), _, holes, _ in M.board_mounts():
+        for (name, _, _), _, holes, _, _ in M.board_mounts():
             need[f'{name} to plate B'] = 2 * len(holes)
     else:
         need['plate D + E to plate B'] = 8

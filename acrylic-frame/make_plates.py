@@ -74,12 +74,17 @@ LAYOUT = 'tc397+eth-elite'
 #         and E, which keeps plate B generic if you swap modules later.
 DIRECT_MOUNT = True
 
-# The board hole positions were read off drawings, not off the boards. That is
-# the one error that would scrap plate B, so the mount features are cut as short
-# SLOTS rather than round holes: MOUNT_SLOT mm long absorbs a misread of up to
-# +/-(MOUNT_SLOT - hole)/2 in X. Set it equal to the hole diameter for plain
-# round holes once the boards have been measured.
+# The board hole positions were read off drawings, not off the boards, and that
+# is the one error that could scrap plate B. So each board gets a mix: the holes
+# whose position is agreed by every source are cut ROUND, and they locate the
+# board; the ones carrying doubt are cut as MOUNT_SLOT-long slots in X, which
+# absorbs +/-(MOUNT_SLOT - hole)/2 without letting the board float. Four slots
+# would tolerate the same error but leave nothing to register against while you
+# tighten. Set MOUNT_SLOT = 0 for all-round once the boards are measured.
 MOUNT_SLOT = 9.0
+# index into each board's hole list: which ones are slotted
+TC_SLOTTED = (2, 3)        # (96.99, 59) and (16, 82) - existence not proven
+ETH_SLOTTED = (2, 3)       # the top pair - the 58.00 vs 60.25 asymmetry lives here
 ZONES = LAYOUTS[LAYOUT]
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 
@@ -290,10 +295,13 @@ def plate_middle():
         for sy in (-1, 1):
             d.circle(FAN_C[0] + sx * h, FAN_C[1] + sy * h, FAN_SCREW_D / 2)
     # the boards bolted straight down, on their own patterns...
-    for (_, cx, cy), (bw, bh), holes, hd in board_mounts():
-        for hx, hy in holes:
-            d.slot(cx - bw / 2 + hx, cy - bh / 2 + hy,
-                   max(MOUNT_SLOT, hd), hd, horizontal=True)
+    for (_, cx, cy), (bw, bh), holes, hd, slotted in board_mounts():
+        for i, (hx, hy) in enumerate(holes):
+            X, Y = cx - bw / 2 + hx, cy - bh / 2 + hy
+            if i in slotted and MOUNT_SLOT > hd:
+                d.slot(X, Y, MOUNT_SLOT, hd, horizontal=True)
+            else:
+                d.circle(X, Y, hd / 2)
     # ...and a deck pattern so a sub-plate can be used instead, without
     # re-cutting. 35 x 45 rather than a 45 mm square: that is what clears both
     # boards' mount slots.
@@ -317,9 +325,9 @@ def engrave_segments():
 
 
 def board_mounts():
-    """(zone, board size, hole list, hole Ø) for whatever plate B carries."""
-    return [(ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D),
-            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D)]
+    """(zone, board size, holes, hole Ø, slotted indices) for plate B."""
+    return [(ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
+            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED)]
 
 
 def plate_eth_elite():
