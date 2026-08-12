@@ -9,13 +9,13 @@
 | [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box, ports only | tray + 2 panels + lid | 237.2 cm³ |
 | [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite + PoE base board | bottom + top | 17.1 cm³ |
 | [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 26.5 cm³ |
-| [`tc397-triboard-case/`](tc397-triboard-case/) | AURIX TC397 TriBoard (Eurocard 100 × 160) | tray + vented lid | 89.5 cm³ |
+| [`tc397-appkit-case/`](tc397-appkit-case/) | AURIX Application Kit TC3X7 (TC397/TC387, 100 × 100) | tray + vented lid | 82.9 cm³ |
 
 Everything is dimensioned from primary sources, not from drawings or eyeballing:
 the LAN9692 parts from Microchip's released Gerber/Excellon and pick-and-place
 files, the LilyGo `_fit` variants from measurements of the published STLs checked
 against LilyGo's own board CAD, the ESP32-S31 tray from Espressif's dimension
-DXF. Each folder's README states which numbers are data and which are not.
+DXF, the TC397 tray from Infineon's Application Kit manual drawing. Each folder's README states which numbers are data and which are not.
 
 ## Stacking and cooling
 

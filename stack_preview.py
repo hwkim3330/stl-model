@@ -17,7 +17,7 @@ import trimesh
 ROOT = os.path.dirname(os.path.abspath(__file__))
 L9 = os.path.join(ROOT, 'lan9692-evb-case')
 S31 = os.path.join(ROOT, 'esp32-s31-coreboard-case')
-TC = os.path.join(ROOT, 'tc397-triboard-case')
+TC = os.path.join(ROOT, 'tc397-appkit-case')
 sys.path[:0] = [L9, S31, TC]
 
 import lan9692_box as B                              # noqa: E402
@@ -79,17 +79,14 @@ def main():
     cols += [UPPER, UPPER]
     scene(parts, cols, 'img/stack_s31.png')
 
-    import tc397_case as T
+    import tc397_appkit_case as T
     parts, cols = base_box()
-    # 90 deg so the 165 mm case lies across the 233.8 mm lid instead of
-    # overhanging its 155.7 mm depth
-    tray = load(TC, 'tc397_tray.stl', rot=90)
-    lid = load(TC, 'tc397_lid.stl', rot=90)
-    lid.apply_translation((0, 0, T.Z_LID))
-    for m in (tray, lid):
-        c = (T.BW / 2, T.BH / 2)
-        m.apply_translation((dx - c[1], dy - c[0], dz))
-    parts += [tray, lid]
+    # 107 x 106 mm, so it sits inside the lid's 233.8 x 155.7 footprint either
+    # way up - the deck square is what makes that free
+    off = (dx - T.BW / 2, dy - T.BH / 2, dz)
+    parts += [load(TC, 'tc397_appkit_tray.stl', off),
+              load(TC, 'tc397_appkit_lid.stl',
+                   (off[0], off[1], off[2] + T.Z_LID))]
     cols += [UPPER, UPPER]
     scene(parts, cols, 'img/stack_tc397.png', elev=22, azim=-58)
 
