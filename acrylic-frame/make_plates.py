@@ -65,13 +65,21 @@ ETH_HOLES = [(3.33, 4.63), (61.33, 4.63), (2.98, 46.23), (63.23, 46.20)]
 ETH_HOLE_D = 2.9                  # M2.5 free fit
 ETH_PLATE = (76.0, 60.0)
 
-# Optional 5th plate: the TC397 Application Kit bolted down instead of living in
-# its printed tray. Only two mounting holes exist, both on the y = 0 edge
-# (Application Kit Manual TC3X7 V2.0, figure 7-7 - the chain carries 11, 89
-# and 4 explicitly, and all four corners were checked for more). The port edge
-# is supported by two self-adhesive nylon standoffs, which need no holes.
+# 5th plate: the TC397 Application Kit bolted down instead of living in its
+# printed tray. Four isolated round pads in figure 7-7 of the Application Kit
+# Manual TC3X7 V2.0 have BOTH coordinates in the drawing's dimension chains
+#   x: 3.01 11 16 28.41 46.19 74.676 89 96.99 100
+#   y: 2.7  4  51 59    64.262 82    96.72 100
+# and the drawing exists "for development of extension boards", so what it
+# dimensions is what an extension board has to match. Confidence differs:
+#   (11, 4) and (89, 4)      Ø6.0 pads, unambiguous, on the front edge
+#   (96.99, 59), (16, 82)    Ø4.0 pads, dimensioned and isolated - very likely
+#                            mounting holes, but not proven
+# Cut all four. If the last two turn out to be something else you simply leave
+# those screws out and fall back on adhesive props; an unused hole costs
+# nothing, whereas two screws on one edge leaves the port edge cantilevered.
 TC_BOARD = (100.0, 100.0)
-TC_HOLES = [(11.0, 4.0), (89.0, 4.0)]
+TC_HOLES = [(11.0, 4.0), (89.0, 4.0), (96.99, 59.0), (16.0, 82.0)]
 TC_HOLE_D = 3.4
 TC_PLATE = (110.0, 110.0)
 

@@ -39,9 +39,10 @@ BOM = [
     ('hardware', 'Washer', 'M3 nylon', 20, 'under every head that lands on acrylic'),
     ('hardware', 'Hex standoff F/F', 'M2.5 x 6 mm', 4, 'T-ETH-Elite on plate D'),
     ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 8, 'T-ETH-Elite on plate D'),
-    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm', 2, 'TC397 on plate E - only 2 holes exist'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm', 4, 'TC397 on plate E'),
+    ('hardware', 'Screw, pan head', 'M3 x 6 mm', 4, 'TC397 down onto plate E'),
     ('hardware', 'Nylon standoff, adhesive base', '8 mm', 2,
-     'props the TC397 port edge, which has no holes'),
+     'spares - only needed if the two less certain TC397 holes are not holes'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'under plate A'),
 
     ('electrical', 'Fan', '40 x 40 x 10 mm, 12 V DC', 1, 'blows down onto the switch'),

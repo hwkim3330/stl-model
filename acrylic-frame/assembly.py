@@ -41,7 +41,7 @@ FAN_THICK = 10.0
 ACRYLIC_ONLY = True
 SUB_T = 3.0                            # sub-plate thickness
 ETH_STANDOFF = 6.0                     # M2.5 under the T-ETH-Elite
-TC_STANDOFF = 8.0                      # M3 under the TC397
+TC_STANDOFF = 8.0                      # M3 under the TC397, 4 places
 ETH_PARTS_H = 15.2                     # over the PCB, from LilyGo's 3D CAD
 TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
 

@@ -14,8 +14,9 @@ electronics parts supplier,hardware,Nut,M3,20,"4 under plate A corners, 4 fan, 8
 electronics parts supplier,hardware,Washer,M3 nylon,20,under every head that lands on acrylic
 electronics parts supplier,hardware,Hex standoff F/F,M2.5 x 6 mm,4,T-ETH-Elite on plate D
 electronics parts supplier,hardware,"Screw, pan head",M2.5 x 6 mm,8,T-ETH-Elite on plate D
-electronics parts supplier,hardware,Hex standoff F/F,M3 x 8 mm,2,TC397 on plate E - only 2 holes exist
-electronics parts supplier,hardware,"Nylon standoff, adhesive base",8 mm,2,"props the TC397 port edge, which has no holes"
+electronics parts supplier,hardware,Hex standoff F/F,M3 x 8 mm,4,TC397 on plate E
+electronics parts supplier,hardware,"Screw, pan head",M3 x 6 mm,4,TC397 down onto plate E
+electronics parts supplier,hardware,"Nylon standoff, adhesive base",8 mm,2,spares - only needed if the two less certain TC397 holes are not holes
 electronics parts supplier,hardware,Rubber foot,"self-adhesive, ~10 mm",4,under plate A
 electronics parts supplier,electrical,Fan,"40 x 40 x 10 mm, 12 V DC",1,blows down onto the switch
 electronics parts supplier,electrical,"DC splitter, 1 to 2",barrel 5.5 x 2.5 mm,1,NOT 5.5 x 2.1 - the board jack is 2.5
