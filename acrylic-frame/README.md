@@ -62,6 +62,14 @@ Both small boards bolt **straight to plate B**, which is cut with each board's
 own mounting pattern — the TC397's four holes and the T-ETH-Elite's four
 asymmetric ones. No sub-plates.
 
+![plate B layout](img/plateB_layout.png)
+
+Positions are chosen so each board's **port edge lands next to a plate edge**,
+not in the middle of the plate: the TC397's connector row ends 14 mm from the
+back edge, the T-ETH-Elite's USB-C 10 mm from the front and its RJ45 17 mm from
+the right. Cables leave the frame instead of crossing it. Both boards clear the
+fan and the standoff columns by ≥ 7.8 mm, and there is 48 mm between them.
+
 Stack ≈ 5 + 45 + 5 + 45 + 3 = **103 mm** tall.
 
 ### Plate B layout

@@ -53,10 +53,12 @@ DECK_PITCH = 45.0                 # same square the printed trays already use
 # Where module trays bolt onto plate B. Both layouts use the same 45 mm deck
 # square, so any tray in this repo fits either. Checked in assembly.py.
 LAYOUTS = {
-    # TC397 Application Kit case (119 x 119) next to a LilyGo T-ETH-Elite on
-    # its adapter (78 x 59): 8.5 mm between them, 11.3 mm from the fan.
-    'tc397+eth-elite': [('TC397 case', 74.0, 90.0),
-                        ('T-ETH-Elite adapter', 178.0, 36.0)],
+    # Positions put each board's PORT edge near a plate edge so cables leave
+    # the frame instead of crossing it: the TC397's connector row ends up 14 mm
+    # from the back edge, the T-ETH-Elite's USB-C 10 mm from the front and its
+    # RJ45 17 mm from the right. Both clear the fan and the corner columns.
+    'tc397+eth-elite': [('TC397', 70.0, 116.0),
+                        ('T-ETH-Elite', 201.1, 34.6)],
     # two 85 x 75 ESP32-S31 trays, 84 mm apart
     'two-s31': [('module A', 60.0, 132.0), ('module B', 60.0, 48.0)],
 }
