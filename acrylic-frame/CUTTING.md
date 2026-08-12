@@ -38,6 +38,18 @@ Split on the DC side:
 The alternative is a 5 V fan off expansion header J4, which does budget
 5 V @ 2 A — no splitter, but it puts fan inrush on the switch's own rail.
 
+## Two separate orders
+
+The laser shop cuts plates and nothing else. Standoffs, screws, the fan and the
+DC splitter come from an electronics parts supplier — order them at the same
+time so they arrive together, but they are not part of the acrylic job.
+
+| Order | Where | What |
+|---|---|---|
+| 1 | laser / acrylic shop | `acrylic-frame-dxf.zip` — 3 plates |
+| 2 | electronics parts supplier | the hardware table below |
+| 3 | 3D print (self or JLC3DP) | TC397 case, T-ETH-Elite case, `adapter_lilygo.stl` |
+
 ## Hardware
 
 | Part | Size | Qty |
@@ -51,6 +63,28 @@ The alternative is a 5 V fan off expansion header J4, which does budget
 | Rubber feet | self-adhesive | 4 |
 | 12 V DC Y splitter | 5.5 × 2.5 mm | 1 |
 | 12 V adapter | 5 A, 5.5 × 2.5 mm | 1 |
+
+## Why the ESP and the TC397 keep their printed cases
+
+Mounting the bare boards on standoffs straight to plate B would be neater, and
+for the LAN9692 that is exactly what plate A does — it has **8 × M3 holes** in
+the drill file. The other two do not have a pattern worth drilling to:
+
+* **TC397 Application Kit** — only **2 mounting holes**, Ø6 pads at (11, 4) and
+  (89, 4), both on the same edge (figure 7-7 of the Application Kit manual, and
+  all four corners were checked). Two screws on one edge leaves the opposite
+  edge — the one with POWER, USB, RJ45, CAN and the SD slot — cantilevered
+  every time something is plugged in.
+* **LilyGo T-ETH-Elite** — four **Ø2.5** holes near the corners in LilyGo's own
+  CAD, but they are **not a clean rectangle**: the bottom pair is 58.00 mm apart
+  and the top pair 60.25 mm. That is far more than tessellation noise, so the
+  positions are not trustworthy enough to cut acrylic to, and they would need
+  M2.5 hardware rather than M3.
+
+The printed cases are cheap next to the rest of the build — TC397 82.9 cm³,
+T-ETH-Elite 17.1 cm³, adapter 14.5 cm³ — and both are already checked to fit on
+plate B. If you would rather mount bare, measure the real boards first and the
+zone slots become plain holes.
 
 ## What mounts where
 
