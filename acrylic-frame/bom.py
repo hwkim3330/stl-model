@@ -55,12 +55,15 @@ BOM = [
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'under plate A'),
 
     ('electrical', 'Fan', '40 x 40 x 10 mm, 12 V DC, 3-pin or bare leads', 1,
-     'Noctua NF-A4x10 FLX (32 x 32 mm pitch, 10 mm thick) or Sunon MF40101V'),
-    ('electrical', 'DC splitter, 1 to 2', 'barrel 5.5 x 2.5 mm', 1,
-     'NOT 5.5 x 2.1 - the board jack is 2.5'),
+     'Noctua NF-A4x10 FLX (32 x 32 mm pitch, 10 mm thick) or Sunon MF40101V. '
+     'Cut the INCLUDED extension cable to solder the barrel socket on, not the '
+     "fan's own lead"),
+    ('electrical', 'DC splitter, 1 female to 2 male', 'barrel 5.5 x 2.5 mm', 1,
+     'NOT 5.5 x 2.1 - the board jack is 2.5. Female end takes the adapter'),
     ('electrical', 'DC adapter', '12 V 5 A, barrel 5.5 x 2.5 mm, centre +', 1,
      'board budgets 4.1 A, fan ~0.15 A'),
-    ('electrical', 'Barrel plug, solder type', '5.5 x 2.5 mm', 1, 'to wire the fan onto the splitter'),
+    ('electrical', 'Barrel SOCKET (female), solder type', '5.5 x 2.5 mm', 1,
+     'on the fan lead - the splitter outputs are male, so the fan needs female'),
 
     # nothing printed in the all-acrylic build. The printed cases in this repo
     # remain valid if you would rather box the small boards up:

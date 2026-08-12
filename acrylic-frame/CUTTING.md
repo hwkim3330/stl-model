@@ -43,6 +43,11 @@ Split on the DC side:
 * The board's jack is **5.5 / 2.5 mm** (PJ-002BH, centre positive). Most cheap
   splitters are 5.5 / **2.1** — a 2.1 mm plug in a 2.5 mm jack makes poor
   contact. Buy the 2.5 mm one, or a 2.1→2.5 adapter for the board leg.
+* **Genders**: the adapter ends in a male plug, so the splitter must be *1
+  female in → 2 male out*, and the fan lead therefore needs a **female barrel
+  socket**, not a plug. Buying a plug for the fan leaves you male-to-male.
+* On a Noctua, solder that socket onto the **included extension cable**, not
+  onto the fan's own lead — the fan stays stock and reusable.
 * Sizing: the board budgets 12 V @ 4.1 A worst case (<50 W); a 40 mm fan is
   about 0.15 A. **A 12 V 5 A adapter covers both.**
 * The board's own PTC fuse (4 A hold / 8 A trip, 15 V) only protects its own
@@ -72,6 +77,22 @@ column above it, so the two columns sit at different Y: the **A→B column at th
 four corners** (8, 8) … (242, 172), and the **B→C column** at (8, 40), (242, 40),
 (8, 140), (242, 140). Plate A carries only the lower set, plate C only the
 upper, and **plate B carries both — eight holes**.
+
+### Could the boards skip their sub-plates?
+
+Measured against everything already cut into plate B:
+
+| | nearest existing cut | verdict |
+|---|---|---|
+| TC397, 4 holes | 5.2 mm at worst | **would fit** directly on plate B |
+| T-ETH-Elite, 4 holes | −3.2 mm | **overlaps the deck slots** — needs plate D |
+
+The T-ETH-Elite's hole span is 58–60 × 41.6 mm against a 45 mm deck square, so
+its screws land on top of the slots. Plate D is not optional for it.
+
+The TC397 could go straight onto plate B, and plate E dropped — but then plate
+B is cut for that one board. Plate E is 3 mm offcut; re-cutting a 250 × 180
+plate to change modules is not. Keeping both sub-plates is the cheaper mistake.
 
 ## Two separate orders
 
