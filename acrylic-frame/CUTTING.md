@@ -93,7 +93,7 @@ DC parts come from an electronics supplier. **Nothing is 3D printed.**
 
 | Order | Where | What |
 |---|---|---|
-| 1 | laser / acrylic shop | `combined-all-plates.dxf` |
+| 1 | laser / acrylic shop | `combined-order.dxf` |
 | 2 | electronics parts supplier | the tables below, and `BOM.csv` |
 
 Some shops resell M3 hardware, so it costs nothing to ask in the order note — but
