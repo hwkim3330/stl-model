@@ -64,6 +64,11 @@ asymmetric ones. No sub-plates.
 
 ![plate B layout](img/plateB_layout.png)
 
+The mount features are **9 mm slots**, not round holes. Plate A's pattern is from
+the LAN9692's drill file and exact; these two came off drawings, so the slots buy
+±2.8 mm in case a coordinate is misread — see `CUTTING.md` for a check sheet to
+hold against the real boards.
+
 Positions are chosen so each board's **port edge lands next to a plate edge**,
 not in the middle of the plate: the TC397's connector row ends 14 mm from the
 back edge, the T-ETH-Elite's USB-C 10 mm from the front and its RJ45 17 mm from

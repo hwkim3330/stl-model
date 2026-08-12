@@ -69,6 +69,13 @@ LAYOUT = 'tc397+eth-elite'
 # False = plate B gets deck slots instead and the boards ride on sub-plates D
 #         and E, which keeps plate B generic if you swap modules later.
 DIRECT_MOUNT = True
+
+# The board hole positions were read off drawings, not off the boards. That is
+# the one error that would scrap plate B, so the mount features are cut as short
+# SLOTS rather than round holes: MOUNT_SLOT mm long absorbs a misread of up to
+# +/-(MOUNT_SLOT - hole)/2 in X. Set it equal to the hole diameter for plain
+# round holes once the boards have been measured.
+MOUNT_SLOT = 9.0
 ZONES = LAYOUTS[LAYOUT]
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 

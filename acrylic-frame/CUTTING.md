@@ -76,6 +76,23 @@ four corners** (8, 8) … (242, 172), and the **B→C column** at (8, 40), (242,
 (8, 140), (242, 140). Plate A carries only the lower set, plate C only the
 upper, and **plate B carries both — eight holes**.
 
+### Before you send this: check two hole patterns
+
+Plate A's eight holes came out of the LAN9692's **drill file** and are exact.
+The two small boards' holes came off **drawings**, and that is the only error in
+this build that would scrap a plate. Put a ruler on the real boards and compare:
+
+![check](img/hole_check.png)
+
+They will look wrong, and that is expected — neither pattern is a rectangle. The
+TC397 has two holes on its front edge plus one on the right at mid-height and
+one on the left near the top. The T-ETH-Elite's four corner holes are 58.00 mm
+apart at the bottom and 60.25 at the top.
+
+The mounts are cut as **9 mm slots**, not round holes, so a misread of up to
+±2.8 mm in X still bolts up. `MOUNT_SLOT = 3.4` in `make_plates.py` turns them
+back into plain holes once you have measured.
+
 ### The small boards bolt straight to plate B
 
 There are no sub-plates. Plate B is cut with each board's **own** mounting
