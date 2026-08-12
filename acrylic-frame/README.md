@@ -42,10 +42,28 @@ nothing else in the design changes.
 | Plate | Material | Size | Carries |
 |---|---|---|---|
 | A — bottom | 5 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
-| B — middle | 5 mm clear/smoke | 250 × 180 mm | 40 mm fan underneath, module trays on top |
+| B — middle | 5 mm clear/smoke | 250 × 180 mm | 40 mm fan underneath; TC397 + T-ETH-Elite on top |
 | C — top | 3 mm clear | 250 × 180 mm | guard, intake slots over the fan |
 
-Stack ≈ 5 + 45 + 5 + 40 + 3 = **98 mm** tall.
+Stack ≈ 5 + 45 + 5 + 45 + 3 = **103 mm** tall.
+
+### Plate B layout
+
+`LAYOUT` at the top of `make_plates.py` picks what plate B carries. Both options
+use the same 45 mm deck square, so any tray in this repo fits either:
+
+| `LAYOUT` | Zones | Fits? |
+|---|---|---|
+| **`tc397+eth-elite`** (default) | TC397 case at (74, 90), T-ETH-Elite at (178, 36) | yes — 8.5 mm between the cases, 11.3 mm under the fan |
+| `two-s31` | two 85 × 75 trays at (60, 132) and (60, 48) | yes — 9 mm apart |
+
+The **ESP32-S31 CoreBoard case (85 × 75) will not fit beside the TC397** — the
+strip left between the TC397 case and the fan bore is 39.1 mm. The LilyGo
+T-ETH-Elite case is 72 × 53, which does fit, in the space under the fan.
+
+The T-ETH-Elite case is a third-party design with no deck holes, so print
+**`adapter_lilygo.stl`** (79 × 60 × 8.5 mm, 14.5 cm³): it bolts to the plate on
+the 45 mm square through counterbored holes and the case drops into its rim.
 
 ## You cannot order acrylic from an STL
 

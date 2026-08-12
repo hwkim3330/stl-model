@@ -32,7 +32,8 @@ from render_preview import render      # noqa: E402
 T_A, T_B, T_C = 5.0, 5.0, 3.0          # plate thicknesses
 H_BOARD = 10.0                         # board standoff, plate A -> PCB
 H_AB = 45.0                            # plate A -> plate B
-H_BC = 40.0                            # plate B -> plate C
+H_BC = 45.0                            # plate B -> plate C. 40 leaves only
+                                       # 2 mm over the 38 mm TC397 case
 FAN_THICK = 10.0
 
 Z_A = 0.0
@@ -143,15 +144,66 @@ def build(upto='C'):
     for s in standoffs(Z_B + T_B, Z_C, corner_points()):
         add(s, METAL)
 
-    import esp32_s31_case as S
-    off = (P.ZONES[1][1] - S.BW / 2, P.ZONES[1][2] - S.BH / 2, Z_B + T_B)
-    for name in ('esp32_s31_tray.stl', 'esp32_s31_lid.stl'):
-        m = trimesh.load(os.path.join(S31, name))
-        m.apply_translation((off[0], off[1], off[2] + (S.Z_LID if 'lid' in name else 0)))
-        add(m, CASE)
+    for m, c in modules(Z_B + T_B):
+        add(m, c)
 
     add(plate('C', Z_C, T_C), ACRYLIC)
     return parts, cols
+
+
+TC = os.path.join(HERE, '..', 'tc397-appkit-case')
+LG = os.path.join(HERE, '..', 'lilygo-t-eth-elite-case')
+ADAPTER_FLOOR = 2.5          # adapter_lilygo.py FLOOR_T
+LG_LID_DROP = 19.898         # the T-ETH-Elite lid's lip sinks into the base
+
+
+def place(path, cx, cy, z):
+    """Centre a part's own footprint on (cx, cy) and sit its base at z.
+
+    The STLs are saved wherever they were built - the T-ETH-Elite lid, for
+    instance, lives at x -76..-4 because it is laid out beside its base for
+    printing - so normalise off each mesh's own bounds instead of assuming the
+    file origin means anything.
+    """
+    m = trimesh.load(path)
+    lo, hi = m.bounds
+    m.apply_translation((cx - (lo[0] + hi[0]) / 2,
+                         cy - (lo[1] + hi[1]) / 2,
+                         z - lo[2]))
+    return m
+
+
+def modules(z_top):
+    """Whatever the current plate-B layout carries, at its real height."""
+    out = []
+    if P.LAYOUT == 'tc397+eth-elite':
+        (_, tx, ty), (_, lx, ly) = P.ZONES
+        sys.path.insert(0, TC)
+        import tc397_appkit_case as T
+        out.append((place(os.path.join(TC, 'tc397_appkit_tray.stl'), tx, ty,
+                          z_top), CASE))
+        out.append((place(os.path.join(TC, 'tc397_appkit_lid.stl'), tx, ty,
+                          z_top + T.Z_LID), CASE))
+        ad = trimesh.load(os.path.join(HERE, 'adapter_lilygo.stl'))
+        aw, ah = (ad.bounds[1] - ad.bounds[0])[:2]
+        ad.apply_translation((lx - aw / 2, ly - ah / 2, z_top))
+        out.append((ad, CASE))
+        zc = z_top + ADAPTER_FLOOR
+        out.append((place(os.path.join(LG, 'lilygo_t-eth_elite_case_bottom_fit.stl'),
+                          lx, ly, zc), CASE))
+        out.append((place(os.path.join(LG, 'lilygo_t-eth_elite_case_top_fit.stl'),
+                          lx, ly, zc + LG_LID_DROP), CASE))
+    else:
+        import esp32_s31_case as S
+        for name, (_, cx, cy) in zip(('esp32_s31_tray.stl', 'esp32_s31_lid.stl'),
+                                     (P.ZONES[1], P.ZONES[1])):
+            dz = S.Z_LID if 'lid' in name else 0
+            out.append((place(os.path.join(S31, name), cx, cy, z_top + dz), CASE))
+    return out
+
+
+def module_top(z_top):
+    return max(float(m.bounds[1][2]) for m, _ in modules(z_top))
 
 
 def checks():
@@ -179,17 +231,29 @@ def checks():
     print(f"  fan                {Z_B - FAN_THICK:6.1f} .. {Z_B:6.1f}"
           f"   clearance to board {Z_B - FAN_THICK - top:5.1f} mm")
     print(f"  plate B            {Z_B:6.1f} .. {Z_B + T_B:6.1f}")
-    import esp32_s31_case as S
-    e_top = Z_B + T_B + S.Z_LID + S.LID_T
-    print(f"  ESP32-S31 case top {e_top:6.1f}   clearance to plate C "
-          f"{Z_C - e_top:5.1f} mm")
+    print(f"\nmodules on plate B (layout '{P.LAYOUT}')")
+    boxes = []
+    for m, _ in modules(Z_B + T_B):
+        lo, hi = m.bounds[0], m.bounds[1]
+        on = lo[0] > 0 and hi[0] < P.PW and lo[1] > 0 and hi[1] < P.PH
+        fan_xy = (abs((lo[0] + hi[0]) / 2 - P.FAN_C[0]) < 20 + (hi[0] - lo[0]) / 2
+                  and abs((lo[1] + hi[1]) / 2 - P.FAN_C[1]) < 20 + (hi[1] - lo[1]) / 2)
+        boxes.append((lo, hi))
+        ok_ = on and not fan_xy
+        print(f"  x {lo[0]:6.1f}..{hi[0]:6.1f}  y {lo[1]:6.1f}..{hi[1]:6.1f}  "
+              f"on plate={str(on):5s} clear of fan={str(not fan_xy):5s}"
+              f"{'' if ok_ else '   <-- PROBLEM'}")
+        ok &= ok_
+    e_top = module_top(Z_B + T_B)
+    print(f"  tallest module top {e_top:6.1f}   clearance to plate C "
+          f"{Z_C - e_top:5.1f} mm   (layout '{P.LAYOUT}')")
     print(f"  plate C            {Z_C:6.1f} .. {TOTAL:6.1f}")
     if Z_B - FAN_THICK - top < 3:
         ok = False
         print("  !! raise H_AB - the fan is too close to the board")
     if Z_C - e_top < 3:
         ok = False
-        print("  !! raise H_BC - the ESP32 case hits plate C")
+        print("  !! raise H_BC - the tallest module hits plate C")
     return ok
 
 

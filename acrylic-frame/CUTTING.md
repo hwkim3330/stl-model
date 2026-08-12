@@ -44,7 +44,7 @@ The alternative is a 5 V fan off expansion header J4, which does budget
 |---|---|---|
 | M3 hex standoff, board → plate A | 10 mm F/F | 8 |
 | M3 hex standoff, plate A → B | **45 mm** M/F | 4 |
-| M3 hex standoff, plate B → C | **40 mm** M/F | 4 |
+| M3 hex standoff, plate B → C | **45 mm** M/F | 4 |
 | M3 screw | 8 mm | ~20 |
 | M3 nut | — | a few |
 | 40 × 40 fan | 10 mm thick, 12 V | 1 |
@@ -58,14 +58,14 @@ The alternative is a 5 V fan off expansion header J4, which does budget
 |---|---|---|
 | LAN9692 | plate A | 8 × M3 × 10 standoffs, its real hole pattern |
 | 40 mm fan | under plate B, over the switch | 4 × M3 through the plate |
-| **ESP32-S31** | plate B, zone at **(60, 48)** | its printed tray already has 4 × Ø3.4 on the 45 mm square — bolt through the slots |
-| FIM / spare | plate B, zone at **(60, 132)** | same square; print an adapter tray for whatever it is |
-| **TC397** | **not on the stack** | separate printed case, one Ethernet cable |
+| **TC397 Application Kit** | plate B, zone at **(74, 90)** | its printed tray has 4 × Ø3.4 on the 45 mm square |
+| **LilyGo T-ETH-Elite** | plate B, zone at **(178, 36)** | print `adapter_lilygo.stl`, bolt that down, drop the case in |
 
-The two zones are 84 mm apart, so two 85 × 75 mm trays clear each other by
-9 mm and both stay clear of the fan.
+The two cases clear each other by 8.5 mm and the T-ETH-Elite sits 11.3 mm below
+the fan. Swapping in two ESP32-S31 trays instead is `LAYOUT = 'two-s31'` at the
+top of `make_plates.py` — same 45 mm square either way.
 
-Stack height comes out ≈ 5 + 45 + 5 + 40 + 3 = **98 mm**.
+Stack height comes out ≈ 5 + 45 + 5 + 45 + 3 = **103 mm**.
 
 ## Why 45 mm between A and B
 
