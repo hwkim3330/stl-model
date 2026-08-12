@@ -127,6 +127,29 @@ page; RS's M/F parts in the same range have a 6 mm stud, which is exactly why
 they cannot be used here. The rest of the numbers came in unverified — read the
 description before you click buy.
 
+### Buying it all domestically instead
+
+Nothing on this list has to be imported. Every hardware line is a generic item —
+M3 / M2.5 F/F hex standoffs, pan-head screws, nyloc nuts, nylon washers, rubber
+feet — and so are the barrel socket and the Y splitter. The part numbers above
+exist to pin the *specification*, not the shop. A domestic order works as long
+as three things are checked, because they are the three that break the build:
+
+| Check | Why |
+|---|---|
+| standoff is **암‑암 (F/F)**, not 암‑수 | a male stud cannot cross a 5 mm plate and still bite |
+| barrel is **5.5 × 2.5**, not 5.5 × 2.1 | the board's PJ-002BH is 2.5; 2.1 contacts badly |
+| socket is **female**, splitter is **female‑in / male‑out** | the adapter is male, so anything else leaves you male-to-male |
+
+**If 45 mm standoffs are not stocked, use 50 mm.** The plates are 2D and do not
+depend on it: the stack simply becomes 5 + 50 + 5 + 50 + 3 = 113 mm, and both
+gaps get *more* clearance — more room over the LAN9692's unmeasured DC-DC
+modules, more over the TC397. Going the other way is what needs care: 40 mm
+leaves only about 2 mm above a 38 mm TC397 case.
+
+A domestic order also settles 세금계산서 in one step, which a foreign
+distributor does not.
+
 **The LAN9692's own drill is Ø3.048 mm**, so an M3 screw is a very tight fit
 through the board. Try one by hand first; if it binds, use M2.5 for the
 board→plate A joint. The Ø3.4 acrylic hole takes either.
