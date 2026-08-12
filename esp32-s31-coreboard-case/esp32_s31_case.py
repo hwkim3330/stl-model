@@ -5,13 +5,28 @@ Outline data is exact, port data is not - see README. The two long edges are
 left open so no port position has to be guessed; the only derived feature is
 the lid slot for the 40-pin header.
 
-Board data from Espressif's published dimension drawing
-(https://dl.espressif.com/schematics/esp32-s31-function-coreboard-1-dimensions.dxf):
+Board data from Espressif's published drawings. The **PDF** carries more than
+the DXF does - it dimensions the mounting holes and labels every port, which an
+earlier version of this file wrongly reported as unpublished:
+
+  https://dl.espressif.com/schematics/esp32-s31-function-coreboard-1-dimensions.pdf
+  https://dl.espressif.com/schematics/esp32-s31-function-coreboard-1-dimensions.dxf
 
   outline        65.000 x 55.000 mm, corner radius 3.500 mm
-                 (the four straight edges run 3.5..61.5 and 3.5..51.5)
+                 (the DXF's straight edges run 3.5..61.5 and 3.5..51.5)
+  mounting       4 holes on a dimensioned 58.00 x 48.00 rectangle, Ø5.1 pads.
+                 Measured off the PDF at 600 dpi: the X and Y scales derived
+                 from the two callouts agree to 0.01%, and the holes sit
+                 3.25-3.41 mm in from the board edges - i.e. centred on the
+                 R3.5 corner arcs, (3.5, 3.5) to (61.5, 51.5).
   header grid    pin 1 at (8.370, 53.270), 2.540 mm pitch, second row at
                  y = 50.730 -> a 2x20 header lying along the y = 55 edge
+  ports          y = 0   USB-UART and USB-DBG (two USB-C)
+                 x = 65  1GbE RJ45 and USB-HS (USB-A)
+                 x = 0   SPK speaker header
+                 y = 55  nothing but the 2x20 header
+
+Three of the four edges carry connectors, so only the y = 55 edge gets a wall.
 
 Requires: trimesh, manifold3d.
 """
@@ -24,12 +39,14 @@ BW, BH = 65.0, 55.0          # outline, from the dimension drawing
 CORNER_R = 3.5
 PCB_T = 1.6                  # not published; 1.6 is the Espressif norm
 
+HOLES = [(3.5, 3.5), (61.5, 3.5), (3.5, 51.5), (61.5, 51.5)]
+BOSS_D = 6.5                 # standoff outer diameter under each hole
+
 FIT = 0.6                    # board edge to wall
 WALL = 2.4
 FLOOR_T = 2.0
 STANDOFF_H = 6.0             # under-board space
-LEDGE_W = 1.5                # perimeter shelf the board rests on
-WALL_H = 12.0                # short-edge walls, above the floor
+WALL_H = 12.0                # back wall, above the floor
 INNER_H = 20.0               # above the PCB
 LID_T = 2.0
 POST_D, POST_OFF = 8.0, 4.5
@@ -140,13 +157,11 @@ def vents(z0, z1, keepouts, skip=None):
 
 def build_tray():
     solids = [plate_solid(0.0, Z_FLOOR)]
-    # walls on the two short edges only; both 65 mm edges stay open because the
-    # port positions along them are not published
-    for x0, x1 in ((WX0, -FIT), (BW + FIT, WX1)):
-        solids.append(bx(x0, x1, PLATE_Y0, PLATE_Y1, Z_FLOOR, Z_FLOOR + WALL_H))
-    # the board has no mounting holes in the released data, so it sits on a
-    # shelf that follows its rounded outline
-    solids.append(rounded_ring(LEDGE_W, Z_FLOOR, Z_PCB, FIT))
+    # one wall, on the only edge that carries no connector
+    solids.append(bx(WX0, WX1, BH + FIT, PLATE_Y1, Z_FLOOR, Z_FLOOR + WALL_H))
+    # real standoffs: the dimension PDF puts four holes on a 58 x 48 rectangle
+    for hx, hy in HOLES:
+        solids.append(cyl(BOSS_D, Z_FLOOR - 0.1, Z_PCB, hx, hy))
     for px, py in POSTS:
         solids.append(cyl(POST_D, Z_FLOOR - 0.1, Z_FLOOR + POST_H, px, py))
     for fx, fy in ((5, 5), (BW - 5, 5), (5, BH - 5), (BW - 5, BH - 5)):
@@ -156,9 +171,12 @@ def build_tray():
     keep = [(px, py, POST_D / 2 + 3.0) for px, py in POSTS]
     keep += [(fx, fy, FOOT_D / 2 + 2.0)
              for fx, fy in ((5, 5), (BW - 5, 5), (5, BH - 5), (BW - 5, BH - 5))]
+    keep += [(hx, hy, BOSS_D / 2 + 2.5) for hx, hy in HOLES]
     if DECK_HOLES:
         keep += [(dx, dy, DECK_HOLES['d'] / 2 + 4.0) for dx, dy in deck_points()]
     cuts = vents(-FOOT_H - 1, Z_FLOOR, keep)
+    for hx, hy in HOLES:
+        cuts.append(cyl(SCREW_PILOT, Z_PCB - 5.0, Z_PCB + 1, hx, hy, sections=32))
     for px, py in POSTS:
         cuts.append(cyl(SCREW_PILOT, Z_FLOOR + POST_H - 8.0, Z_FLOOR + POST_H + 1,
                         px, py, sections=32))
@@ -184,12 +202,8 @@ def build_lid():
                                 HDR_PIN1[1] + HDR_MARGIN + 1))
     for px, py in POSTS:
         cuts.append(cyl(SCREW_CLEAR, -1, LID_T + 1, px, py, sections=32))
-    # pads that hold the board down, with a hair of clearance
-    pads = []
-    for cx, cy in ((CORNER_R + 1, CORNER_R + 1), (BW - CORNER_R - 1, CORNER_R + 1),
-                   (CORNER_R + 1, BH - CORNER_R - 1), (BW - CORNER_R - 1, BH - CORNER_R - 1)):
-        pads.append(cyl(6.0, -(Z_LID - Z_TOP - 0.3), 0.1, cx, cy))
-    return difference(union([lid] + pads), cuts), size
+    # the board is screwed to its own standoffs now, so the lid needs no pads
+    return difference(lid, cuts), size
 
 
 def report(n, m):

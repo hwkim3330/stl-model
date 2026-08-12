@@ -6,40 +6,40 @@ Tray + vented lid for Espressif's ESP32-S31 CoreBoard-1.
 
 | | |
 |---|---|
-| Tray | 85.0 × 75.0 × 31.6 mm, 18.7 cm³ |
-| Lid | 85.0 × 75.0 × 21.7 mm, 7.9 cm³ |
+| Tray | 85.0 × 75.0 × 31.6 mm, 15.0 cm³ |
+| Lid | 85.0 × 75.0 × 2.0 mm, 5.7 cm³ |
 | Assembled height | 31.6 mm |
-| Fasteners | 4 × M3 × 10 |
+| Fasteners | 4 × M3 × 6 (board), 4 × M3 × 10 (lid) |
 
-## What is data and what is not
+## Where the numbers come from
 
-**Exact**, from Espressif's published
-[dimension drawing](https://dl.espressif.com/schematics/esp32-s31-function-coreboard-1-dimensions.dxf):
+Espressif publishes the same drawing as a DXF and a PDF, and **the PDF carries
+more**. An earlier version of this case was built from the DXF alone and
+reported the mounting holes and port positions as unpublished. They are
+published — in the PDF.
 
-* **Outline 65.000 × 55.000 mm, corner radius 3.500 mm.** The four straight
-  edges run 3.5…61.5 and 3.5…51.5, so the tray's board shelf follows the
-  rounded outline rather than a plain rectangle.
-* **Header grid**: pin 1 at (8.370, 53.270), 2.540 mm pitch, second row at
-  y = 50.730 — a 2 × 20 header lying along the y = 55 edge. The lid slot
-  (51.46 × 5.74 mm) comes from that.
+<https://dl.espressif.com/schematics/esp32-s31-function-coreboard-1-dimensions.pdf>
 
-**Not published, so not designed around:**
+| | Value | How |
+|---|---|---|
+| Outline | **65.000 × 55.000 mm**, corner R3.5 | stated; DXF straight edges run 3.5…61.5 / 3.5…51.5 |
+| Mounting holes | **4 on a 58.00 × 48.00 rectangle** → (3.5, 3.5), (61.5, 3.5), (3.5, 51.5), (61.5, 51.5) | dimensioned in the PDF; measured at 600 dpi the X and Y scales agree to **0.01%**, and the holes sit 3.25–3.41 mm in from the edges, i.e. on the R3.5 corner arc centres |
+| Hole pads | Ø5.1 mm | measured |
+| Header | 2×20, pin 1 (8.370, 53.270), 2.54 pitch | DXF dimension callout |
+| Ports | y=0 two USB-C (UART, DBG) · x=65 1GbE RJ45 + USB-A · x=0 speaker · y=55 nothing | silkscreen labels in the PDF |
 
-* **No mounting holes** appear anywhere in the dimension export. So the board is
-  not screwed down — it rests on a 1.5 mm shelf that follows its outline and is
-  held by four pads on the underside of the lid, with 0.3 mm of clearance so it
-  is not stressed.
-* **Port positions.** The user guide lists a USB Serial/JTAG port, a USB-C UART
-  port, a USB 2.0 Type-A port, an RJ45 and a speaker header, but neither it nor
-  the dimension drawing places them, and they are not recoverable from the
-  silkscreen art in the DXF. Rather than guess, **both 65 mm edges are left
-  fully open** — walls only on the two 55 mm edges. That is the same approach
-  the LAN9692 tray takes, and it means no cut-out can be in the wrong place.
-* **PCB thickness** is assumed 1.6 mm, the Espressif norm.
+Still assumed: `PCB_T = 1.6` and `INNER_H = 20` above the board.
 
-When the board arrives, measuring which edge carries the ports and the height
-of the tallest part is enough to close the open side properly — the port
-window table in `lan9692_box.py` shows the pattern to follow.
+## Design
+
+Three of the four edges carry connectors, so **only the y = 55 edge gets a
+wall** — the previous version walled off x = 65, which is where the RJ45 and the
+USB-A are. The board screws down onto four real standoffs instead of resting on
+a shelf, and the lid no longer needs hold-down pads.
+
+The lid keeps its slot for the 40-pin header, and the tray floor keeps the
+4 × Ø3.4 deck holes on the 45 mm square so it bolts to the acrylic frame's
+plate B or to the LAN9692 box lid.
 
 ## Regenerating
 
