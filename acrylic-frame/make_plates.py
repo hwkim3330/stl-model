@@ -38,7 +38,11 @@ FAN_BORE = 36.0                   # 40 mm fan. Ø38 would match the impeller but
                                   # leaves only 1.93 mm of acrylic to the M3
                                   # screw holes at 22.63 mm radius; Ø36 gives
                                   # 2.93 mm. See review.py.
-FAN_PITCH = 32.0
+FAN_PITCH = 32.0                  # 40 mm fan standard, matches NF-A4x10
+FAN_SCREW_D = 3.4                 # M3 free fit. If you want to use the screws
+                                  # in the fan's own box instead, those need
+                                  # ~Ø4.5 - then drop FAN_BORE to 35.0 or the
+                                  # web to the bore falls to 2.38 mm.
 SLOT_W, SLOT_L = 3.4, 16.0        # adjustment slots for the module trays
 DECK_PITCH = 45.0                 # same square the printed trays already use
 # Where module trays bolt onto plate B. Both layouts use the same 45 mm deck
@@ -178,7 +182,7 @@ def plate_middle():
     h = FAN_PITCH / 2
     for sx in (-1, 1):
         for sy in (-1, 1):
-            d.circle(FAN_C[0] + sx * h, FAN_C[1] + sy * h, M3_FREE / 2)
+            d.circle(FAN_C[0] + sx * h, FAN_C[1] + sy * h, FAN_SCREW_D / 2)
     for _, cx, cy in ZONES:
         deck_slots(d, cx, cy)
     return d

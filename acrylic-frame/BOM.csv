@@ -9,8 +9,8 @@ electronics parts supplier,hardware,Hex standoff M/F,M3 x 45 mm,8,"4 for A->B, 4
 electronics parts supplier,hardware,"Screw, pan head",M3 x 6 mm,8,LAN9692 down onto its standoffs
 electronics parts supplier,hardware,"Screw, pan head",M3 x 8 mm,12,"8 up through plate A into the PCB standoffs, 4 down through plate C"
 electronics parts supplier,hardware,"Screw, pan head",M3 x 12 mm,8,"4 plate E, 4 plate D, through the plate B slots"
-electronics parts supplier,hardware,"Screw, pan head",M3 x 16 mm,4,"fan, through plate B"
-electronics parts supplier,hardware,Nut,M3,20,"4 under plate A corners, 4 fan, 8 module trays, spares"
+electronics parts supplier,hardware,"Screw, self-tapping",M3 x 16 mm,4,"fan, through plate B into the fan frame - NOT with a nut, there is no room"
+electronics parts supplier,hardware,Nut,M3,16,"4 under plate A corners, 8 module trays, spares"
 electronics parts supplier,hardware,Washer,M3 nylon,20,under every head that lands on acrylic
 electronics parts supplier,hardware,Hex standoff F/F,M2.5 x 6 mm,4,T-ETH-Elite on plate D
 electronics parts supplier,hardware,"Screw, pan head",M2.5 x 6 mm,8,T-ETH-Elite on plate D
@@ -18,7 +18,7 @@ electronics parts supplier,hardware,Hex standoff F/F,M3 x 8 mm,4,TC397 on plate 
 electronics parts supplier,hardware,"Screw, pan head",M3 x 6 mm,4,TC397 down onto plate E
 electronics parts supplier,hardware,"Nylon standoff, adhesive base",8 mm,2,spares - only needed if the two less certain TC397 holes are not holes
 electronics parts supplier,hardware,Rubber foot,"self-adhesive, ~10 mm",4,under plate A
-electronics parts supplier,electrical,Fan,"40 x 40 x 10 mm, 12 V DC, 3-pin or bare leads",1,e.g. Noctua NF-A4x10 FLX (quiet) or Sunon MF40101V (cheap)
+electronics parts supplier,electrical,Fan,"40 x 40 x 10 mm, 12 V DC, 3-pin or bare leads",1,"Noctua NF-A4x10 FLX (32 x 32 mm pitch, 10 mm thick) or Sunon MF40101V"
 electronics parts supplier,electrical,"DC splitter, 1 to 2",barrel 5.5 x 2.5 mm,1,NOT 5.5 x 2.1 - the board jack is 2.5
 electronics parts supplier,electrical,DC adapter,"12 V 5 A, barrel 5.5 x 2.5 mm, centre +",1,"board budgets 4.1 A, fan ~0.15 A"
 electronics parts supplier,electrical,"Barrel plug, solder type",5.5 x 2.5 mm,1,to wire the fan onto the splitter
