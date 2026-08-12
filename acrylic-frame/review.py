@@ -7,7 +7,12 @@ Rasterises each plate's actual DXF output and measures, per plate:
 
   * the web left between every pair of cut features
   * the web between each cut and the plate edge
-  * that every cut lies inside the outline
+  * every intended cut matched in the DXF by position AND size, with no strays
+  * every screw position in the build against the quantities in the BOM
+
+The geometry match is the important one. An earlier version counted cuts per
+plate instead, and passed a plate that had eight leftover deck slots where eight
+board mounts were intended - the counts agreed, the coordinates did not.
 
 Thin webs are what snap in 3 mm acrylic, and they are invisible in a render.
 Thresholds below are deliberately conservative for cast acrylic.
@@ -124,20 +129,97 @@ def review(path):
     return path, sorted(issues), worst, cn
 
 
-def hole_census():
-    """Count the holes the DXFs actually contain, per plate."""
+def expected_features():
+    """Every cut the design intends, as (plate, kind, x, y, size).
+
+    kind 'circle' -> Ø size;  'slot'/'slotv' -> length `size` along X / along Y,
+    width `w`.
+    """
     import make_plates as M
-    mounts = sum(len(h) for _, _, h, _ in M.board_mounts()) if M.DIRECT_MOUNT else 8
-    c = {
-        'plate-a-bottom-5T': len(M.lower_columns()) + len(M.LAN_HOLES),
-        'plate-b-middle-5T': (len(M.lower_columns()) + len(M.upper_columns())
-                              + 1 + 4 + mounts),        # fan bore, fan screws
-        'plate-c-top-3T': len(M.upper_columns()) + 5,   # + intake slots
-    }
-    if not M.DIRECT_MOUNT:
-        c['plate-d-eth-elite-3T'] = len(M.ETH_HOLES) + 4
-        c['plate-e-tc397-3T'] = len(M.TC_HOLES + M.TC_EXTRA_HOLES) + 4
-    return c
+    exp = {n: [] for n, _, _ in M.PLATES}
+    A, B, C = 'plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-3T'
+    for x, y in M.lower_columns():
+        exp[A].append(('circle', x, y, M.M3_FREE, 0))
+        exp[B].append(('circle', x, y, M.M3_FREE, 0))
+    for x, y in M.upper_columns():
+        exp[B].append(('circle', x, y, M.M3_FREE, 0))
+        exp[C].append(('circle', x, y, M.M3_FREE, 0))
+    for hx, hy in M.LAN_HOLES:
+        exp[A].append(('circle', M.BOARD_OFF[0] + hx, M.BOARD_OFF[1] + hy,
+                       M.M3_FREE, 0))
+    exp[B].append(('circle', M.FAN_C[0], M.FAN_C[1], M.FAN_BORE, 0))
+    h = M.FAN_PITCH / 2
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            exp[B].append(('circle', M.FAN_C[0] + sx * h, M.FAN_C[1] + sy * h,
+                           M.FAN_SCREW_D, 0))
+    for (_, cx, cy), (bw, bh), holes, hd in M.board_mounts():
+        for hx, hy in holes:
+            exp[B].append(('slot', cx - bw / 2 + hx, cy - bh / 2 + hy,
+                           max(M.MOUNT_SLOT, hd), hd))
+    for _, cx, cy in M.ZONES:
+        for x, y in M.deck_points(cx, cy):
+            exp[B].append(('circle', x, y, M.M3_FREE, 0))
+    for i in range(-2, 3):
+        exp[C].append(('slotv', M.FAN_C[0] + i * (M.VENT_SLOT[0] + 6), M.FAN_C[1],
+                       M.VENT_SLOT[1], M.VENT_SLOT[0]))
+    for name, (pw, ph), board, holes, hd in (
+            ('plate-d-eth-elite-3T', M.ETH_PLATE, M.ETH_BOARD, M.ETH_HOLES, M.ETH_HOLE_D),
+            ('plate-e-tc397-3T', M.TC_PLATE, M.TC_BOARD,
+             M.TC_HOLES + M.TC_EXTRA_HOLES, M.TC_HOLE_D)):
+        ox, oy = (pw - board[0]) / 2, (ph - board[1]) / 2
+        for hx, hy in holes:
+            exp[name].append(('circle', ox + hx, oy + hy, hd, 0))
+        for x, y in M.deck_points(pw / 2, ph / 2):
+            exp[name].append(('circle', x, y, M.M3_FREE, 0))
+    return exp
+
+
+def geometry_audit(tol=0.02):
+    """Match every intended cut against the DXF actually written."""
+    import glob
+    exp = expected_features()
+    print("\ngeometry: every intended cut, matched in the DXF that was written")
+    bad = False
+    for name, want in exp.items():
+        f = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dxf', name + '.dxf')
+        if not os.path.exists(f):
+            print(f"  {name:26s} FILE MISSING")
+            bad = True
+            continue
+        # only the CUT layer is geometry the shop cuts; ENGRAVE/TEXT is artwork
+        ents = [(k, b) for k, b in parse(f) if b.get('8') == 'CUT']
+        circles = [(float(b['10']), float(b['20']), float(b['40']) * 2)
+                   for k, b in ents if k == 'CIRCLE']
+        arcs = [(float(b['10']), float(b['20']), float(b['40']) * 2)
+                for k, b in ents if k == 'ARC']
+        miss = []
+        used = 0
+        for kind, x, y, size, w in want:
+            if kind == 'circle':
+                hit = any(abs(cx - x) < tol and abs(cy - y) < tol
+                          and abs(cd - size) < tol for cx, cy, cd in circles)
+                used += 1
+            else:
+                half = (size - w) / 2
+                dx, dy = (half, 0) if kind == 'slot' else (0, half)
+                hit = all(any(abs(ax - (x + s * dx)) < tol
+                              and abs(ay - (y + s * dy)) < tol
+                              and abs(ad - w) < tol for ax, ay, ad in arcs)
+                          for s in (1, -1))
+                used += 1
+            if not hit:
+                miss.append((kind, round(x, 3), round(y, 3), size))
+        # the outline contributes 4 arcs; anything else unaccounted for is a stray
+        stray = len(circles) - sum(1 for k, *_ in want if k == 'circle')
+        tag = 'OK' if not miss and stray == 0 else 'FAIL'
+        if tag == 'FAIL':
+            bad = True
+        print(f"  {name:26s} {len(want):3d} intended, {len(miss)} missing, "
+              f"{stray:+d} stray circles   {tag}")
+        for m in miss[:4]:
+            print(f"        missing {m}")
+    return not bad
 
 
 def fastener_audit():
@@ -179,9 +261,7 @@ if __name__ == '__main__':
         for g, a, b in issues[:6]:
             print(f"      {g:5.2f} mm between {a} and {b}")
         bad |= worst < FAIL
-        expect = hole_census().get(os.path.basename(path)[:-4])
-        if expect is not None and expect != cn:
-            print(f"      hole count {cn} in the DXF, {expect} expected  <-- MISMATCH")
-            bad = True
+    if not geometry_audit():
+        bad = True
     fastener_audit()
     sys.exit(1 if bad else 0)

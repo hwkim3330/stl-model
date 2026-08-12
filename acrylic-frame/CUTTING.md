@@ -1,219 +1,149 @@
 # Cutting order — LAN9692 acrylic frame
 
-Send `acrylic-frame-dxf.zip`. **Three plates** in two thicknesses:
+**Send `combined-all-plates.dxf`.** One 580 × 430 mm sheet with all five plates
+laid out and annotated with thickness, colour and quantity — the format acrylic
+shops ask for. The individual plate files are in the same zip if they would
+rather have them separately.
 
-| File | Material | Thickness | Qty |
-|---|---|---|---|
-| `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) | **5 mm** | 1 |
-| `plate-b-middle-5T.dxf` | clear acrylic (PMMA) | **5 mm** | 1 |
-| `plate-c-top-3T.dxf` | clear acrylic | **3 mm** | 1 |
+| Plate | File | Material | Size | Qty |
+|---|---|---|---|---:|
+| A — bottom | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) | 250 × 180 mm | 1 |
+| B — middle | `plate-b-middle-5T.dxf` | clear acrylic | 250 × 180 mm | 1 |
+| C — top | `plate-c-top-3T.dxf` | clear acrylic | 250 × 180 mm | 1 |
+| D — T-ETH-Elite sub-plate | `plate-d-eth-elite-3T.dxf` | clear acrylic | 76 × 60 mm | 1 |
+| E — TC397 sub-plate | `plate-e-tc397-3T.dxf` | clear acrylic | 110 × 110 mm | 1 |
 
-Optional: `nested-5T.dxf` and `nested-3T.dxf` in the same zip hold the same
-plates pre-laid-out on one sheet per thickness, for a shop that prices by sheet
-area rather than per part. Their outer rectangle is a reference outline on
-layer `SHEET`, not a cut path. Ignore them unless the quote suggests otherwise.
+**A and B are 5 mm. C, D and E are 3 mm.** All clear.
 
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
-* Every closed shape is a cut path — outline, holes and slots alike. There is no
-  engraving layer, everything is on layer `CUT`.
-* All holes are **Ø3.4** (M3 free fit), **Ø2.9** for M2.5 on plate D, and one
-  **Ø36** fan bore. Ø36 rather than Ø38: at the fan's 32 mm screw pitch a Ø38
-  bore leaves only 1.93 mm of acrylic to each screw hole, Ø36 leaves 2.93.
-* The fan screws through plate B **into its own frame** — self-tapping M3 × 16,
-  no nut, there is no room for one inside a fan. The screws that come in the
-  fan's box are fatter and want ~Ø4.5 holes; if you would rather use those, set
-  `FAN_SCREW_D = 4.5` and `FAN_BORE = 35.0` in `make_plates.py` and re-cut,
-  otherwise the web to the bore drops to 2.38 mm.
-* Slots are 3.4 mm wide × 16 mm long, rounded ends.
-* Total cut area 3 × 0.045 m². Kerf compensation: leave it to the shop, the
-  fits here are all clearance, nothing is press-fit.
+* Everything on layer **`CUT`** is a cut path — outline, holes and slots alike.
+* Layer **`ENGRAVE`** is the lettering on the top plate: **engrave, do not cut.**
+  Single-stroke vector text, so no font is needed.
+* Layers `TEXT` and `SHEET` are drawing annotation and stock outline; neither
+  cuts nor engraves.
+* Holes: **Ø3.4** (M3 free fit), **Ø2.9** (M2.5), and one **Ø36** fan bore.
+  Ø36 rather than Ø38 because at the fan's 32 mm screw pitch a Ø38 bore would
+  leave only 1.93 mm of acrylic to each screw hole; Ø36 leaves 2.93.
+* Kerf compensation: leave it to the shop. Every fit here is a clearance fit.
 
-## Power — one 12 V adapter, split before the board
+## Engraving on the top plate
 
-The fan is 12 V and so is the board, so **do not tap anything on the PCB**.
-Split on the DC side:
+Plate C carries **"KETI"** at 14 mm and **"LAN9692 TSN BENCH"** at 7 mm on layer
+`ENGRAVE`. Ask the shop for **각인 (engrave)** on that layer — it is a second
+operation and usually a small extra charge.
 
-```
-12 V 5 A adapter ──> Y splitter ─┬─> LAN9692 J23   (5.5 x 2.5 mm, centre +)
-                                 └─> 40 mm 12 V fan
-```
+The real KETI logo is not in here: engraving artwork has to be **vector**
+(AI / SVG / DXF). Send me the logo file and it drops onto the same layer. Change
+or remove the wording in `ENGRAVE` at the top of `make_plates.py`.
 
-* The board's jack is **5.5 / 2.5 mm** (PJ-002BH, centre positive). Most cheap
-  splitters are 5.5 / **2.1** — a 2.1 mm plug in a 2.5 mm jack makes poor
-  contact. Buy the 2.5 mm one, or a 2.1→2.5 adapter for the board leg.
-* **Genders**: the adapter ends in a male plug, so the splitter must be *1
-  female in → 2 male out*, and the fan lead therefore needs a **female barrel
-  socket**, not a plug. Buying a plug for the fan leaves you male-to-male.
-* On a Noctua, solder that socket onto the **included extension cable**, not
-  onto the fan's own lead — the fan stays stock and reusable.
-* Sizing: the board budgets 12 V @ 4.1 A worst case (<50 W); a 40 mm fan is
-  about 0.15 A. **A 12 V 5 A adapter covers both.**
-* The board's own PTC fuse (4 A hold / 8 A trip, 15 V) only protects its own
-  leg. The fan leg is unfused — fine at 2 W, add an inline fuse if you care.
-* Do **not** feed 24 V. The input TVS is an SMBJ13D, 13 V standoff.
+## Why plates D and E are included
 
-The alternative is a 5 V fan off expansion header J4, which does budget
-5 V @ 2 A — no splitter, but it puts fan inrush on the switch's own rail.
+Plate B is cut **both** ways: with each small board's own mounting pattern, so a
+board can bolt straight down, **and** with a 35 × 45 mm four-hole deck pattern,
+so a sub-plate can be used instead. D and E are those sub-plates. Cutting all
+five keeps the choice open — they are small and ride in offcut, and plate B never
+has to be re-cut to change what sits on it.
 
-## Ask about the standoffs, but do not count on it
+The deck pattern is 35 × 45 mm rather than a square because a 45 mm square could
+not clear the T-ETH-Elite's own mount slots. 35 × 45 clears both boards by more
+than 4.8 mm.
 
-The shop cuts sheet. A 45 mm threaded M3 standoff is turned metal or moulded
-nylon — a different trade — and lasering nine 5 mm acrylic rings to stack up to
-45 mm is worse than a standoff in every way. Some shops do resell hardware as
-an add-on though, so it costs nothing to ask in the order note. If they say no,
-the whole hardware table below goes to a parts supplier instead.
+## Check two hole patterns before sending
 
-### Why F/F standoffs, and why plate B has eight corner holes
-
-An M/F standoff's male stud is 6 mm. Through a 5 mm plate that leaves 1 mm —
-not enough for a nut underneath plate A, and not enough thread to bite into the
-standoff below at plate B. So every joint is a plain **F/F standoff with a screw
-at each end** instead.
-
-That means a plate cannot share one hole between the column below it and the
-column above it, so the two columns sit at different Y: the **A→B column at the
-four corners** (8, 8) … (242, 172), and the **B→C column** at (8, 40), (242, 40),
-(8, 140), (242, 140). Plate A carries only the lower set, plate C only the
-upper, and **plate B carries both — eight holes**.
-
-### Before you send this: check two hole patterns
-
-Plate A's eight holes came out of the LAN9692's **drill file** and are exact.
-The two small boards' holes came off **drawings**, and that is the only error in
-this build that would scrap a plate. Put a ruler on the real boards and compare:
+Plate A's eight holes came out of the LAN9692's **Excellon drill file** and are
+exact. The two small boards' holes came off **drawings**, and that is the only
+error here that could scrap a plate:
 
 ![check](img/hole_check.png)
 
-They will look wrong, and that is expected — neither pattern is a rectangle. The
-TC397 has two holes on its front edge plus one on the right at mid-height and
-one on the left near the top. The T-ETH-Elite's four corner holes are 58.00 mm
-apart at the bottom and 60.25 at the top.
+They look wrong because neither pattern is a rectangle. The TC397 has two holes
+on its front edge plus one on the right at mid-height and one on the left near
+the top; the T-ETH-Elite's corner holes are 58.00 mm apart at the bottom against
+60.25 at the top — two independent LilyGo files agree on that to 0.04 mm.
 
-The mounts are cut as **9 mm slots**, not round holes, so a misread of up to
-±2.8 mm in X still bolts up. `MOUNT_SLOT = 3.4` in `make_plates.py` turns them
-back into plain holes once you have measured.
-
-### The small boards bolt straight to plate B
-
-There are no sub-plates. Plate B is cut with each board's **own** mounting
-pattern, so a board goes on four standoffs directly:
-
-| | holes in plate B | worst web to anything else |
+| | source | if the hole is not there |
 |---|---|---|
-| TC397 | 4, its real pattern | 23.9 mm |
-| T-ETH-Elite | 4, its real (asymmetric) pattern | 14.6 mm |
+| LAN9692, 8 holes | drill file | n/a, exact |
+| TC397 (11, 4), (89, 4) | Ø6 pads, unambiguous in figure 7-7 | n/a |
+| TC397 (96.99, 59), (16, 82) | Ø4 pads, dimensioned but not proven | leave that screw out and prop the corner with an adhesive nylon standoff |
+| T-ETH-Elite, 4 holes | LilyGo 2D DXF + 3D CAD | measure and re-cut plate B |
 
-This replaced an earlier design where plate B had four *slots* per module on a
-shared 45 mm square and each board rode on its own 3 mm sub-plate. The slots
-existed to keep plate B generic, but they cost two extra plates, 8 extra screws
-and 3 mm of height — and for the T-ETH-Elite they did not even work: its hole
-span is 60.25 × 41.60 mm against a 45 mm square, so its screws landed **on top
-of** the slots, overlapping by up to 3.18 mm.
-
-One hole set per board instead of two is simpler, and the thinnest web on
-plate B went from 3.36 mm to 14.6 mm. `DIRECT_MOUNT = False` in
-`make_plates.py` brings the slots and plates D/E back if you would rather keep
-plate B board-agnostic.
+The board mounts are cut as **9 mm slots**, not round holes, so a misread of
+±2.8 mm in X still bolts up. `MOUNT_SLOT = 3.4` in `make_plates.py` turns them
+into plain holes once measured.
 
 ## Two separate orders
 
 The laser shop cuts plates and nothing else. Standoffs, screws, the fan and the
-DC splitter come from an electronics parts supplier — order them at the same
-time so they arrive together, but they are not part of the acrylic job.
+DC parts come from an electronics supplier. **Nothing is 3D printed.**
 
 | Order | Where | What |
 |---|---|---|
-| 1 | laser / acrylic shop | `acrylic-frame-dxf.zip` — 3 plates |
-| 2 | electronics parts supplier | the hardware table below |
+| 1 | laser / acrylic shop | `combined-all-plates.dxf` |
+| 2 | electronics parts supplier | the tables below, and `BOM.csv` |
 
-**Nothing is 3D printed in this build.** The printed cases elsewhere in the
-repo still work if you would rather box the small boards up, but plates D and E
-replace them.
+Some shops resell M3 hardware, so it costs nothing to ask in the order note — but
+a 45 mm threaded standoff is turned metal or moulded nylon, a different trade.
 
 ## Hardware
 
-| Part | Size | Qty |
-|---|---|---|
-| M3 hex standoff, board → plate A | 10 mm **F/F** | 8 |
-| M3 hex standoff, plate A → B | 45 mm **F/F** | 4 |
-| M3 hex standoff, plate B → C | 45 mm **F/F** | 4 |
-| M3 screw | 8 mm | ~20 |
-| M3 nut | — | a few |
-| 40 × 40 fan | 10 mm thick, **12 V**, 32 × 32 mm pitch | 1 |
-| Rubber feet | self-adhesive | 4 |
-| 12 V DC Y splitter | 5.5 × 2.5 mm | 1 |
-| 12 V adapter | 5 A, 5.5 × 2.5 mm | 1 |
+| Part | Size | Qty | Note |
+|---|---|---:|---|
+| Hex standoff F/F | M3 × 10 mm | 8 | LAN9692 on plate A |
+| Hex standoff F/F | M3 × 45 mm | 8 | 4 for A→B, 4 for B→C |
+| Hex standoff F/F | M3 × 8 mm | 4 | TC397 |
+| Hex standoff F/F | M2.5 × 8 mm | 4 | T-ETH-Elite |
+| Screw, pan head | M3 × 6 / 8 / 10 / 20 mm | 8 / 16 / 12 / 4 | `BOM.csv` says which goes where |
+| Screw, pan head | M2.5 × 6 / 10 mm | 4 / 4 | T-ETH-Elite |
+| Nut | M3 | 12 | 4 for the fan, rest spare |
+| Washer | M3 nylon | 20 | under any head landing on acrylic |
+| Nylon standoff, adhesive base | 8 mm | 2 | fallback props for the TC397 |
+| Rubber foot | self-adhesive | 4 | under plate A |
 
-## Plates D and E — the small boards, bare
+**The LAN9692's own drill is Ø3.048 mm**, so an M3 screw is a very tight fit
+through the board. Try one by hand first; if it binds, use M2.5 for the
+board→plate A joint. The Ø3.4 acrylic hole takes either.
 
-`plate-d-eth-elite-3T.dxf` replaces the printed T-ETH-Elite case and its
-adapter with one 76 × 60 mm sheet: the board bolts to it on M2.5 standoffs and
-it bolts to plate B on the usual 45 mm deck square. Lower, cheaper, nothing to
-print.
+### Why F/F standoffs, and why plate B has eight corner holes
 
-This is now safe to cut because the hole pattern is confirmed. **The four holes
-really are not a rectangle** — the bottom pair is 58.0 mm apart and the top pair
-60.25 — and two independent LilyGo files agree on that to 0.04 mm, so it is the
-design and not a CAD slip:
+An M/F standoff's male stud is 6 mm. Through a 5 mm plate that leaves 1 mm — not
+enough for a nut under plate A, and not enough thread to bite into the standoff
+below at plate B. So every joint is a plain **F/F standoff with a screw at each
+end**, and a plate cannot share one hole between the column below it and the one
+above. The **A→B column sits at the four corners** (8, 8) … (242, 172), the
+**B→C column** at (8, 40), (242, 40), (8, 140), (242, 140).
 
-| Source | bottom pair | top pair |
-|---|---|---|
-| `shell/3D/T-ETH-ELite.7z` (3D CAD) | 58.00 | 60.25 |
-| `shell/T-ETH-ELite.dxf` (2D mechanical) | 58.04 | 60.24 |
+Stack height ≈ 5 + 45 + 5 + 45 + 3 = **103 mm**.
 
-Holes from the PCB's bottom-left corner: **(3.33, 4.63), (61.33, 4.63),
-(2.98, 46.23), (63.23, 46.20)**, Ø2.5 → cut Ø2.9 for M2.5 free fit. The PCB is
-**66.191 × 49.192 mm** — LilyGo's "50 × 67 mm" is rounded, and the sub-plate
-uses the measured figure. Closest board hole to a deck hole is 6.27 mm, so
-nothing clashes.
+## Electrical
 
-Needs 4 × M2.5 × 6 standoffs and 4 × M2.5 screws instead of the printed case.
+| Part | Spec | Qty |
+|---|---|---:|
+| Fan | 40 × 40 × 10 mm, **12 V** — Noctua NF-A4x10 FLX | 1 |
+| DC adapter | 12 V 5 A, barrel 5.5 × 2.5 mm, centre + | 1 |
+| DC splitter | barrel 5.5 × 2.5, **1 female in → 2 male out** | 1 |
+| Barrel socket (female), solder type | 5.5 × 2.5 mm | 1 |
 
-## Why the TC397 keeps its printed case
+```
+12 V 5 A adapter ──> splitter ─┬─> LAN9692 J23   (5.5 x 2.5, centre +)
+                               └─> 40 mm 12 V fan
+```
 
-Mounting the bare boards on standoffs straight to plate B would be neater, and
-for the LAN9692 that is exactly what plate A does — it has **8 × M3 holes** in
-the drill file. The other two do not have a pattern worth drilling to:
+* Nothing is tapped on the PCB — **the board has no fan header.**
+* The board's jack is 5.5 / **2.5** mm (PJ-002BH). Most cheap splitters are
+  5.5 / 2.1 and contact badly; get the 2.5.
+* **Genders**: the adapter is male, so the splitter is female-in / male-out and
+  the fan lead needs a **female socket**. A plug leaves you male-to-male.
+* On a Noctua, solder that socket to the **included extension cable**, not the
+  fan's own lead.
+* The fan bolts through plate B with **M3 × 20 and a nut** — the screws in the
+  fan's box are fatter and would want Ø4.5 holes.
+* Never feed 24 V: the board's input TVS is an SMBJ13D, 13 V standoff.
 
-* **TC397 Application Kit** — only **2 mounting holes**, Ø6 pads at (11, 4) and
-  (89, 4), both on the same edge (figure 7-7 of the Application Kit manual, and
-  all four corners were checked). Two screws on one edge leaves the opposite
-  edge — the one with POWER, USB, RJ45, CAN and the SD slot — cantilevered
-  every time something is plugged in.
-The T-ETH-Elite is the opposite case — its hole pattern *is* confirmed, so
-plate D above lets it mount bare. The TC397's printed case stays. **Standoff-mounting them is a fine idea — the blocker is only the coordinates,
-and one caliper session removes it.** Measure the T-ETH-Elite's four Ø2.5 hole
-centres and the TC397's two Ø6 centres, and a small 3 mm acrylic sub-plate
-replaces each printed case: the boards then sit ~10 mm off plate B instead of
-inside a 38 mm box, the stack gets shorter, and nothing needs printing.
+## The one measurement still worth taking
 
-Slots instead of holes would absorb the uncertainty in principle, but not here:
-the T-ETH-Elite's hole span is 41.6 mm in Y against the 45 mm deck square, so a
-slot long enough to cover the CAD's 2.25 mm discrepancy comes within 0.7 mm of
-a deck hole. Too thin to survive in 3 mm acrylic. Measured holes, not slots.
-
-## What mounts where
-
-| | Where | How |
-|---|---|---|
-| LAN9692 | plate A | 8 × M3 × 10 standoffs, its real hole pattern |
-| 40 mm fan | under plate B, over the switch | 4 × M3 through the plate |
-| **TC397 Application Kit** | plate B, zone at **(74, 90)** | its printed tray has 4 × Ø3.4 on the 45 mm square |
-| **LilyGo T-ETH-Elite** | plate B, zone at **(178, 36)** | print `adapter_lilygo.stl`, bolt that down, drop the case in |
-
-The two cases clear each other by 8.5 mm and the T-ETH-Elite sits 11.3 mm below
-the fan. Swapping in two ESP32-S31 trays instead is `LAYOUT = 'two-s31'` at the
-top of `make_plates.py` — same 45 mm square either way.
-
-Stack height comes out ≈ 5 + 45 + 5 + 45 + 3 = **103 mm**.
-
-## Why 45 mm between A and B
-
-The board sits 10 mm above plate A on standoffs, the PCB is 1.5 mm, and the
-tallest part with a sourced height is 13.5 mm (the MATEnet headers and the
-RJ45) — so the board envelope tops out around 25 mm. A 10 mm fan hanging under
-plate B then occupies 35–45 mm, leaving ~10 mm of plenum.
-
-The five DC-DC daughter modules are the one height nobody has published. If
-they turn out taller than ~20 mm, **change the four standoffs, not the plates** —
-that is the whole point of building it this way.
+The LAN9692's five DC-DC daughter modules have no published height. The fan
+underside sits at z = 39 mm and the PCB top at 16.5, so anything up to
+**22.5 mm** above the PCB clears it — allowing 3 mm of margin, check that the
+tallest module is under about **19 mm**. If it is taller, lengthen the four A→B
+standoffs; the plates do not change.

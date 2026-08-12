@@ -35,7 +35,9 @@ H_BOARD = 10.0                         # board standoff, plate A -> PCB
 H_AB = 45.0                            # plate A -> plate B
 H_BC = 45.0                            # plate B -> plate C. 40 leaves only
                                        # 2 mm over the 38 mm TC397 case
-FAN_THICK = 10.0
+FAN_THICK = 11.0                       # Noctua NF-A4x10 mechanical
+                                       # envelope; 12 with the anti-
+                                       # vibration pads fitted
 
 # True  = all-acrylic: bare boards on their own sub-plates, nothing printed
 # False = the printed TC397 / T-ETH-Elite cases

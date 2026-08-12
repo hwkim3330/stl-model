@@ -49,7 +49,11 @@ FAN_SCREW_D = 3.4                 # M3 free fit. If you want to use the screws
                                   # ~Ø4.5 - then drop FAN_BORE to 35.0 or the
                                   # web to the bore falls to 2.38 mm.
 SLOT_W, SLOT_L = 3.4, 16.0        # adjustment slots for the module trays
-DECK_PITCH = 45.0                 # same square the printed trays already use
+DECK_X, DECK_Y = 35.0, 45.0       # optional sub-plate mounting, on plate B as
+                                  # well as on plates D and E. Chosen to clear
+                                  # both boards' mount slots by >4.8 mm, which a
+                                  # 45 mm square could not do.
+DECK_PITCH = 45.0                 # legacy, only used by the printed trays
 # Where module trays bolt onto plate B. Both layouts use the same 45 mm deck
 # square, so any tray in this repo fits either. Checked in assembly.py.
 LAYOUTS = {
@@ -78,6 +82,12 @@ DIRECT_MOUNT = True
 MOUNT_SLOT = 9.0
 ZONES = LAYOUTS[LAYOUT]
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
+
+# Engraving on the top plate. Single-stroke vector text on its own layer, so the
+# shop runs it at engrave power and it is never mistaken for a cut. A real KETI
+# logo would need the logo as vector (AI/SVG/DXF) - drop it in on this layer.
+ENGRAVE = [(20.0, 150.0, 14.0, 'KETI'),
+           (20.0, 132.0, 7.0, 'LAN9692 TSN BENCH')]
 
 # Optional 4th plate: the LilyGo T-ETH-Elite bolted straight down instead of
 # living in its printed case. Its four mounting holes genuinely are NOT a
@@ -161,6 +171,69 @@ class Dxf:
         self.arc(x0 + r, y0 + r, r, 180, 270, layer)
         self.arc(x1 - r, y0 + r, r, 270, 360, layer)
 
+    def text(self, x, y, height, string, layer='TEXT'):
+        self.e.append(f"0\nTEXT\n8\n{layer}\n10\n{x:.4f}\n20\n{y:.4f}\n30\n0.0\n"
+                      f"40\n{height:.4f}\n1\n{string}\n")
+
+    # single-stroke glyphs on a 0..1 x 0..1 box, as polyline point lists
+    GLYPHS = {
+        'A': [[(0,0),(.5,1),(1,0)],[(.22,.4),(.78,.4)]],
+        'E': [[(1,1),(0,1),(0,0),(1,0)],[(0,.5),(.75,.5)]],
+        'I': [[(.5,0),(.5,1)],[(.15,1),(.85,1)],[(.15,0),(.85,0)]],
+        'K': [[(0,0),(0,1)],[(.9,1),(0,.45)],[(.15,.55),(.95,0)]],
+        'L': [[(0,1),(0,0),(.9,0)]],
+        'N': [[(0,0),(0,1),(1,0),(1,1)]],
+        'T': [[(0,1),(1,1)],[(.5,1),(.5,0)]],
+        'S': [[(1,.85),(.5,1),(0,.85),(0,.6),(1,.4),(1,.15),(.5,0),(0,.15)]],
+        'B': [[(0,0),(0,1),(.7,1),(1,.85),(1,.65),(.7,.5),(0,.5)],
+              [(.7,.5),(1,.35),(1,.15),(.7,0),(0,0)]],
+        'C': [[(1,.85),(.5,1),(0,.75),(0,.25),(.5,0),(1,.15)]],
+        'D': [[(0,0),(0,1),(.6,1),(1,.7),(1,.3),(.6,0),(0,0)]],
+        'H': [[(0,0),(0,1)],[(1,0),(1,1)],[(0,.5),(1,.5)]],
+        'M': [[(0,0),(0,1),(.5,.45),(1,1),(1,0)]],
+        'O': [[(.5,1),(0,.75),(0,.25),(.5,0),(1,.25),(1,.75),(.5,1)]],
+        'P': [[(0,0),(0,1),(.7,1),(1,.8),(1,.6),(.7,.45),(0,.45)]],
+        'R': [[(0,0),(0,1),(.7,1),(1,.8),(1,.6),(.7,.45),(0,.45)],
+              [(.5,.45),(1,0)]],
+        'U': [[(0,1),(0,.2),(.5,0),(1,.2),(1,1)]],
+        'V': [[(0,1),(.5,0),(1,1)]],
+        'W': [[(0,1),(.2,0),(.5,.6),(.8,0),(1,1)]],
+        'X': [[(0,0),(1,1)],[(0,1),(1,0)]],
+        'Y': [[(0,1),(.5,.5),(1,1)],[(.5,.5),(.5,0)]],
+        'F': [[(1,1),(0,1),(0,0)],[(0,.5),(.75,.5)]],
+        'G': [[(1,.85),(.5,1),(0,.75),(0,.25),(.5,0),(1,.2),(1,.45),(.55,.45)]],
+        '0': [[(.5,1),(0,.75),(0,.25),(.5,0),(1,.25),(1,.75),(.5,1)]],
+        '1': [[(.2,.8),(.5,1),(.5,0)],[(.15,0),(.85,0)]],
+        '3': [[(0,.9),(.5,1),(1,.85),(1,.6),(.5,.5),(1,.4),(1,.15),(.5,0),(0,.1)]],
+        '4': [[(.75,0),(.75,1),(0,.3),(1,.3)]],
+        '5': [[(1,1),(0,1),(0,.55),(.6,.6),(1,.4),(1,.15),(.5,0),(0,.1)]],
+        '7': [[(0,1),(1,1),(.35,0)]],
+        '8': [[(.5,.5),(0,.65),(0,.85),(.5,1),(1,.85),(1,.65),(.5,.5),
+               (0,.35),(0,.15),(.5,0),(1,.15),(1,.35),(.5,.5)]],
+        '-': [[(.1,.5),(.9,.5)]],
+        '.': [[(.4,0),(.6,0)]],
+        '2': [[(0,.85),(.5,1),(1,.85),(1,.6),(0,0),(1,0)]],
+        '6': [[(1,.9),(.5,1),(0,.75),(0,.15),(.5,0),(1,.15),(1,.35),(.5,.5),(0,.35)]],
+        '9': [[(0,.1),(.5,0),(1,.25),(1,.85),(.5,1),(0,.85),(0,.65),(.5,.5),(1,.65)]],
+        ' ': [],
+    }
+
+    def stroke_text(self, x, y, height, string, layer='ENGRAVE', gap=0.22):
+        """Single-stroke vector text - engraves cleanly, no font needed."""
+        w = height * 0.62
+        cx = x
+        missing = sorted(set(string.upper()) - set(self.GLYPHS))
+        if missing:
+            raise ValueError(f"stroke_text: no glyph for {missing} in {string!r} - "
+                             f"add it to Dxf.GLYPHS rather than losing letters")
+        for ch in string.upper():
+            for poly in self.GLYPHS[ch]:
+                for (ax, ay), (bx_, by) in zip(poly, poly[1:]):
+                    self.line(cx + ax * w, y + ay * height,
+                              cx + bx_ * w, y + by * height, layer)
+            cx += w * (1 + gap)
+        return cx - x - w * gap
+
     def save(self, path):
         head = ("0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n"
                 "9\n$MEASUREMENT\n70\n1\n0\nENDSEC\n"
@@ -187,11 +260,14 @@ def corner_holes(d, which='both'):
         d.circle(x, y, M3_FREE / 2)
 
 
-def deck_slots(d, cx, cy):
-    h = DECK_PITCH / 2
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            d.slot(cx + sx * h, cy + sy * h, SLOT_L, SLOT_W, horizontal=True)
+def deck_points(cx, cy):
+    return [(cx + sx * DECK_X / 2, cy + sy * DECK_Y / 2)
+            for sx in (-1, 1) for sy in (-1, 1)]
+
+
+def deck_holes(d, cx, cy):
+    for x, y in deck_points(cx, cy):
+        d.circle(x, y, M3_FREE / 2)
 
 
 def plate_bottom():
@@ -214,8 +290,16 @@ def plate_middle():
     for sx in (-1, 1):
         for sy in (-1, 1):
             d.circle(FAN_C[0] + sx * h, FAN_C[1] + sy * h, FAN_SCREW_D / 2)
+    # the boards bolted straight down, on their own patterns...
+    for (_, cx, cy), (bw, bh), holes, hd in board_mounts():
+        for hx, hy in holes:
+            d.slot(cx - bw / 2 + hx, cy - bh / 2 + hy,
+                   max(MOUNT_SLOT, hd), hd, horizontal=True)
+    # ...and a deck pattern so a sub-plate can be used instead, without
+    # re-cutting. 35 x 45 rather than a 45 mm square: that is what clears both
+    # boards' mount slots.
     for _, cx, cy in ZONES:
-        deck_slots(d, cx, cy)
+        deck_holes(d, cx, cy)
     return d
 
 
@@ -233,10 +317,7 @@ def plate_eth_elite():
     ox, oy = (w - ETH_BOARD[0]) / 2, (h - ETH_BOARD[1]) / 2
     for hx, hy in ETH_HOLES:
         d.circle(ox + hx, oy + hy, ETH_HOLE_D / 2)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            d.circle(w / 2 + sx * DECK_PITCH / 2, h / 2 + sy * DECK_PITCH / 2,
-                     M3_FREE / 2)
+    deck_holes(d, w / 2, h / 2)
     return d
 
 
@@ -248,10 +329,7 @@ def plate_tc397():
     ox, oy = (w - TC_BOARD[0]) / 2, (h - TC_BOARD[1]) / 2
     for hx, hy in TC_HOLES + TC_EXTRA_HOLES:
         d.circle(ox + hx, oy + hy, TC_HOLE_D / 2)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            d.circle(w / 2 + sx * DECK_PITCH / 2, h / 2 + sy * DECK_PITCH / 2,
-                     M3_FREE / 2)
+    deck_holes(d, w / 2, h / 2)
     return d
 
 
@@ -263,15 +341,16 @@ def plate_top():
     for i in range(-2, 3):
         d.slot(FAN_C[0] + i * (VENT_SLOT[0] + 6), FAN_C[1],
                VENT_SLOT[1], VENT_SLOT[0], horizontal=False)
+    for x, y, h, txt in ENGRAVE:
+        d.stroke_text(x, y, h, txt)
     return d
 
 
 PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
           ('plate-b-middle-5T', plate_middle, 5),
-          ('plate-c-top-3T', plate_top, 3)]
-if not DIRECT_MOUNT:
-    PLATES += [('plate-d-eth-elite-3T', plate_eth_elite, 3),
-               ('plate-e-tc397-3T', plate_tc397, 3)]
+          ('plate-c-top-3T', plate_top, 3),
+          ('plate-d-eth-elite-3T', plate_eth_elite, 3),
+          ('plate-e-tc397-3T', plate_tc397, 3)]
 
 
 # Nesting: plates of the same thickness laid out on one sheet, so a shop that
@@ -282,6 +361,46 @@ NESTS = {
                place=[('plate-a-bottom-5T', 5, 5), ('plate-b-middle-5T', 5, 195)]),
     '3T': dict(sheet=(260, 190), place=[('plate-c-top-3T', 5, 5)]),
 }
+
+
+# One sheet with every plate on it, annotated - the layout acrylic shops ask
+# for. (name, x, y, label) with the label written under each plate.
+COMBINED_SHEET = (580.0, 430.0)
+COMBINED = [
+    ('plate-a-bottom-5T', 15.0, 235.0, 'PLATE A (BOTTOM)  5T  CLEAR  x1'),
+    ('plate-b-middle-5T', 300.0, 235.0, 'PLATE B (MIDDLE)  5T  CLEAR  x1'),
+    ('plate-c-top-3T', 15.0, 30.0, 'PLATE C (TOP)  3T  CLEAR  x1'),
+    ('plate-e-tc397-3T', 300.0, 30.0, 'PLATE E  3T  CLEAR  x1'),
+    ('plate-d-eth-elite-3T', 430.0, 30.0, 'PLATE D  3T  CLEAR  x1'),
+]
+
+
+def shift_entities(sub, ox, oy):
+    out = []
+    for e in sub.e:
+        def mv(m):
+            code, val = m.group(1), float(m.group(2))
+            return f"{code}\n{val + (ox if code in ('10', '11') else oy):.4f}"
+        out.append(re.sub(r'\b(1[01]|2[01])\n(-?[\d.]+)', mv, e))
+    return out
+
+
+def combined(builders):
+    """All five plates on one annotated sheet."""
+    d = Dxf()
+    W, H = COMBINED_SHEET
+    d.rounded_rect(0, 0, W, H, 0.1, layer='SHEET')
+    # title block in the empty area between plate B and plate E
+    d.text(300, 205, 8.0, 'LAN9692 ACRYLIC FRAME - 5 PLATES')
+    d.text(300, 190, 5.0, 'ALL DIMENSIONS mm.  MATERIAL: CLEAR ACRYLIC (PMMA)')
+    d.text(300, 178, 5.0, 'CUT LAYER = CUT.  TEXT AND SHEET OUTLINE DO NOT CUT.')
+    d.text(300, 166, 5.0, '5T x 2 SHEETS (A, B)   3T x 3 SHEETS (C, D, E)')
+    d.text(300, 154, 5.0, 'HOLES: O3.4 / O2.9 / O36 FAN BORE.  SLOTS AS DRAWN.')
+    for name, ox, oy, label in COMBINED:
+        sub = builders[name]()
+        d.e += shift_entities(sub, ox, oy)
+        d.text(ox, oy - 11, 6.0, label)
+    return d
 
 
 def nest(tag, spec, builders):
@@ -311,6 +430,11 @@ def main():
         print(f"  {name + '.dxf':24s} {PW:.0f} x {PH:.0f} mm, {thick} mm acrylic, "
               f"{n} entities")
     builders = {n: fn for n, fn, _ in PLATES}
+    path = os.path.join(out, 'combined-all-plates.dxf')
+    n = combined(builders).save(path)
+    made.append(path)
+    print(f"  {'combined-all-plates.dxf':24s} {COMBINED_SHEET[0]:.0f} x "
+          f"{COMBINED_SHEET[1]:.0f} mm sheet, 5 plates annotated, {n} entities")
     for tag, spec in NESTS.items():
         path = os.path.join(out, f'nested-{tag}.dxf')
         n = nest(tag, spec, builders).save(path)

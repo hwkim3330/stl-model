@@ -2,13 +2,14 @@ order from,group,item,spec,qty,note
 laser / acrylic shop,acrylic,Plate A - bottom,"clear acrylic 5 mm, 250 x 180, plate-a-bottom-5T.dxf",1,carries the LAN9692
 laser / acrylic shop,acrylic,Plate B - middle,"clear acrylic 5 mm, 250 x 180, plate-b-middle-5T.dxf",1,"fan under, modules on top"
 laser / acrylic shop,acrylic,Plate C - top,"clear acrylic 3 mm, 250 x 180, plate-c-top-3T.dxf",1,guard + intake slots
-electronics parts supplier,hardware,Hex standoff F/F,M3 x 10 mm,8,PCB standoffs on plate A
+electronics parts supplier,hardware,Hex standoff F/F,M3 x 10 mm,8,"PCB standoffs on plate A. The LAN9692 drill is Ø3.048, so an M3 screw is a very tight fit through the board - try one by hand first, and if it binds use M2.5 hardware here instead; the Ø3.4 acrylic hole takes either"
 electronics parts supplier,hardware,Hex standoff F/F,M3 x 45 mm,8,"4 for A->B, 4 for B->C. F/F, not M/F - a 6 mm male stud cannot cross a 5 mm plate and still bite"
 electronics parts supplier,hardware,"Screw, pan head",M3 x 6 mm,8,LAN9692 down onto its standoffs
 electronics parts supplier,hardware,"Screw, pan head",M3 x 10 mm,8,"4 up through plate A and 4 down through plate B, into the A->B standoffs"
 electronics parts supplier,hardware,"Screw, pan head",M3 x 8 mm,16,"8 up through plate A into the PCB standoffs, 4 up through plate B and 4 down through plate C, into the B->C standoffs"
 electronics parts supplier,hardware,"Screw, pan head",M3 x 10 mm,4,up through plate B into the TC397 standoffs
-electronics parts supplier,hardware,"Screw, self-tapping",M3 x 16 mm,4,"fan, through plate B into the fan frame - NOT with a nut, there is no room"
+electronics parts supplier,hardware,"Screw, pan head",M3 x 20 mm,4,"fan: right through plate B and the fan, nut on the far side. The screws in the fan's box are fatter and want Ø4.5 holes"
+electronics parts supplier,hardware,Nut,M3,4,fan screws
 electronics parts supplier,hardware,Nut,M3,8,spares - no joint in this build needs one
 electronics parts supplier,hardware,Washer,M3 nylon,20,under every head that lands on acrylic
 electronics parts supplier,hardware,Hex standoff F/F,M2.5 x 8 mm,4,T-ETH-Elite on plate B

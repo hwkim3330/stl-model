@@ -121,9 +121,8 @@ board visible, and make the *one* number nobody has published — how much
 clearance the five DC-DC daughter modules need — a standoff swap instead of a
 reprint.
 
-Keep printing the parts that are actually 3D: the ESP32-S31 and TC397 trays,
-and any adapter bracket. Plate B's slots use the **same 45 mm square** as the
-`DECK` pattern on the printed LAN9692 lid, so those trays bolt to either.
+Nothing here is printed. The printed cases elsewhere in the repo still work if
+you would rather box the small boards up.
 
 ## What is on the plates
 
@@ -135,12 +134,10 @@ photo:
   the plate origin is (18.32, 15.07).
 * **Plate B** — the fan bore is centred on **U1, the switch die itself**, at
   pick-and-place coordinate (167.31, 78.69) → plate (185.63, 93.76). The fan
-  hangs underneath and blows down onto it. Ø38 bore, 32 mm M3 pitch, for a
+  hangs underneath and blows down onto it. Ø36 bore, 32 mm M3 pitch, for a
   standard 40 mm fan.
-* **Plate B** — two mounting zones of four 3.4 × 16 mm slots on a 45 mm square,
-  at **(60, 48)** for the ESP32-S31 and **(60, 132)** for the FIM or a spare.
-  Slots, not holes, so a tray shifts ±6 mm. 84 mm apart, which clears two
-  85 × 75 mm trays by 9 mm and keeps both away from the fan.
+* **Plate B** — each small board's own mount pattern as 9 mm slots, plus a
+  35 × 45 mm deck pattern per zone so a sub-plate (D or E) can be used instead.
 * **Plate C** — five 8 × 60 mm intake slots over the fan.
 
 ## How the sub-plates attach to plate B

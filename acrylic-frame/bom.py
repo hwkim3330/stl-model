@@ -26,7 +26,10 @@ BOM = [
     # there are no sub-plates. Set it False in make_plates.py to get plates D
     # and E back.
 
-    ('hardware', 'Hex standoff F/F', 'M3 x 10 mm', 8, 'PCB standoffs on plate A'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 10 mm', 8,
+     'PCB standoffs on plate A. The LAN9692 drill is Ø3.048, so an M3 screw is '
+     'a very tight fit through the board - try one by hand first, and if it '
+     'binds use M2.5 hardware here instead; the Ø3.4 acrylic hole takes either'),
     ('hardware', 'Hex standoff F/F', 'M3 x 45 mm', 8,
      '4 for A->B, 4 for B->C. F/F, not M/F - a 6 mm male stud cannot cross a '
      '5 mm plate and still bite'),
@@ -38,8 +41,10 @@ BOM = [
      '4 down through plate C, into the B->C standoffs'),
     ('hardware', 'Screw, pan head', 'M3 x 10 mm', 4,
      'up through plate B into the TC397 standoffs'),
-    ('hardware', 'Screw, self-tapping', 'M3 x 16 mm', 4,
-     'fan, through plate B into the fan frame - NOT with a nut, there is no room'),
+    ('hardware', 'Screw, pan head', 'M3 x 20 mm', 4,
+     'fan: right through plate B and the fan, nut on the far side. The screws '
+     "in the fan's box are fatter and want Ø4.5 holes"),
+    ('hardware', 'Nut', 'M3', 4, 'fan screws'),
     ('hardware', 'Nut', 'M3', 8, 'spares - no joint in this build needs one'),
     ('hardware', 'Washer', 'M3 nylon', 20, 'under every head that lands on acrylic'),
     ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm', 4, 'T-ETH-Elite on plate B'),
