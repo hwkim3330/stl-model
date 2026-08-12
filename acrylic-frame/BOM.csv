@@ -1,6 +1,6 @@
 order from,group,item,spec,qty,note
 laser / acrylic shop,acrylic,Plate A - bottom,"clear acrylic 5 mm, 250 x 180, plate-a-bottom-5T.dxf",1,carries the LAN9692
-laser / acrylic shop,acrylic,Plate B - middle,"clear or smoke acrylic 5 mm, 250 x 180, plate-b-middle-5T.dxf",1,"fan under, modules on top"
+laser / acrylic shop,acrylic,Plate B - middle,"clear acrylic 5 mm, 250 x 180, plate-b-middle-5T.dxf",1,"fan under, modules on top"
 laser / acrylic shop,acrylic,Plate C - top,"clear acrylic 3 mm, 250 x 180, plate-c-top-3T.dxf",1,guard + intake slots
 electronics parts supplier,hardware,Hex standoff F/F,M3 x 10 mm,8,PCB standoffs on plate A
 electronics parts supplier,hardware,Hex standoff F/F,M3 x 45 mm,8,"4 for A->B, 4 for B->C. F/F, not M/F - a 6 mm male stud cannot cross a 5 mm plate and still bite"

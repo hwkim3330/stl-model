@@ -55,7 +55,7 @@ nothing else in the design changes.
 | Plate | Material | Size | Carries |
 |---|---|---|---|
 | A — bottom | 5 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
-| B — middle | 5 mm clear/smoke | 250 × 180 mm | 40 mm fan underneath; both small boards on top |
+| B — middle | 5 mm clear acrylic | 250 × 180 mm | 40 mm fan underneath; both small boards on top |
 | C — top | 3 mm clear | 250 × 180 mm | guard, intake slots over the fan |
 
 Both small boards bolt **straight to plate B**, which is cut with each board's

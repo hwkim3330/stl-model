@@ -5,7 +5,7 @@ Send `acrylic-frame-dxf.zip`. **Three plates** in two thicknesses:
 | File | Material | Thickness | Qty |
 |---|---|---|---|
 | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) | **5 mm** | 1 |
-| `plate-b-middle-5T.dxf` | clear or smoke acrylic | **5 mm** | 1 |
+| `plate-b-middle-5T.dxf` | clear acrylic (PMMA) | **5 mm** | 1 |
 | `plate-c-top-3T.dxf` | clear acrylic | **3 mm** | 1 |
 
 Optional: `nested-5T.dxf` and `nested-3T.dxf` in the same zip hold the same

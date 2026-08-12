@@ -18,7 +18,7 @@ import os
 BOM = [
     ('acrylic', 'Plate A - bottom', 'clear acrylic 5 mm, 250 x 180, plate-a-bottom-5T.dxf', 1,
      'carries the LAN9692'),
-    ('acrylic', 'Plate B - middle', 'clear or smoke acrylic 5 mm, 250 x 180, plate-b-middle-5T.dxf', 1,
+    ('acrylic', 'Plate B - middle', 'clear acrylic 5 mm, 250 x 180, plate-b-middle-5T.dxf', 1,
      'fan under, modules on top'),
     ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180, plate-c-top-3T.dxf', 1,
      'guard + intake slots'),
