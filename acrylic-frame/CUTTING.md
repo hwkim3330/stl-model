@@ -18,7 +18,9 @@ layer `SHEET`, not a cut path. Ignore them unless the quote suggests otherwise.
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
 * Every closed shape is a cut path — outline, holes and slots alike. There is no
   engraving layer, everything is on layer `CUT`.
-* All holes are **Ø3.4** (M3 free fit) except the **Ø38** fan bore.
+* All holes are **Ø3.4** (M3 free fit), **Ø2.9** for M2.5 on plate D, and one
+  **Ø36** fan bore. Ø36 rather than Ø38: at the fan's 32 mm screw pitch a Ø38
+  bore leaves only 1.93 mm of acrylic to each screw hole, Ø36 leaves 2.93.
 * Slots are 3.4 mm wide × 16 mm long, rounded ends.
 * Total cut area 3 × 0.045 m². Kerf compensation: leave it to the shop, the
   fits here are all clearance, nothing is press-fit.
@@ -77,7 +79,7 @@ replace them.
 | M3 hex standoff, plate B → C | **45 mm** M/F | 4 |
 | M3 screw | 8 mm | ~20 |
 | M3 nut | — | a few |
-| 40 × 40 fan | 10 mm thick, 12 V | 1 |
+| 40 × 40 fan | 10 mm thick, **12 V** | 1 |
 | Rubber feet | self-adhesive | 4 |
 | 12 V DC Y splitter | 5.5 × 2.5 mm | 1 |
 | 12 V adapter | 5 A, 5.5 × 2.5 mm | 1 |

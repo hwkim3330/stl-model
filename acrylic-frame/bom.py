@@ -45,7 +45,8 @@ BOM = [
      'spares - only needed if the two less certain TC397 holes are not holes'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'under plate A'),
 
-    ('electrical', 'Fan', '40 x 40 x 10 mm, 12 V DC', 1, 'blows down onto the switch'),
+    ('electrical', 'Fan', '40 x 40 x 10 mm, 12 V DC, 3-pin or bare leads', 1,
+     'e.g. Noctua NF-A4x10 FLX (quiet) or Sunon MF40101V (cheap)'),
     ('electrical', 'DC splitter, 1 to 2', 'barrel 5.5 x 2.5 mm', 1,
      'NOT 5.5 x 2.1 - the board jack is 2.5'),
     ('electrical', 'DC adapter', '12 V 5 A, barrel 5.5 x 2.5 mm, centre +', 1,

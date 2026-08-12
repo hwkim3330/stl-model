@@ -34,7 +34,10 @@ PW, PH = 250.0, 180.0             # plate outline
 PLATE_R = 6.0                     # corner radius
 CORNER_INSET = 8.0                # spacer holes in from each corner
 M3_FREE = 3.4                     # M3 clearance in acrylic
-FAN_BORE = 38.0                   # 40 mm fan
+FAN_BORE = 36.0                   # 40 mm fan. Ø38 would match the impeller but
+                                  # leaves only 1.93 mm of acrylic to the M3
+                                  # screw holes at 22.63 mm radius; Ø36 gives
+                                  # 2.93 mm. See review.py.
 FAN_PITCH = 32.0
 SLOT_W, SLOT_L = 3.4, 16.0        # adjustment slots for the module trays
 DECK_PITCH = 45.0                 # same square the printed trays already use

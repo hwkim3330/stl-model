@@ -158,7 +158,13 @@ feed it 24 V: the input TVS is an SMBJ13D with a 13 V standoff.
 ```bash
 python3 make_plates.py     # -> dxf/*.dxf + acrylic-frame-dxf.zip
 python3 assembly.py        # -> assembly.stl, img/*.png, fit checks
+python3 review.py          # web-thickness check on the generated DXFs
 ```
+
+`review.py` rasterises the actual DXF output and measures the acrylic left
+between every pair of cut features and between each cut and the plate edge —
+thin webs are what snap, and they do not show up in a render. It is what caught
+the fan bore leaving 1.93 mm to its screw holes.
 
 Plate size, corner radius, fan size, slot pattern and zone positions are all
 constants at the top of the script. `PW, PH = 260, 190` if you want more room
