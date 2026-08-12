@@ -4,6 +4,7 @@
 
 | Model | Board | Parts | Material volume |
 |---|---|---|---|
+| [`acrylic-frame/`](acrylic-frame/) | LAN9692 + fan + module trays | **3 laser-cut plates (DXF)** | 250 × 180 mm × 3 |
 | [`lan9692-evb-case/`](lan9692-evb-case/) | Microchip EVB-LAN9692-LM (EV09P11A) | open tray + lid | 118.5 cm³ |
 | [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box, vented | tray + 2 panels + lid | 163.5 cm³ |
 | [`lan9692-evb-case/`](lan9692-evb-case/) | ″ — closed box, ports only | tray + 2 panels + lid | 237.2 cm³ |
@@ -16,6 +17,19 @@ the LAN9692 parts from Microchip's released Gerber/Excellon and pick-and-place
 files, the LilyGo `_fit` variants from measurements of the published STLs checked
 against LilyGo's own board CAD, the ESP32-S31 tray from Espressif's dimension
 DXF, the TC397 tray from Infineon's Application Kit manual drawing. Each folder's README states which numbers are data and which are not.
+
+## Plates or a printed box
+
+For the LAN9692 the printed enclosures are big — 118 to 237 cm³ depending on
+style. [`acrylic-frame/`](acrylic-frame/) does the same job as three laser-cut
+250 × 180 mm plates plus standoffs: cheaper, board visible, and the unverified
+clearance above the board becomes a standoff length instead of a reprint. The
+printed trays stay useful for the small boards, and plate B's slots use the same
+45 mm square as the printed lid's deck, so they interchange.
+
+**Acrylic is ordered from DXF, never from STL** — laser cutting needs 2D vector
+paths and a stated thickness, not a mesh. See
+[`acrylic-frame/CUTTING.md`](acrylic-frame/CUTTING.md).
 
 ## Stacking and cooling
 
