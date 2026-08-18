@@ -135,15 +135,11 @@ actually confirmed, rather than assumed:
 
 | Line | Domestic stock |
 |---|---|
-| M3 45 mm metal support | listed at plabs.co.kr, ₩2,200, with an `F` option — but the listing's F/M wording does not prove **both** ends are female. Ask. |
-| Y splitter | 디바이스마트 `[BU140]`, DC(F) → DC(M) × 2 — right genders, **inner diameter not confirmed** |
-| **female 5.5 × 2.5 pigtail** | not found. The nearest domestic part, `AM2825`, is **male** |
-| M2.5 standoffs, nyloc nuts, nylon washers, feet, screws | not checked — assumed, as ordinary stock |
-
-So two lines carry real risk: the **fan's female socket** and the **splitter's
-inner diameter**. Both are the 2.1-instead-of-2.5 failure. Ordering just those
-two from DigiKey against the verified part numbers, and the rest domestically,
-costs one extra delivery and removes the risk entirely.
+| M3 standoffs, screws, nyloc nuts, nylon washers | **found** — see the order below. 50 mm in place of 45 mm |
+| **M2.5 F/F 8 mm standoff** | **not found in that order, and it is the one real gap** |
+| female 5.5 × 2.5 pigtail | **found**: `AM2826`. Its sibling `AM2825` is the male version — easy to order by mistake |
+| Y splitter | **found**: `NC066`, listed 5.5 × 2.5. The same Coms family also ships a 2.1, so check the part on arrival |
+| 12 V 5 A adapter | not in that order |
 
 Whichever way it is bought, three things decide whether it assembles:
 
@@ -162,6 +158,48 @@ leaves only about 2 mm above a 38 mm TC397 case.
 A domestic order also settles 세금계산서 in one step, which a foreign
 distributor does not.
 
+### What was actually bought
+
+디바이스마트, 2026-08-18. This is the set the frame was assembled from, so it
+is the list to repeat rather than the imported part numbers above.
+
+| Design line | Bought | Qty |
+|---|---|---:|
+| M3 F/F 10 mm — LAN9692 | PCB서포트 **플라스틱** F-10mm | 10 |
+| M3 F/F 45 mm — columns | PCB서포트 금속 **F-50mm** | 10 |
+| M3 F/F 8 mm — TC397 | M3 알루미늄 서포트 Female 8mm `SZH-ZR058` | 4 |
+| M3 × 6 / 8 / 10 | 둥근머리 십자볼트 (니켈) | 20 each |
+| M3 × 25 — fan | 스텐 둥근머리 십자볼트 M3x25 | 20 |
+| M2.5 × 6 / 10 | 스텐 둥근머리 십자볼트 | 20 each |
+| M3 nyloc nut | 로크(나일론)너트 M3 | 10 |
+| M3 nylon washer | `MFW030A` | 20 |
+| fan | Noctua NF-A4x10 FLX | 1 |
+| female 5.5 × 2.5 pigtail | `AM2826` DC 2선 to DC 잭 Female(암), 0.3 m | 1 |
+| male 5.5 × 2.5 pigtail | `VLT-CAB124` 27 cm AWG18 | 2 |
+| female jack, screwless | `VLT-DC037` 푸쉬 터미널 | 1 |
+| Y splitter | `NC066` Coms 2분배 35 cm, on/off | 1 |
+| Y junction, solderless | 원터치 커넥터 WAGO `221-413` (3핀) | 2 |
+
+**Still to buy: 4 × M2.5 F/F 8 mm standoffs** for the T-ETH-Elite. Nothing
+substitutes — plate B's holes for that board are Ø2.9, so an M3 screw will not
+pass, and an M2.5 screw will not bite in an M3 standoff. Everything else on the
+frame assembles without them; only that one board waits. **And a 12 V 5 A
+adapter**, 5.5 × 2.5 centre positive, which is not in the order.
+
+Two things to do differently from the tables above, given what arrived:
+
+* **Use M3 × 10, not M3 × 8, into the plastic 10 mm standoffs.** Plate A is 5 mm,
+  so an M3 × 8 engages only 3 mm, and 3 mm of plastic thread under the weight of
+  the board is thin. There are 8 spare M3 × 10 after the columns and the TC397.
+* **Feed the board through the WAGO and the AWG18 pigtail, not through NC066.**
+  The board can draw 4.1 A and the splitter's wire gauge is not published;
+  Coms cables in this family are usually 20–22 AWG. NC066 is better used on the
+  fan leg, where the load is 0.05 A and its switch is actually handy.
+
+The WAGO 221-413 is a 3-conductor lever connector, so two of them make the whole
+Y — one for +12 V, one for ground, each taking the adapter in and the board and
+fan out. No soldering anywhere in the power path.
+
 **The LAN9692's own drill is Ø3.048 mm**, so an M3 screw is a very tight fit
 through the board. Try one by hand first; if it binds, use M2.5 for the
 board→plate A joint. The Ø3.4 acrylic hole takes either.
@@ -175,7 +213,8 @@ end**, and a plate cannot share one hole between the column below it and the one
 above. The **A→B column sits at the four corners** (8, 8) … (242, 172), the
 **B→C column** at (8, 40), (242, 40), (8, 140), (242, 140).
 
-Stack height ≈ 5 + 45 + 5 + 45 + 3 = **103 mm**.
+Stack height ≈ 5 + 45 + 5 + 45 + 3 = **103 mm**, or **113 mm** on the
+50 mm standoffs that were actually bought.
 
 ## Electrical
 
