@@ -86,6 +86,30 @@ MOUNT_SLOT = 9.0
 TC_SLOTTED = (2, 3)        # (96.99, 59) and (16, 82) - existence not proven
 ETH_SLOTTED = (2, 3)       # the top pair - the 58.00 vs 60.25 asymmetry lives here
 ZONES = LAYOUTS[LAYOUT]
+
+# --------------------------------------------------------------------------
+# KETI Fault Injection Module (RJ45), 260812. Straight out of the KiCad
+# fabrication output, so unlike the two boards above nothing here is inferred:
+#   outline  Edge_Cuts.gm1, x 100.414998..170.0, y -87.5..-53.5
+#   holes    PTH.drl tool T6, Ø2.500 - the four corner mounting holes
+# The Ø3.15 NPTH and Ø1.7 PTH holes are the two RJ45 jacks' pegs and shield
+# tabs, not mounting points. Because these came from a drill file they are cut
+# ROUND, with no slots - there is no doubt to absorb.
+FIM_BOARD = (69.585, 34.000)
+FIM_HOLES = [(3.085, 3.475), (66.335, 3.475), (3.085, 30.500), (66.335, 30.500)]
+FIM_HOLE_D = 2.9                  # M2.5 free fit, from the Ø2.5 drill
+FIM_SLOTTED = ()
+# The two RJ45s face opposite short edges - J1 out of x=0, J2 out of x=W - so
+# the board is turned 90 deg CCW to put both of them on the plate's y axis,
+# pointing out of the back where the LAN9692's own RJ45 J33 also faces.
+FIM_ROT = 90
+FIM_ZONE = ('FIM-RJ45', 143.8, 137.2)
+
+
+def rot90(board, holes):
+    """Turn a board 90 deg CCW about its own footprint: (x, y) -> (H - y, x)."""
+    w, h = board
+    return (h, w), [(h - hy, hx) for hx, hy in holes]
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 
 # Engraving on the top plate. Single-stroke vector text on its own layer, so the
@@ -334,8 +358,10 @@ def engrave_segments():
 
 def board_mounts():
     """(zone, board size, holes, hole Ø, slotted indices) for plate B."""
+    fb, fh = rot90(FIM_BOARD, FIM_HOLES) if FIM_ROT == 90 else (FIM_BOARD, FIM_HOLES)
     return [(ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
-            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED)]
+            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED),
+            (FIM_ZONE, fb, fh, FIM_HOLE_D, FIM_SLOTTED)]
 
 
 def plate_eth_elite():

@@ -47,6 +47,15 @@ ETH_STANDOFF = 6.0                     # M2.5 under the T-ETH-Elite
 TC_STANDOFF = 8.0                      # M3 under the TC397, 4 places
 ETH_PARTS_H = 15.2                     # over the PCB, from LilyGo's 3D CAD
 TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
+FIM_STANDOFF = 8.0                     # M2.5 under the injection module
+FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on it
+
+# per-zone heights, by the name in make_plates' zone tuple - a size test used to
+# pick these and would have put the rotated 34 mm injection module in the
+# T-ETH-Elite's bracket by accident
+HEIGHTS = {'TC397': (TC_STANDOFF, TC_PARTS_H),
+           'T-ETH-Elite': (ETH_STANDOFF, ETH_PARTS_H),
+           'FIM-RJ45': (FIM_STANDOFF, FIM_PARTS_H)}
 
 Z_A = 0.0
 Z_PCB = T_A + H_BOARD                  # PCB underside
@@ -318,9 +327,11 @@ def modules(z_top):
     """Whatever the current plate-B layout carries, at its real height."""
     out = []
     if ACRYLIC_ONLY and P.DIRECT_MOUNT:
-        for (_, cx, cy), (bw, bh), holes, _, _ in P.board_mounts():
-            standoff = TC_STANDOFF if bw > 80 else ETH_STANDOFF
-            parts_h = TC_PARTS_H if bw > 80 else ETH_PARTS_H
+        for (name, cx, cy), (bw, bh), holes, _, _ in P.board_mounts():
+            if name not in HEIGHTS:
+                raise KeyError(f"no standoff/height for zone {name!r} - add it "
+                               "to HEIGHTS rather than guessing from the size")
+            standoff, parts_h = HEIGHTS[name]
             out += sub_stack(cx, cy, (bw, bh), (bw, bh), holes,
                              standoff, parts_h, z_top, plate=False)
         return out

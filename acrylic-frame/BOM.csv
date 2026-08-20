@@ -7,15 +7,15 @@ laser shop,acrylic,Plate E - sub-plate,"clear acrylic 3 mm, 110 x 110",1,plate-e
 RS Korea,hardware,Hex standoff F/F,"M3 x 10 mm, stainless",8,RS 224-0443 (checked: F/F),"LAN9692 on plate A. The board drill is Ø3.048, so an M3 screw is a very tight fit through it - try one by hand first, and use M2.5 here if it binds; the Ø3.4 acrylic hole takes either"
 RS Korea,hardware,Hex standoff F/F,"M3 x 45 mm, stainless",8,RS 224-0449 (checked: F/F),"4 for A->B, 4 for B->C. F/F is not optional - RS M/F parts have a 6 mm male stud, which cannot cross a 5 mm plate and still bite"
 RS Korea,hardware,Hex standoff F/F,"M3 x 8 mm, brass",4,Wurth 970080324 / RS 184-2873,TC397 on plate B
-RS Korea,hardware,Hex standoff F/F,"M2.5 x 8 mm, brass",4,Wurth 970080144 / RS 205-2905,T-ETH-Elite on plate B
+RS Korea,hardware,Hex standoff F/F,"M2.5 x 8 mm, brass",8,Wurth 970080144 / RS 205-2905,"4 for the T-ETH-Elite, 4 for the fault injection module - both boards have Ø2.5 mounting holes, so both are M2.5"
 RS Korea,hardware,"Screw, pan head",M3 x 6 mm,12,RS 190-428,"LAN9692 down onto its 8 standoffs, TC397 down onto its 4"
 RS Korea,hardware,"Screw, pan head",M3 x 8 mm,16,RS 797-6193,"8 up through plate A into the PCB standoffs, 4 up through plate B and 4 down through plate C into the B->C standoffs"
 RS Korea,hardware,"Screw, pan head",M3 x 10 mm,12,RS 528-744,"4 up through plate A and 4 down through plate B into the A->B standoffs, 4 up through plate B into the TC397 standoffs"
 RS Korea,hardware,"Screw, pan head",M3 x 25 mm,4,RS 914-1490,"fan: right through plate B and the fan, nyloc nut underneath. 5 mm plate + 10 mm fan + washer + a 4 mm nyloc needs about 19.5 mm engaged, so an M3 x 20 has nothing left for the nylon to lock onto. The screws in the fan's own box are fatter and want Ø4.5 holes"
-RS Korea,hardware,"Screw, pan head",M2.5 x 6 mm,4,RS 528-716,T-ETH-Elite down onto its standoffs
-RS Korea,hardware,"Screw, pan head",M2.5 x 10 mm,4,RS 797-6190,up through plate B into the T-ETH-Elite standoffs
+RS Korea,hardware,"Screw, pan head",M2.5 x 6 mm,8,RS 528-716,"T-ETH-Elite and the injection module, down onto their standoffs"
+RS Korea,hardware,"Screw, pan head",M2.5 x 10 mm,8,RS 797-6190,up through plate B into those standoffs
 RS Korea,hardware,"Nut, nyloc","M3, DIN 985",12,RS 521-917,"4 for the fan, 8 spare. Nyloc because the fan is the one vibrating part"
-DigiKey Korea,hardware,"Washer, nylon",M3,20,Essentra MFW030A / DK RPC1552-ND,under every screw head that lands on acrylic
+DigiKey Korea,hardware,"Washer, nylon",M3,40,Essentra MFW030A / DK RPC1552-ND,"under every screw head that lands on acrylic: 12 under plate A, 24 on plate B, 4 on plate C. The 20 originally ordered covers half"
 any,hardware,"Nylon standoff, adhesive base",8 mm,2,-,spares - only needed if the two less certain TC397 holes are not holes
 RS Korea,hardware,Rubber foot,"self-adhesive, ~10 mm",4,RS 136-8964,under plate A
 domestic retail,electrical,Fan,"40 x 40 x 10 mm, 12 V, 0.6 W",1,"Noctua NF-A4x10 FLX (checked: 40x40x10, 12 V, 0.6 W)","32 x 32 mm screw pitch, matching the holes in plate B. Solder the barrel socket to the INCLUDED extension cable, not to the fan's own lead"

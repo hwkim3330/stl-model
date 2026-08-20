@@ -196,6 +196,14 @@ def plate_b_layout():
             d.line([P(ox + 4, oy + 100), P(ox + bw - 4, oy + 100)],
                    fill=(230, 140, 40), width=5)
             d.text(P(ox + bw * 0.3, oy + 103), "ports", fill=(200, 110, 20))
+        elif 'FIM' in name:
+            # the two RJ45s face the two short edges - after the 90 deg turn
+            # that is the top and the bottom of the footprint
+            for yy, lab in ((oy + bh, "RJ45 out"), (oy, "RJ45 in")):
+                d.line([P(ox + 4, yy), P(ox + bw - 4, yy)],
+                       fill=(230, 140, 40), width=5)
+                d.text(P(ox + 1, yy + (2 if lab.endswith('out') else -7)), lab,
+                       fill=(200, 110, 20))
         else:
             d.line([P(ox + 4, oy), P(ox + bw - 4, oy)], fill=(230, 140, 40), width=5)
             d.line([P(ox + 65, oy + 4), P(ox + 65, oy + bh - 4)],

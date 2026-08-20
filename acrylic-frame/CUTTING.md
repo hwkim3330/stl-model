@@ -62,6 +62,29 @@ The deck pattern is 35 × 45 mm rather than a square because a 45 mm square coul
 not clear the T-ETH-Elite's own mount slots. 35 × 45 clears both boards by more
 than 4.8 mm.
 
+## Plate B changed — revision 2
+
+Plate B now also carries the **KETI Fault Injection Module (RJ45)**, so it has
+four more holes than the version quoted earlier. **If plate B has already been
+cut, it needs re-cutting; A, C, D and E are untouched.**
+
+| | |
+|---|---|
+| Board | 69.585 × 34.000 mm, from `Edge_Cuts.gm1` |
+| Mounting | 4 × Ø2.5 from `PTH.drl` tool T6 → **Ø2.9 in acrylic, M2.5** |
+| Cut as | plain round holes, **no slots** — these are drill-file coordinates, so there is no uncertainty to absorb |
+| Placed | turned 90° CCW, centre (143.8, 137.2) |
+| Clearance | 6.8 mm to the TC397, 6.8 mm to the fan bore, 8.0 mm to the back edge |
+
+It is turned because its two RJ45s face **opposite short edges** — in one side,
+out the other. Turned 90° they point along the plate's Y axis, so both jacks
+face the back, where the LAN9692's own RJ45 J33 also faces (plate x 77.1, 67 mm
+away). Ethernet all leaves from one side of the frame; MATEnet and SFP+ stay at
+the front.
+
+The Ø3.15 NPTH and Ø1.7 PTH holes in that board are the RJ45 jacks' pegs and
+shield tabs, not mounting points — do not cut acrylic for them.
+
 ## Check two hole patterns before sending
 
 Plate A's eight holes came out of the LAN9692's **Excellon drill file** and are
