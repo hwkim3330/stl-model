@@ -30,11 +30,15 @@ from render_preview import render      # noqa: E402
 
 # --------------------------------------------------------------------------
 # stack heights (mm)
-T_A, T_B, T_C = 5.0, 5.0, 3.0          # plate thicknesses
+T_A, T_B, T_C, T_D = 5.0, 5.0, 3.0, 3.0   # plate thicknesses
 H_BOARD = 10.0                         # board standoff, plate A -> PCB
 H_AB = 45.0                            # plate A -> plate B
 H_BC = 45.0                            # plate B -> plate C. 40 leaves only
                                        # 2 mm over the 38 mm TC397 case
+H_CD = 50.0                            # plate C -> plate D, the fourth tier.
+                                       # Pure air - nothing sits on plate C - so
+                                       # this is free to choose; 50 reuses the
+                                       # same standoff as the other two gaps.
 FAN_THICK = 11.0                       # Noctua NF-A4x10 mechanical
                                        # envelope; 12 with the anti-
                                        # vibration pads fitted
@@ -63,7 +67,8 @@ Z_A = 0.0
 Z_PCB = T_A + H_BOARD                  # PCB underside
 Z_B = T_A + H_AB                       # plate B underside
 Z_C = Z_B + T_B + H_BC                 # plate C underside
-TOTAL = Z_C + T_C
+Z_D = Z_C + T_C + H_CD                 # plate D underside
+TOTAL = Z_D + T_D
 
 ACRYLIC = (0.62, 0.78, 0.86)
 METAL = (0.55, 0.58, 0.62)
@@ -114,7 +119,7 @@ def groove(x1, y1, x2, y2, z0, z1, w=None):
 
 
 PLATE_DXF = {'A': 'plate-a-bottom-5T', 'B': 'plate-b-middle-5T',
-             'C': 'plate-c-top-3T'}
+             'C': 'plate-c-top-3T', 'D': 'plate-d-upper-3T'}
 
 
 def dxf_features(stem, layer='CUT'):
@@ -197,8 +202,10 @@ def plate(kind, z0, thick):
         else:
             cuts.append(slot_solid(f[1], f[2], f[3], f[4], z1, z2,
                                    horizontal=f[5]))
-    if kind == 'C':
-        # the ENGRAVE layer, as real grooves so the preview shows the lettering
+    if P.ENGRAVE:
+        # the ENGRAVE layer, as real grooves so the preview shows the lettering.
+        # P.ENGRAVE is empty while the KETI mark is unapproved, and then the
+        # layer is absent from the DXF entirely - which is not a fault.
         for _, x1, y1, x2, y2 in dxf_features(PLATE_DXF[kind], 'ENGRAVE'):
             cuts.append(groove(x1, y1, x2, y2, z0 + thick - ENGRAVE_DEPTH,
                                z0 + thick + 0.2))
@@ -229,7 +236,7 @@ def corner_points(which='lower'):
     return P.lower_columns() if which == 'lower' else P.upper_columns()
 
 
-def build(upto='C'):
+def build(upto='D'):
     """upto='A' gives just plate A, its standoffs and the board - the view that
     shows whether the drilled pattern really lines up."""
     parts, cols = [], []
@@ -278,9 +285,25 @@ def build(upto='C'):
         add(m, c)
 
     add(plate('C', Z_C, T_C), ACRYLIC)
+    if upto == 'C':
+        for x, y in corner_points('upper'):
+            add(screw(x, y, Z_C + T_C, 8.0), METAL)
+        JOINTS.append(('B->C standoff, from above plate C', 8.0, T_C, H_BC))
+        return parts, cols
+
+    # Fourth tier. Plate C's four holes are reused: an M/F standoff drops its
+    # 6 mm male stud through the 3 mm plate into the F/F standoff below, leaving
+    # 3 mm of thread engaged, and presents a female end upward. No screw head on
+    # plate C here - the standoff body lands on it instead.
+    for s in hexs(Z_C + T_C, Z_D, corner_points('upper')):
+        add(s, METAL)
+    for x, y in corner_points('upper'):                   # the M/F stud itself
+        add(cyl(3.0, Z_C - (6.0 - T_C), Z_C + T_C, x, y, sections=16), METAL)
+    JOINTS.append(('C->D M/F standoff stud, through plate C', 6.0, T_C, H_BC))
+    add(plate('D', Z_D, T_D), ACRYLIC)
     for x, y in corner_points('upper'):
-        add(screw(x, y, Z_C + T_C, 8.0), METAL)
-    JOINTS.append(('B->C standoff, from above plate C', 8.0, T_C, H_BC))
+        add(screw(x, y, Z_D + T_D, 8.0), METAL)
+    JOINTS.append(('C->D standoff, from above plate D', 8.0, T_D, H_CD))
     return parts, cols
 
 
@@ -338,14 +361,14 @@ def modules(z_top):
                              standoff, parts_h, z_top, plate=False)
         return out
     if ACRYLIC_ONLY:
-        (_, tx, ty), (_, lx, ly) = P.ZONES
+        (_, tx, ty, _tr), (_, lx, ly, _lr) = P.ZONES
         out += sub_stack(tx, ty, P.TC_PLATE, P.TC_BOARD, P.TC_HOLES,
                          TC_STANDOFF, TC_PARTS_H, z_top)
         out += sub_stack(lx, ly, P.ETH_PLATE, P.ETH_BOARD, P.ETH_HOLES,
                          ETH_STANDOFF, ETH_PARTS_H, z_top)
         return out
     if P.LAYOUT == 'tc397+eth-elite':
-        (_, tx, ty), (_, lx, ly) = P.ZONES
+        (_, tx, ty, _tr), (_, lx, ly, _lr) = P.ZONES
         sys.path.insert(0, TC)
         import tc397_appkit_case as T
         out.append((place(os.path.join(TC, 'tc397_appkit_tray.stl'), tx, ty,
@@ -363,8 +386,8 @@ def modules(z_top):
                           lx, ly, zc + LG_LID_DROP), CASE))
     else:
         import esp32_s31_case as S
-        for name, (_, cx, cy) in zip(('esp32_s31_tray.stl', 'esp32_s31_lid.stl'),
-                                     (P.ZONES[1], P.ZONES[1])):
+        for name, (_, cx, cy, _rot) in zip(('esp32_s31_tray.stl', 'esp32_s31_lid.stl'),
+                                           (P.ZONES[1], P.ZONES[1])):
             dz = S.Z_LID if 'lid' in name else 0
             out.append((place(os.path.join(S31, name), cx, cy, z_top + dz), CASE))
     return out

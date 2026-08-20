@@ -12,97 +12,131 @@ Text on the drawing is ASCII so it always renders, whatever CAD the shop uses.
 The Korean equivalents for the order mail:
 
 ```
-투명 아크릴 5T   250 x 180 mm   1EA   (하판 A, 중판 B)
-투명 아크릴 3T   250 x 180 mm   1EA   (상판 C)
-투명 아크릴 3T   110 x 110 mm   1EA   (보조판 E)
-투명 아크릴 3T    76 x  60 mm   1EA   (보조판 D)
-CUT 레이어 = 절단,  ENGRAVE 레이어 = 각인만,  DIM/SHEET 레이어 = 가공 없음
+투명 아크릴 5T   250 x 180 mm   2EA   (하판 A, 중판 B)
+투명 아크릴 3T   250 x 180 mm   2EA   (상판 C, 최상판 D)
+CUT 레이어 = 절단,  DIM/SHEET 레이어 = 가공 없음
+각인 없음
 ```
+
+**Four plates, all 250 × 180 mm, all clear** — two in 5 mm, two in 3 mm. The
+small sub-plates are gone, and so is the engraving.
 
 | Plate | File | Material | Size | Qty |
 |---|---|---|---|---:|
-| A — bottom | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) | 250 × 180 mm | 1 |
-| B — middle | `plate-b-middle-5T.dxf` | clear acrylic | 250 × 180 mm | 1 |
-| C — top | `plate-c-top-3T.dxf` | clear acrylic | 250 × 180 mm | 1 |
-| D — T-ETH-Elite sub-plate | `plate-d-eth-elite-3T.dxf` | clear acrylic | 76 × 60 mm | 1 |
-| E — TC397 sub-plate | `plate-e-tc397-3T.dxf` | clear acrylic | 110 × 110 mm | 1 |
-
-**A and B are 5 mm. C, D and E are 3 mm.** All clear.
+| A — bottom | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) 5 mm | 250 × 180 mm | 1 |
+| B — middle | `plate-b-middle-5T.dxf` | clear acrylic 5 mm | 250 × 180 mm | 1 |
+| C — top | `plate-c-top-3T.dxf` | clear acrylic 3 mm | 250 × 180 mm | 1 |
+| D — upper | `plate-d-upper-3T.dxf` | clear acrylic 3 mm | 250 × 180 mm | 1 |
 
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
 * Everything on layer **`CUT`** is a cut path — outline, holes and slots alike.
-* Layer **`ENGRAVE`** is the lettering on the top plate: **engrave, do not cut.**
-  Single-stroke vector text, so no font is needed.
-* Layers `TEXT` and `SHEET` are drawing annotation and stock outline; neither
-  cuts nor engraves.
+* There is **no engraving** — no `ENGRAVE` layer is emitted at all, so no second
+  operation and no charge for one.
+* Layers `TEXT`, `DIM` and `SHEET` are drawing annotation and stock outline;
+  none of them cut.
 * Holes: **Ø3.4** (M3 free fit), **Ø2.9** (M2.5), and one **Ø36** fan bore.
   Ø36 rather than Ø38 because at the fan's 32 mm screw pitch a Ø38 bore would
   leave only 1.93 mm of acrylic to each screw hole; Ø36 leaves 2.93.
 * Kerf compensation: leave it to the shop. Every fit here is a clearance fit.
 
-## Engraving on the top plate
+## No engraving
 
-Plate C carries **"KETI"** at 32 mm high on layer `ENGRAVE`, in the clear area
-left of the intake slots. Ask the shop for **각인 (engrave)** on that layer — a
-second operation, usually a small extra charge.
+The KETI mark is not approved for use here, so nothing is engraved and the
+`ENGRAVE` layer is not written to the DXF at all. That also removes the second
+operation from the order, and its charge. The machinery is still in
+`make_plates.py` — one line, `ENGRAVE = [(x, y, height, 'TEXT')]` — if approved
+artwork ever turns up. Engraving artwork has to be **vector** (AI / SVG / DXF).
 
-The real KETI logo is not in here: engraving artwork has to be **vector**
-(AI / SVG / DXF). Send me the logo file and it drops onto the same layer. Change
-or remove the wording in `ENGRAVE` at the top of `make_plates.py`.
+## The fourth tier, plate D
 
-## Why plates D and E are included
+Plate D carries the CAN board. **Its hole pattern is not known yet**, so plate D
+ships with the standoff-column holes and the vents only, and the board's own
+holes get drilled or cut later.
 
-Plate B is cut **both** ways: with each small board's own mounting pattern, so a
-board can bolt straight down, **and** with a 35 × 45 mm four-hole deck pattern,
-so a sub-plate can be used instead. D and E are those sub-plates. Cutting all
-five keeps the choice open — they are small and ride in offcut, and plate B never
-has to be re-cut to change what sits on it.
+Its four column holes sit at **exactly plate C's**, and that is deliberate. The
+C → D column is an **M/F standoff**: its 6 mm male stud drops through plate C's
+3 mm and still has 3 mm to thread into the F/F standoff below, so plate C needs
+no extra holes and no screw head lands on it. This is the one joint in the frame
+where M/F works — on the 5 mm plates it would leave 1 mm, which is why every
+other joint is F/F with a screw at each end.
 
-The deck pattern is 35 × 45 mm rather than a square because a 45 mm square could
-not clear the T-ETH-Elite's own mount slots. 35 × 45 clears both boards by more
-than 4.8 mm.
+The vents repeat plate C's on the same centres. Plate D sits directly over plate
+C's intake and a solid sheet there would throttle the fan.
 
-## Plate B changed — revision 2
+| Stack | |
+|---|---|
+| 5 + 45 + 5 + 45 + 3 + 50 + 3 | **156 mm** on 45 mm standoffs |
+| 5 + 50 + 5 + 50 + 3 + 50 + 3 | **166 mm** on the 50 mm ones actually bought |
 
-Plate B now also carries **both KETI Fault Injection Modules**, the RJ45 build
-and the MATEnet build, so it has eight more holes than the version quoted
-earlier. **If plate B has already been cut, it needs re-cutting; A, C, D and E
-are untouched.**
+The C → D gap is pure air — nothing sits on plate C — so it is free to choose.
+Exactly 180 mm would need a 64 mm standoff, which is not a stock length; 60 gives
+176 and 65 gives 181.
 
-Everything below is out of the KiCad fabrication output — outline from
-`Edge_Cuts.gm1`, mounts from the Ø2.5 tool in `PTH.drl` — so unlike the TC397 and
-the T-ETH-Elite these are **cut plain round, with no slots**. Drill-file
-coordinates carry no uncertainty for a slot to absorb.
+## Plates D and E are gone
+
+The two small sub-plates existed so a module could ride on its own carrier
+instead of bolting to plate B. Every board now bolts straight down, so the
+carriers and plate B's 35 × 45 deck pattern went with them — eight fewer holes in
+plate B and two fewer parts to order. `plate-d-upper-3T.dxf` is the new fourth
+tier and has nothing to do with the old sub-plate D.
+
+## Plate B changed — revision 3
+
+Plate B was re-solved, not patched. **If plate B has already been cut it needs
+re-cutting.** It now carries four boards and has lost the 35 × 45 deck pattern
+along with the sub-plates.
+
+**Both** injection modules are fitted, the RJ45 build and the MATEnet build. An
+earlier attempt dropped the second one into the 47.6 mm corridor between the
+TC397 and the fan bore, which left 6.8 mm of acrylic each side — legal, and mean.
+Re-solving the whole plate instead of squeezing into what was left gives every
+board **at least 20 mm to its nearest neighbour**.
+
+| Board | Centre | Turned | Footprint |
+|---|---|---|---|
+| TC397 | (72, 120) | — | x 22…122, y 70…170 |
+| T-ETH-Elite | (180, 146) | **180°** | x 146.9…213.1, y 121.4…170.6 |
+| FIM-RJ45 | (55, 33) | — | x 20.2…89.8, y 16…50 |
+| FIM-MATEnet | (196, 30) | — | x 161.2…230.8, y 13.6…46.4 |
+
+The **T-ETH-Elite is turned 180°** so its USB-C faces the back rim instead of
+pointing into the middle of the plate. That, with the TC397 beside it, clears the
+whole front of the plate — which is where the two injection modules go, one per
+half.
+
+| Clearance | |
+|---|---|
+| TC397 ↔ T-ETH-Elite | 24.9 mm |
+| TC397 ↔ FIM-RJ45 | 20.0 mm |
+| FIM-RJ45 ↔ FIM-MATEnet | 71.4 mm |
+| any board ↔ nearest column | 5.2 mm |
+| thinnest web anywhere on plate B | 3.36 mm |
+
+That 71.4 mm between the modules is deliberate. Their two facing connectors need
+room for **two plugs nose to nose** — about 44 mm of plug body before any cable
+bend — and at 56 mm it was tight enough to bend cables sharply, so both boards
+were pushed outward until the column holes started to crowd.
+
+### The injection modules
+
+Outline from `Edge_Cuts.gm1`, mounts from the Ø2.5 tool in `PTH.drl`, so unlike
+the TC397 and the T-ETH-Elite these are **cut plain round with no slots** —
+drill-file coordinates carry no uncertainty for a slot to absorb.
 
 | | RJ45 build | MATEnet build |
 |---|---|---|
 | Outline | 69.585 × 34.000 mm | 69.585 × 32.881 mm |
 | Mount pattern | 63.25 × **27.025** | 63.25 × **26.000** |
 | Acrylic hole | Ø2.9, M2.5 | Ø2.9, M2.5 |
-| On plate B | turned 90° CCW, centre (143.8, 137.2) | flat, centre (87.0, 36.0) |
 
-**The two patterns differ by 1.025 mm in y, so as cut each zone takes only its
-own board.** They are not interchangeable — do not plan on swapping one for the
-other in the same four holes.
+**The two patterns differ by 1.025 mm in y**, so each zone takes only its own
+board — they are not interchangeable, and plate B is cut with one of each.
 
-Both boards put their two connectors on **opposite short edges**: traffic in one
-side, out the other. That is why the RJ45 board is turned — turned 90° its jacks
-point along Y, out of the back, where the LAN9692's own RJ45 J33 faces too (plate
-x 77.1, 67 mm away). The MATEnet board is left flat in the open front bay,
-because the LAN9692's seven MATEnet ports run along the **front** edge at plate
-x 20.4…153.9, and a turned board needs 69.6 mm of y where that bay has 58.
-
-So Ethernet leaves from the back, MATEnet from the front, and the SFP+ cages stay
-clear at the front right.
-
-| Gap | |
-|---|---|
-| RJ45 board ↔ TC397 | 6.8 mm |
-| RJ45 board ↔ fan bore | 6.8 mm |
-| RJ45 board ↔ back edge | 8.0 mm |
-| MATEnet board ↔ TC397 | 13.6 mm |
-| MATEnet board ↔ front edge | 19.6 mm |
-| thinnest web anywhere on plate B | 3.36 mm |
+Both put their two connectors on **opposite short edges**, traffic in one side
+and out the other; on the MATEnet board the Ø2.261 pegs at x = 4.085 and
+x = 65.585 are what show that. Left flat, both modules therefore face left and
+right along the plate's X axis: the outer connector of each has a clear run to
+its own side rim, and the inner two face each other across the 71.4 mm gap.
 
 Their other drilled holes — Ø3.15 NPTH and Ø1.7 PTH on the RJ45 board, Ø2.261
 NPTH on the MATEnet one — are the connectors' pegs and shield tabs, **not**

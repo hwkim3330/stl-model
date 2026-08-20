@@ -61,10 +61,14 @@ LAYOUTS = {
     # the frame instead of crossing it: the TC397's connector row ends up 14 mm
     # from the back edge, the T-ETH-Elite's USB-C 10 mm from the front and its
     # RJ45 17 mm from the right. Both clear the fan and the corner columns.
-    'tc397+eth-elite': [('TC397', 70.0, 116.0),
-                        ('T-ETH-Elite', 201.1, 34.6)],
+    # TC397 back-left with its connector row 10 mm off the back rim; the
+    # T-ETH-Elite back-right, turned 180 so its USB-C faces the back rim too
+    # instead of pointing into the middle of the plate. That clears the whole
+    # front of the plate for the two injection modules.
+    'tc397+eth-elite': [('TC397', 72.0, 120.0, 0),
+                        ('T-ETH-Elite', 180.0, 146.0, 180)],
     # two 85 x 75 ESP32-S31 trays, 84 mm apart
-    'two-s31': [('module A', 60.0, 132.0), ('module B', 60.0, 48.0)],
+    'two-s31': [('module A', 60.0, 132.0, 0), ('module B', 60.0, 48.0, 0)],
 }
 LAYOUT = 'tc397+eth-elite'
 
@@ -86,6 +90,7 @@ MOUNT_SLOT = 9.0
 TC_SLOTTED = (2, 3)        # (96.99, 59) and (16, 82) - existence not proven
 ETH_SLOTTED = (2, 3)       # the top pair - the 58.00 vs 60.25 asymmetry lives here
 ZONES = LAYOUTS[LAYOUT]
+ZONES_ROT = [(z[0], z[3]) for z in ZONES]      # name -> rotation, for diagrams
 
 # --------------------------------------------------------------------------
 # KETI Fault Injection Modules, 260812 - the RJ45 build and the MATEnet build.
@@ -106,33 +111,50 @@ ZONES = LAYOUTS[LAYOUT]
 # on both, but 27.025 mm apart in y on the RJ45 board against 26.000 on the
 # MATEnet one. As cut, a zone takes only its own board.
 FIM_HOLE_D = 2.9                  # M2.5 free fit, from the Ø2.5 drill
+# Both modules are fitted, one across each half of the front. An earlier attempt
+# dropped the second one into the 47.6 mm corridor between the TC397 and the fan
+# bore, which left 6.8 mm of acrylic each side - legal and mean. Re-solving the
+# whole plate instead of squeezing into what was left gives every board at least
+# 20 mm to its nearest neighbour.
 FIM = {
-    # rot 90: turned so both jacks point along the plate's y axis, out of the
-    # back, where the LAN9692's own RJ45 J33 also faces.
     'FIM-RJ45': dict(
         board=(69.585, 34.000),
         holes=[(3.085, 3.475), (66.335, 3.475), (3.085, 30.500), (66.335, 30.500)],
-        rot=90, at=(143.8, 137.2)),
-    # rot 0: left flat, in the open front bay, because the LAN9692's seven
-    # MATEnet ports are along the front edge at plate x 20.4..153.9 - a turned
-    # board needs 69.6 mm of y and that bay only has 58.
+        rot=0, at=(55.0, 33.0)),
     'FIM-MATEnet': dict(
         board=(69.585, 32.881),
         holes=[(3.085, 3.500), (66.335, 3.500), (3.085, 29.500), (66.335, 29.500)],
-        rot=0, at=(87.0, 36.0)),
+        rot=0, at=(196.0, 30.0)),
 }
 
 
-def rot90(board, holes):
-    """Turn a board 90 deg CCW about its own footprint: (x, y) -> (H - y, x)."""
+def orient(board, holes, rot):
+    """Turn a board about its own footprint. 0 / 90 CCW / 180 / 270.
+
+    Hole order is preserved, so the slotted-index lists still name the same
+    physical holes. Slots are drawn along X, which stays correct for 0 and 180;
+    only boards with no slots are ever turned 90 or 270 here.
+    """
     w, h = board
-    return (h, w), [(h - hy, hx) for hx, hy in holes]
+    if rot == 0:
+        return board, list(holes)
+    if rot == 180:
+        return board, [(w - hx, h - hy) for hx, hy in holes]
+    if rot == 90:
+        return (h, w), [(h - hy, hx) for hx, hy in holes]
+    if rot == 270:
+        return (h, w), [(hy, w - hx) for hx, hy in holes]
+    raise ValueError(f"rotation {rot} not supported")
+
+
 VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
 
-# Engraving on the top plate. Single-stroke vector text on its own layer, so the
-# shop runs it at engrave power and it is never mistaken for a cut. A real KETI
-# logo would need the logo as vector (AI/SVG/DXF) - drop it in on this layer.
-ENGRAVE = [(38.0, 74.0, 32.0, 'KETI')]
+# Engraving. Empty: the KETI mark is not approved for use here, so nothing is
+# engraved and the ENGRAVE layer is not emitted at all - which also takes the
+# second operation, and its charge, off the order. The machinery stays because
+# adding a line back is a one-line change: (x, y, height, text), single-stroke
+# vector on its own layer so it can never be mistaken for a cut.
+ENGRAVE = []
 
 # Optional 4th plate: the LilyGo T-ETH-Elite bolted straight down instead of
 # living in its printed case. Its four mounting holes genuinely are NOT a
@@ -319,6 +341,8 @@ def deck_points(cx, cy):
 
 
 def deck_holes(d, cx, cy):
+    # Nothing on the plates calls this now that the sub-plates are gone; it is
+    # kept because adapter_lilygo.py takes its pattern from deck_points().
     for x, y in deck_points(cx, cy):
         d.circle(x, y, M3_FREE / 2)
 
@@ -351,11 +375,6 @@ def plate_middle():
                 d.slot(X, Y, MOUNT_SLOT, hd, horizontal=True)
             else:
                 d.circle(X, Y, hd / 2)
-    # ...and a deck pattern so a sub-plate can be used instead, without
-    # re-cutting. 35 x 45 rather than a 45 mm square: that is what clears both
-    # boards' mount slots.
-    for _, cx, cy in ZONES:
-        deck_holes(d, cx, cy)
     return d
 
 
@@ -375,36 +394,40 @@ def engrave_segments():
 
 def board_mounts():
     """(zone, board size, holes, hole Ø, slotted indices) for plate B."""
-    out = [(ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
-           (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED)]
+    out = []
+    for (name, cx, cy, rot), board, holes, hd, slotted in (
+            (ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
+            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED)):
+        b, h = orient(board, holes, rot)
+        out.append(((name, cx, cy), b, h, hd, slotted))
     for name, f in FIM.items():
-        b, h = (rot90(f['board'], f['holes']) if f['rot'] == 90
-                else (f['board'], f['holes']))
+        b, h = orient(f['board'], f['holes'], f['rot'])
         out.append(((name, f['at'][0], f['at'][1]), b, h, FIM_HOLE_D, ()))
     return out
 
 
-def plate_eth_elite():
-    """3 mm. Carries a bare T-ETH-Elite on M2.5 standoffs, bolts to plate B."""
-    d = Dxf()
-    w, h = ETH_PLATE
-    d.rounded_rect(0, 0, w, h, 4.0)
-    ox, oy = (w - ETH_BOARD[0]) / 2, (h - ETH_BOARD[1]) / 2
-    for hx, hy in ETH_HOLES:
-        d.circle(ox + hx, oy + hy, ETH_HOLE_D / 2)
-    deck_holes(d, w / 2, h / 2)
-    return d
 
 
-def plate_tc397():
-    """3 mm. Carries a bare TC397 Application Kit, bolts to plate B."""
+
+
+def plate_upper():
+    """3 mm, the fourth tier. Carries the CAN board, whose holes are not known
+    yet - so it ships with the column holes and the vents only.
+
+    Its four column holes sit at exactly plate C's, because the C -> D column is
+    an M/F standoff whose 6 mm male stud passes plate C's 3 mm and still has
+    3 mm to thread into the F/F standoff below. That is the one place in this
+    frame where M/F works: on the 5 mm plates it would leave 1 mm.
+
+    The vents repeat plate C's, on the same centres. Plate D sits directly over
+    plate C's intake, and a solid sheet there would throttle the fan.
+    """
     d = Dxf()
-    w, h = TC_PLATE
-    d.rounded_rect(0, 0, w, h, 4.0)
-    ox, oy = (w - TC_BOARD[0]) / 2, (h - TC_BOARD[1]) / 2
-    for hx, hy in TC_HOLES + TC_EXTRA_HOLES:
-        d.circle(ox + hx, oy + hy, TC_HOLE_D / 2)
-    deck_holes(d, w / 2, h / 2)
+    d.rounded_rect(0, 0, PW, PH, PLATE_R)
+    corner_holes(d, 'upper')
+    for i in range(-2, 3):
+        d.slot(FAN_C[0] + i * (VENT_SLOT[0] + 6), FAN_C[1],
+               VENT_SLOT[1], VENT_SLOT[0], horizontal=False)
     return d
 
 
@@ -421,11 +444,13 @@ def plate_top():
     return d
 
 
+# The small sub-plates are gone. They existed so a module could ride on its own
+# carrier instead of bolting to plate B, which stopped being worth two extra
+# parts and a deck pattern once every board bolts straight down.
 PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
           ('plate-b-middle-5T', plate_middle, 5),
           ('plate-c-top-3T', plate_top, 3),
-          ('plate-d-eth-elite-3T', plate_eth_elite, 3),
-          ('plate-e-tc397-3T', plate_tc397, 3)]
+          ('plate-d-upper-3T', plate_upper, 3)]
 
 
 # Nesting: plates of the same thickness laid out on one sheet, so a shop that
@@ -434,7 +459,8 @@ PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
 NESTS = {
     '5T': dict(sheet=(260, 380),
                place=[('plate-a-bottom-5T', 5, 5), ('plate-b-middle-5T', 5, 195)]),
-    '3T': dict(sheet=(260, 190), place=[('plate-c-top-3T', 5, 5)]),
+    '3T': dict(sheet=(260, 380),
+               place=[('plate-c-top-3T', 5, 5), ('plate-d-upper-3T', 5, 195)]),
 }
 
 
@@ -445,8 +471,7 @@ COMBINED = [
     ('plate-a-bottom-5T', 15.0, 235.0, 'PLATE A (BOTTOM)  5T  CLEAR  x1'),
     ('plate-b-middle-5T', 300.0, 235.0, 'PLATE B (MIDDLE)  5T  CLEAR  x1'),
     ('plate-c-top-3T', 15.0, 30.0, 'PLATE C (TOP)  3T  CLEAR  x1'),
-    ('plate-e-tc397-3T', 300.0, 30.0, 'PLATE E  3T  CLEAR  x1'),
-    ('plate-d-eth-elite-3T', 430.0, 30.0, 'PLATE D  3T  CLEAR  x1'),
+    ('plate-d-upper-3T', 300.0, 30.0, 'PLATE D (UPPER)  3T  CLEAR  x1'),
 ]
 
 
@@ -466,21 +491,19 @@ def shift_entities(sub, ox, oy):
 # stacked at the top right, overall dimensions on the part. Text is ASCII
 # single-stroke so it always renders - the Korean equivalents go in the email.
 ORDER_PLATES = ['plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-3T',
-                'plate-d-eth-elite-3T', 'plate-e-tc397-3T']
+                'plate-d-upper-3T']
 ORDER_SPEC = {
     'plate-a-bottom-5T': ('BOTTOM PLATE A', '5T', 1),
     'plate-b-middle-5T': ('MIDDLE PLATE B', '5T', 1),
     'plate-c-top-3T': ('TOP PLATE C', '3T', 1),
-    'plate-d-eth-elite-3T': ('SUB PLATE D', '3T', 1),
-    'plate-e-tc397-3T': ('SUB PLATE E', '3T', 1),
+    'plate-d-upper-3T': ('UPPER PLATE D', '3T', 1),
 }
 # cell box: x, y, w, h
 ORDER_CELLS = {
     'plate-a-bottom-5T': (10.0, 300.0, 335.0, 250.0),
     'plate-b-middle-5T': (355.0, 300.0, 335.0, 250.0),
     'plate-c-top-3T': (10.0, 30.0, 335.0, 250.0),
-    'plate-e-tc397-3T': (355.0, 30.0, 185.0, 190.0),
-    'plate-d-eth-elite-3T': (550.0, 30.0, 140.0, 155.0),
+    'plate-d-upper-3T': (355.0, 30.0, 335.0, 250.0),
 }
 ORDER_SHEET = (700.0, 600.0)
 ARROW = 2.4
@@ -488,11 +511,7 @@ DIM_H = 5.0
 
 
 def plate_size(name):
-    if name == 'plate-d-eth-elite-3T':
-        return ETH_PLATE
-    if name == 'plate-e-tc397-3T':
-        return TC_PLATE
-    return (PW, PH)
+    return (PW, PH)          # every plate is the full 250 x 180 now
 
 
 def dim_h(d, x1, x2, y, label, layer='DIM'):

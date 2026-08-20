@@ -107,9 +107,8 @@ def three_d():
     parts, cols = A.build()
     m, fc = scene(parts, cols)
     m.export(os.path.join(HERE, 'assembly.stl'))
-    for name, elev, azim in (('assembly', 22, -54), ('keti_top', 40, -30),
-                             ('joint_detail', 14, -62), ('assembly_front', 6, -2),
-                             ('assembly_top', 89, 0)):
+    for name, elev, azim in (('assembly', 22, -54), ('joint_detail', 14, -62),
+                             ('assembly_front', 6, -2), ('assembly_top', 89, 0)):
         render(m, elev, azim, face_colors=fc).save(os.path.join(IMG, name + '.png'))
         print(f"  img/{name}.png")
     ex = A.exploded(list(zip(parts, cols)))
@@ -213,11 +212,16 @@ def plate_b_layout():
                     d.text(P(xx - (26 if lab.endswith('out') else -2),
                              oy + bh * 0.5), lab, fill=(200, 110, 20))
         else:
-            d.line([P(ox + 4, oy), P(ox + bw - 4, oy)], fill=(230, 140, 40), width=5)
-            d.line([P(ox + 65, oy + 4), P(ox + 65, oy + bh - 4)],
-                   fill=(230, 140, 40), width=5)
-            d.text(P(ox + 8, oy - 8), "USB-C", fill=(200, 110, 20))
-            d.text(P(ox + 66, oy + bh * 0.4), "RJ45", fill=(200, 110, 20))
+            # T-ETH-Elite: USB-C on one long edge, RJ45 on one short edge. Which
+            # pair depends on how the zone turned it.
+            flip = dict(M.ZONES_ROT).get(name, 0) == 180
+            uy = (oy + bh) if flip else oy
+            rx = ox if flip else (ox + bw)
+            d.line([P(ox + 4, uy), P(ox + bw - 4, uy)], fill=(230, 140, 40), width=5)
+            d.line([P(rx, oy + 4), P(rx, oy + bh - 4)], fill=(230, 140, 40), width=5)
+            d.text(P(ox + 8, uy + (3 if flip else -8)), "USB-C", fill=(200, 110, 20))
+            d.text(P(rx + (-30 if flip else 2), oy + bh * 0.4), "RJ45",
+                   fill=(200, 110, 20))
     r = M.FAN_BORE / 2
     d.ellipse([P(M.FAN_C[0] - r, M.FAN_C[1] + r), P(M.FAN_C[0] + r, M.FAN_C[1] - r)],
               outline=(120, 60, 160), width=3)
@@ -239,8 +243,6 @@ if __name__ == '__main__':
              os.path.join(IMG, 'order_drawing.png'), scale=2.0)
     draw_dxf([os.path.join(dxf, n + '.dxf') for n in M.ORDER_PLATES],
              os.path.join(IMG, 'plates.png'), scale=3.0, dark=False, cols=2)
-    draw_dxf([os.path.join(dxf, 'plate-c-top-3T.dxf')],
-             os.path.join(IMG, 'plateC_engrave.png'), scale=4.0, dark=False)
     draw_dxf([os.path.join(dxf, 'nested-5T.dxf'), os.path.join(dxf, 'nested-3T.dxf')],
              os.path.join(IMG, 'nested.png'), scale=3.0, dark=False, cols=2)
     print("diagrams")

@@ -138,12 +138,17 @@ def expected_features():
     import make_plates as M
     exp = {n: [] for n, _, _ in M.PLATES}
     A, B, C = 'plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-3T'
+    D = 'plate-d-upper-3T'
     for x, y in M.lower_columns():
         exp[A].append(('circle', x, y, M.M3_FREE, 0))
         exp[B].append(('circle', x, y, M.M3_FREE, 0))
+    # plate C's four upper-column holes serve twice: the F/F standoff below it
+    # and the M/F standoff above it, whose stud passes the 3 mm plate. So plate
+    # D repeats the same four positions and no new holes appear in C.
     for x, y in M.upper_columns():
         exp[B].append(('circle', x, y, M.M3_FREE, 0))
         exp[C].append(('circle', x, y, M.M3_FREE, 0))
+        exp[D].append(('circle', x, y, M.M3_FREE, 0))
     for hx, hy in M.LAN_HOLES:
         exp[A].append(('circle', M.BOARD_OFF[0] + hx, M.BOARD_OFF[1] + hy,
                        M.M3_FREE, 0))
@@ -160,21 +165,10 @@ def expected_features():
                 exp[B].append(('slot', X, Y, M.MOUNT_SLOT, hd))
             else:
                 exp[B].append(('circle', X, Y, hd, 0))
-    for _, cx, cy in M.ZONES:
-        for x, y in M.deck_points(cx, cy):
-            exp[B].append(('circle', x, y, M.M3_FREE, 0))
-    for i in range(-2, 3):
-        exp[C].append(('slotv', M.FAN_C[0] + i * (M.VENT_SLOT[0] + 6), M.FAN_C[1],
-                       M.VENT_SLOT[1], M.VENT_SLOT[0]))
-    for name, (pw, ph), board, holes, hd in (
-            ('plate-d-eth-elite-3T', M.ETH_PLATE, M.ETH_BOARD, M.ETH_HOLES, M.ETH_HOLE_D),
-            ('plate-e-tc397-3T', M.TC_PLATE, M.TC_BOARD,
-             M.TC_HOLES + M.TC_EXTRA_HOLES, M.TC_HOLE_D)):
-        ox, oy = (pw - board[0]) / 2, (ph - board[1]) / 2
-        for hx, hy in holes:
-            exp[name].append(('circle', ox + hx, oy + hy, hd, 0))
-        for x, y in M.deck_points(pw / 2, ph / 2):
-            exp[name].append(('circle', x, y, M.M3_FREE, 0))
+    for plate in (C, D):
+        for i in range(-2, 3):
+            exp[plate].append(('slotv', M.FAN_C[0] + i * (M.VENT_SLOT[0] + 6),
+                               M.FAN_C[1], M.VENT_SLOT[1], M.VENT_SLOT[0]))
     return exp
 
 
@@ -272,6 +266,7 @@ def model_audit(tol=0.01):
     It now reads the shipped DXF, and this proves it kept doing so.
     """
     import assembly as A
+    import make_plates as M
     print("\n3D preview: every cut in the mesh, against the DXF it was cut from")
     exp = expected_features()
     bad = False
@@ -298,10 +293,14 @@ def model_audit(tol=0.01):
               f"{len(miss)} missing, {stray:+d} stray   {tag}")
         for m in miss[:4]:
             print(f"        missing {m}")
-    n = len(A.dxf_features(A.PLATE_DXF['C'], 'ENGRAVE'))
-    print(f"  plate C engraving: {n} strokes read from the ENGRAVE layer"
-          f"   {'OK' if n else 'MISSING'}")
-    return not bad and n > 0
+    if M.ENGRAVE:
+        n = len(A.dxf_features(A.PLATE_DXF['C'], 'ENGRAVE'))
+        print(f"  plate C engraving: {n} strokes read from the ENGRAVE layer"
+              f"   {'OK' if n else 'MISSING'}")
+        bad |= not n
+    else:
+        print("  engraving: none specified, and no ENGRAVE layer emitted   OK")
+    return not bad
 
 
 def fastener_audit():
@@ -310,7 +309,10 @@ def fastener_audit():
     import bom
     need = {
         'A->B standoff column': 2 * len(M.lower_columns()),
-        'B->C standoff column': 2 * len(M.upper_columns()),
+        # the upper column is two joints sharing plate C's holes: a screw up
+        # into the B->C standoff, then the C->D M/F stud through the plate and a
+        # screw down through plate D. Two screws per position either way.
+        'B->C + C->D column': 2 * len(M.upper_columns()),
         'LAN9692 to plate A': 2 * len(M.LAN_HOLES),
         'fan to plate B': 4,
     }

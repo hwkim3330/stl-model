@@ -23,11 +23,10 @@ BOM = [
      'plate-b-middle-5T.dxf', 'laser shop', 'fan under, modules on top'),
     ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180', 1,
      'plate-c-top-3T.dxf', 'laser shop', 'guard, intake slots, KETI engraving'),
-    ('acrylic', 'Plate D - sub-plate', 'clear acrylic 3 mm, 76 x 60', 1,
-     'plate-d-eth-elite-3T.dxf', 'laser shop',
-     'optional carrier for the T-ETH-Elite; plate B also takes the board direct'),
-    ('acrylic', 'Plate E - sub-plate', 'clear acrylic 3 mm, 110 x 110', 1,
-     'plate-e-tc397-3T.dxf', 'laser shop', 'optional carrier for the TC397'),
+    ('acrylic', 'Plate D - upper', 'clear acrylic 3 mm, 250 x 180', 1,
+     'plate-d-upper-3T.dxf', 'laser shop',
+     'fourth tier, for the CAN board. Column holes and vents only - the CAN '
+     "board's own hole pattern is not known yet"),
 
     ('hardware', 'Hex standoff F/F', 'M3 x 10 mm, stainless', 8,
      'RS 224-0443 (checked: F/F)', 'RS Korea',
@@ -38,6 +37,12 @@ BOM = [
      'RS 224-0449 (checked: F/F)', 'RS Korea',
      '4 for A->B, 4 for B->C. F/F is not optional - RS M/F parts have a 6 mm '
      'male stud, which cannot cross a 5 mm plate and still bite'),
+    ('hardware', 'Hex standoff M/F', 'M3 x 50 mm, stud >= 6 mm', 4,
+     '-', 'RS Korea',
+     'C->D column, the fourth tier. M/F and not F/F here on purpose: the 6 mm '
+     "stud passes plate C's 3 mm and still has 3 mm to thread into the F/F "
+     'standoff below, so plate C needs no extra holes. On the 5 mm plates the '
+     'same part would leave 1 mm, which is why every other joint is F/F'),
     ('hardware', 'Hex standoff F/F', 'M3 x 8 mm, brass', 4,
      'Wurth 970080324 / RS 184-2873', 'RS Korea', 'TC397 on plate B'),
     ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 12,
@@ -48,8 +53,8 @@ BOM = [
     ('hardware', 'Screw, pan head', 'M3 x 6 mm', 12, 'RS 190-428', 'RS Korea',
      'LAN9692 down onto its 8 standoffs, TC397 down onto its 4'),
     ('hardware', 'Screw, pan head', 'M3 x 8 mm', 16, 'RS 797-6193', 'RS Korea',
-     '8 up through plate A into the PCB standoffs, 4 up through plate B and '
-     '4 down through plate C into the B->C standoffs'),
+     '8 up through plate A into the PCB standoffs, 4 up through plate B into '
+     'the B->C standoffs, 4 down through plate D into the C->D standoffs'),
     ('hardware', 'Screw, pan head', 'M3 x 10 mm', 12, 'RS 528-744', 'RS Korea',
      '4 up through plate A and 4 down through plate B into the A->B standoffs, '
      '4 up through plate B into the TC397 standoffs'),
@@ -64,10 +69,11 @@ BOM = [
      'up through plate B into those standoffs'),
     ('hardware', 'Nut, nyloc', 'M3, DIN 985', 12, 'RS 521-917', 'RS Korea',
      '4 for the fan, 8 spare. Nyloc because the fan is the one vibrating part'),
-    ('hardware', 'Washer, nylon', 'M3', 48, 'Essentra MFW030A / DK RPC1552-ND',
+    ('hardware', 'Washer, nylon', 'M3', 44, 'Essentra MFW030A / DK RPC1552-ND',
      'DigiKey Korea',
-     'under every screw head that lands on acrylic: 12 under plate A, 32 on '
-     'plate B, 4 on plate C. The 20 originally ordered covers under half'),
+     'under every screw head that lands on acrylic: 12 under plate A, 28 on '
+     'plate B, 4 on plate D. Nothing lands on plate C - the M/F standoff body '
+     'sits there instead of a screw head'),
     ('hardware', 'Nylon standoff, adhesive base', '8 mm', 2, '-', 'any',
      'spares - only needed if the two less certain TC397 holes are not holes'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'RS 136-8964',
