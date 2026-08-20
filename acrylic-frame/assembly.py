@@ -39,6 +39,7 @@ H_CD = 50.0                            # plate C -> plate D, the fourth tier.
                                        # Pure air - nothing sits on plate C - so
                                        # this is free to choose; 50 reuses the
                                        # same standoff as the other two gaps.
+STUD = 16.0                            # M3 threaded stud at plates B and C
 FAN_THICK = 11.0                       # Noctua NF-A4x10 mechanical
                                        # envelope; 12 with the anti-
                                        # vibration pads fitted
@@ -233,7 +234,7 @@ JOINTS = []
 
 
 def corner_points(which='lower'):
-    return P.lower_columns() if which == 'lower' else P.upper_columns()
+    return P.lower_columns()          # one column line; `which` is vestigial
 
 
 def build(upto='D'):
@@ -272,38 +273,37 @@ def build(upto='D'):
     add(fan, FAN_COL)
 
     add(plate('B', Z_B, T_B), ACRYLIC)
-    for x, y in corner_points('lower'):                   # down into the same one
-        add(screw(x, y, Z_B + T_B, 10.0), METAL)
-    JOINTS.append(('A->B standoff, from above plate B', 10.0, T_B, H_AB))
-    for s in hexs(Z_B + T_B, Z_C, corner_points('upper')):
+    # No screw from above here: plate B has ONE corner hole and a threaded stud
+    # goes through it, screwing into the standoff below and the one above. That
+    # is what lets one hole do the work of the two it used to take.
+    for s in hexs(Z_B + T_B, Z_C, corner_points()):
         add(s, METAL)
-    for x, y in corner_points('upper'):
-        add(screw(x, y, Z_B, 8.0, up=True), METAL)
-    JOINTS.append(('B->C standoff, from under plate B', 8.0, T_B, H_BC))
+    for x, y in corner_points():
+        add(cyl(3.0, Z_B - (STUD - T_B) / 2, Z_B + T_B + (STUD - T_B) / 2, x, y,
+                sections=16), METAL)
+    JOINTS.append(('stud through plate B, per end', STUD, T_B, H_BC, True))
 
     for m, c in modules(Z_B + T_B):
         add(m, c)
 
     add(plate('C', Z_C, T_C), ACRYLIC)
     if upto == 'C':
-        for x, y in corner_points('upper'):
+        for x, y in corner_points():
             add(screw(x, y, Z_C + T_C, 8.0), METAL)
-        JOINTS.append(('B->C standoff, from above plate C', 8.0, T_C, H_BC))
+        JOINTS.append(('screw down through plate C, top of the stack', 8.0, T_C, H_BC))
         return parts, cols
 
-    # Fourth tier. Plate C's four holes are reused: an M/F standoff drops its
-    # 6 mm male stud through the 3 mm plate into the F/F standoff below, leaving
-    # 3 mm of thread engaged, and presents a female end upward. No screw head on
-    # plate C here - the standoff body lands on it instead.
-    for s in hexs(Z_C + T_C, Z_D, corner_points('upper')):
+    # Fourth tier, same trick again at plate C.
+    for s in hexs(Z_C + T_C, Z_D, corner_points()):
         add(s, METAL)
-    for x, y in corner_points('upper'):                   # the M/F stud itself
-        add(cyl(3.0, Z_C - (6.0 - T_C), Z_C + T_C, x, y, sections=16), METAL)
-    JOINTS.append(('C->D M/F standoff stud, through plate C', 6.0, T_C, H_BC))
+    for x, y in corner_points():
+        add(cyl(3.0, Z_C - (STUD - T_C) / 2, Z_C + T_C + (STUD - T_C) / 2, x, y,
+                sections=16), METAL)
+    JOINTS.append(('stud through plate C, per end', STUD, T_C, H_CD, True))
     add(plate('D', Z_D, T_D), ACRYLIC)
-    for x, y in corner_points('upper'):
+    for x, y in corner_points():
         add(screw(x, y, Z_D + T_D, 8.0), METAL)
-    JOINTS.append(('C->D standoff, from above plate D', 8.0, T_D, H_CD))
+    JOINTS.append(('screw down through plate D, top of the stack', 8.0, T_D, H_CD))
     return parts, cols
 
 
@@ -404,7 +404,7 @@ def checks():
         px, py = P.BOARD_OFF[0] + hx, P.BOARD_OFF[1] + hy
         inside = 6 < px < P.PW - 6 and 6 < py < P.PH - 6
         near = min(np.hypot(px - cx, py - cy)
-                   for cx, cy in corner_points('lower') + corner_points('upper'))
+                   for cx, cy in corner_points())
         ok &= inside and near > 8
         print(f"  hole {i} board ({hx:7.3f},{hy:7.3f}) -> plate ({px:7.3f},{py:7.3f})"
               f"  on plate={inside}  nearest corner standoff {near:5.1f} mm")
@@ -416,12 +416,16 @@ def checks():
 
     print("\nfastener engagement  (screw length - what it passes through)")
     ok2 = True
-    for name, length, through, depth in globals().get('FULL_JOINTS', JOINTS):
-        eng = length - through
+    for j in globals().get('FULL_JOINTS', JOINTS):
+        name, length, through, depth = j[:4]
+        two_ended = len(j) > 4 and j[4]
+        # a stud is threaded into a standoff at BOTH ends, so what is left after
+        # the plate is shared between them - report per end, not the total
+        eng = (length - through) / 2 if two_ended else length - through
         verdict = 'OK' if 3.0 <= eng <= depth else ('too little' if eng < 3.0
                                                     else 'bottoms out')
         ok2 &= verdict == 'OK'
-        print(f"  {name:38s} M3 x {length:4.1f} through {through:4.1f} mm"
+        print(f"  {name:44s} M3 x {length:4.1f} through {through:4.1f} mm"
               f"  -> {eng:4.1f} mm of thread   {verdict}")
     if not ok2:
         ok = False

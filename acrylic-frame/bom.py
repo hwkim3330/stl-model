@@ -33,16 +33,17 @@ BOM = [
      'LAN9692 on plate A. The board drill is Ø3.048, so an M3 screw is a very '
      'tight fit through it - try one by hand first, and use M2.5 here if it '
      'binds; the Ø3.4 acrylic hole takes either'),
-    ('hardware', 'Hex standoff F/F', 'M3 x 45 mm, stainless', 8,
-     'RS 224-0449 (checked: F/F)', 'RS Korea',
-     '4 for A->B, 4 for B->C. F/F is not optional - RS M/F parts have a 6 mm '
-     'male stud, which cannot cross a 5 mm plate and still bite'),
-    ('hardware', 'Hex standoff M/F', 'M3 x 50 mm, stud >= 6 mm', 4,
-     '-', 'RS Korea',
-     'C->D column, the fourth tier. M/F and not F/F here on purpose: the 6 mm '
-     "stud passes plate C's 3 mm and still has 3 mm to thread into the F/F "
-     'standoff below, so plate C needs no extra holes. On the 5 mm plates the '
-     'same part would leave 1 mm, which is why every other joint is F/F'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 45 or 50 mm, stainless', 12,
+     'RS 224-0449 (checked: F/F) / 디바이스마트 PCB서포트 금속 F-50mm', 'RS Korea',
+     '4 per gap, three gaps: A->B, B->C, C->D. 50 mm is what was bought and '
+     'substitutes for 45 with no change to any plate'),
+    ('hardware', 'Threaded stud', 'M3 x 16 mm, fully threaded', 8,
+     '- (M3 threaded rod cut to 16, or a 무두볼트)', 'RS Korea',
+     '4 through plate B and 4 through plate C. This is what lets ONE corner '
+     'hole serve the standoff below and the one above: an F/F standoff needs a '
+     'screw at each end and one hole cannot take two, but a stud screws into '
+     'both. 16 mm leaves 5.5 mm engaged each side of a 5 mm plate, 6.5 mm each '
+     'side of a 3 mm one'),
     ('hardware', 'Hex standoff F/F', 'M3 x 8 mm, brass', 4,
      'Wurth 970080324 / RS 184-2873', 'RS Korea', 'TC397 on plate B'),
     ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 12,
@@ -52,12 +53,12 @@ BOM = [
 
     ('hardware', 'Screw, pan head', 'M3 x 6 mm', 12, 'RS 190-428', 'RS Korea',
      'LAN9692 down onto its 8 standoffs, TC397 down onto its 4'),
-    ('hardware', 'Screw, pan head', 'M3 x 8 mm', 16, 'RS 797-6193', 'RS Korea',
-     '8 up through plate A into the PCB standoffs, 4 up through plate B into '
-     'the B->C standoffs, 4 down through plate D into the C->D standoffs'),
-    ('hardware', 'Screw, pan head', 'M3 x 10 mm', 12, 'RS 528-744', 'RS Korea',
-     '4 up through plate A and 4 down through plate B into the A->B standoffs, '
-     '4 up through plate B into the TC397 standoffs'),
+    ('hardware', 'Screw, pan head', 'M3 x 8 mm', 12, 'RS 797-6193', 'RS Korea',
+     '8 up through plate A into the PCB standoffs, 4 down through plate D into '
+     'the top standoffs. The column needs no other screws - studs do the rest'),
+    ('hardware', 'Screw, pan head', 'M3 x 10 mm', 8, 'RS 528-744', 'RS Korea',
+     '4 up through plate A into the bottom standoffs, 4 up through plate B into '
+     'the TC397 standoffs'),
     ('hardware', 'Screw, pan head', 'M3 x 25 mm', 4, 'RS 914-1490', 'RS Korea',
      'fan: right through plate B and the fan, nyloc nut underneath. 5 mm plate '
      '+ 10 mm fan + washer + a 4 mm nyloc needs about 19.5 mm engaged, so an '
@@ -69,11 +70,11 @@ BOM = [
      'up through plate B into those standoffs'),
     ('hardware', 'Nut, nyloc', 'M3, DIN 985', 12, 'RS 521-917', 'RS Korea',
      '4 for the fan, 8 spare. Nyloc because the fan is the one vibrating part'),
-    ('hardware', 'Washer, nylon', 'M3', 44, 'Essentra MFW030A / DK RPC1552-ND',
+    ('hardware', 'Washer, nylon', 'M3', 40, 'Essentra MFW030A / DK RPC1552-ND',
      'DigiKey Korea',
-     'under every screw head that lands on acrylic: 12 under plate A, 28 on '
-     'plate B, 4 on plate D. Nothing lands on plate C - the M/F standoff body '
-     'sits there instead of a screw head'),
+     'under every screw head that lands on acrylic: 12 under plate A, 24 on '
+     'plate B, 4 on plate D. Nothing lands on plate C - a standoff body sits on '
+     'it, not a screw head'),
     ('hardware', 'Nylon standoff, adhesive base', '8 mm', 2, '-', 'any',
      'spares - only needed if the two less certain TC397 holes are not holes'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'RS 136-8964',

@@ -139,16 +139,12 @@ def expected_features():
     exp = {n: [] for n, _, _ in M.PLATES}
     A, B, C = 'plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-3T'
     D = 'plate-d-upper-3T'
+    # one column line at the four corners, identical on all four plates: a
+    # threaded stud through each of B's and C's holes serves the standoff below
+    # and the one above, which is what removed the second set.
     for x, y in M.lower_columns():
-        exp[A].append(('circle', x, y, M.M3_FREE, 0))
-        exp[B].append(('circle', x, y, M.M3_FREE, 0))
-    # plate C's four upper-column holes serve twice: the F/F standoff below it
-    # and the M/F standoff above it, whose stud passes the 3 mm plate. So plate
-    # D repeats the same four positions and no new holes appear in C.
-    for x, y in M.upper_columns():
-        exp[B].append(('circle', x, y, M.M3_FREE, 0))
-        exp[C].append(('circle', x, y, M.M3_FREE, 0))
-        exp[D].append(('circle', x, y, M.M3_FREE, 0))
+        for plate in (A, B, C, D):
+            exp[plate].append(('circle', x, y, M.M3_FREE, 0))
     for hx, hy in M.LAN_HOLES:
         exp[A].append(('circle', M.BOARD_OFF[0] + hx, M.BOARD_OFF[1] + hy,
                        M.M3_FREE, 0))
@@ -165,10 +161,11 @@ def expected_features():
                 exp[B].append(('slot', X, Y, M.MOUNT_SLOT, hd))
             else:
                 exp[B].append(('circle', X, Y, hd, 0))
-    for plate in (C, D):
-        for i in range(-2, 3):
-            exp[plate].append(('slotv', M.FAN_C[0] + i * (M.VENT_SLOT[0] + 6),
-                               M.FAN_C[1], M.VENT_SLOT[1], M.VENT_SLOT[0]))
+    # plate C only: it is the sheet directly over the fan bore. Plate D has no
+    # vents - it is not in the intake path.
+    for i in range(-2, 3):
+        exp[C].append(('slotv', M.FAN_C[0] + i * (M.VENT_SLOT[0] + 6),
+                       M.FAN_C[1], M.VENT_SLOT[1], M.VENT_SLOT[0]))
     return exp
 
 
@@ -308,11 +305,10 @@ def fastener_audit():
     import make_plates as M
     import bom
     need = {
-        'A->B standoff column': 2 * len(M.lower_columns()),
-        # the upper column is two joints sharing plate C's holes: a screw up
-        # into the B->C standoff, then the C->D M/F stud through the plate and a
-        # screw down through plate D. Two screws per position either way.
-        'B->C + C->D column': 2 * len(M.upper_columns()),
+        # one column line: a screw up through plate A at the bottom, a screw
+        # down through plate D at the top, and a threaded stud - not a screw -
+        # through plates B and C in between.
+        'column, screw at each end of the stack': 2 * len(M.lower_columns()),
         'LAN9692 to plate A': 2 * len(M.LAN_HOLES),
         'fan to plate B': 4,
     }

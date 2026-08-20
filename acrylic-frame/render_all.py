@@ -226,7 +226,7 @@ def plate_b_layout():
     d.ellipse([P(M.FAN_C[0] - r, M.FAN_C[1] + r), P(M.FAN_C[0] + r, M.FAN_C[1] - r)],
               outline=(120, 60, 160), width=3)
     d.text(P(M.FAN_C[0] - 6, M.FAN_C[1] - r - 7), "fan", fill=(120, 60, 160))
-    for x, y in M.lower_columns() + M.upper_columns():
+    for x, y in M.lower_columns():
         p = P(x, y)
         d.ellipse([p[0] - 3, p[1] - 3, p[0] + 3, p[1] + 3], fill=(110, 110, 110))
     d.text((PAD, 6), "plate B from above - green = boards, red = their mounts "

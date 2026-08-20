@@ -47,30 +47,46 @@ operation from the order, and its charge. The machinery is still in
 `make_plates.py` — one line, `ENGRAVE = [(x, y, height, 'TEXT')]` — if approved
 artwork ever turns up. Engraving artwork has to be **vector** (AI / SVG / DXF).
 
+## One column line, at the four corners
+
+**Every plate has the same four holes**, at (8, 8) (242, 8) (8, 172) (242, 172),
+and nothing else about the columns differs between plates.
+
+It used to take two sets on different Y lines, for a hardware reason: an F/F
+standoff is threaded at both ends, so each end wants its own screw, and one hole
+cannot take two screws. A plain **M3 × 16 threaded stud** does take one hole and
+serve both — it screws into the standoff below and the one above, through the
+plate:
+
+| | through | thread engaged per end |
+|---|---|---|
+| stud at plate B | 5 mm | **5.5 mm** |
+| stud at plate C | 3 mm | **6.5 mm** |
+| an M/F standoff's 6 mm stud at plate B | 5 mm | 1.0 mm — what this replaces |
+
+The column is: screw up through plate A → standoff → **stud** through plate B →
+standoff → **stud** through plate C → standoff → screw down through plate D.
+Three standoffs and two studs per corner, four corners. A stud is M3 threaded rod
+cut to 16 mm, or a 무두볼트 — nothing exotic.
+
 ## The fourth tier, plate D
 
-Plate D carries the CAN board. **Its hole pattern is not known yet**, so plate D
-ships with the standoff-column holes and the vents only, and the board's own
-holes get drilled or cut later.
+Plate D carries the CAN board. **Its hole pattern is not known yet**, so it ships
+with the four column holes and nothing else — 4 cuts, the simplest plate in the
+set. The board's own holes get added once its dimensions exist.
 
-Its four column holes sit at **exactly plate C's**, and that is deliberate. The
-C → D column is an **M/F standoff**: its 6 mm male stud drops through plate C's
-3 mm and still has 3 mm to thread into the F/F standoff below, so plate C needs
-no extra holes and no screw head lands on it. This is the one joint in the frame
-where M/F works — on the 5 mm plates it would leave 1 mm, which is why every
-other joint is F/F with a screw at each end.
-
-The vents repeat plate C's on the same centres. Plate D sits directly over plate
-C's intake and a solid sheet there would throttle the fan.
+**No vents in plate D.** The fan hangs under plate B and draws from the B–C gap,
+which is 45–50 mm and open on all four sides; the C–D gap above it is another
+50 mm open on all four sides. Slots in the top sheet would add nothing to that.
+Plate C keeps its vents because it is the sheet directly over the fan bore.
 
 | Stack | |
 |---|---|
-| 5 + 45 + 5 + 45 + 3 + 50 + 3 | **156 mm** on 45 mm standoffs |
-| 5 + 50 + 5 + 50 + 3 + 50 + 3 | **166 mm** on the 50 mm ones actually bought |
+| 5 + 45 + 5 + 45 + 3 + 45 + 3 | **151 mm** on 45 mm standoffs |
+| 5 + 50 + 5 + 50 + 3 + 50 + 3 | **166 mm** on the 50 mm ones bought |
 
-The C → D gap is pure air — nothing sits on plate C — so it is free to choose.
-Exactly 180 mm would need a 64 mm standoff, which is not a stock length; 60 gives
-176 and 65 gives 181.
+The C–D gap is free to choose — nothing sits on plate C. Exactly 180 mm would
+need a 64 mm standoff, which is not a stock length.
 
 ## Plates D and E are gone
 
@@ -191,14 +207,15 @@ supply and the barrel socket; a domestic shop for the fan and the Y splitter.
 | Part | Size | Qty | Part number | Note |
 |---|---|---:|---|---|
 | Hex standoff F/F | M3 × 10 mm | 8 | RS 224-0443 | LAN9692 on plate A |
-| Hex standoff F/F | M3 × 45 mm | 8 | RS 224-0449 | 4 for A→B, 4 for B→C |
+| Hex standoff F/F | M3 × 45 or 50 mm | 12 | RS 224-0449 | 4 per gap, three gaps |
+| **Threaded stud** | **M3 × 16 mm** | **8** | M3 rod cut to 16 / 무두볼트 | 4 through plate B, 4 through plate C |
 | Hex standoff F/F | M3 × 8 mm | 4 | Würth 970080324 | TC397 |
-| Hex standoff F/F | M2.5 × 8 mm | 4 | Würth 970080144 | T-ETH-Elite |
-| Screw, pan head | M3 × 6 / 8 / 10 mm | 12 / 16 / 12 | RS 190-428 / 797-6193 / 528-744 | `BOM.csv` says which goes where |
+| Hex standoff F/F | M2.5 × 8 mm | 12 | Würth 970080144 | T-ETH-Elite and both modules |
+| Screw, pan head | M3 × 6 / 8 / 10 mm | 12 / 12 / 8 | RS 190-428 / 797-6193 / 528-744 | `BOM.csv` says which goes where |
 | Screw, pan head | **M3 × 25 mm** | 4 | RS 914-1490 | fan only — see below |
-| Screw, pan head | M2.5 × 6 / 10 mm | 4 / 4 | RS 528-716 / 797-6190 | T-ETH-Elite |
+| Screw, pan head | M2.5 × 6 / 10 mm | 12 / 12 | RS 528-716 / 797-6190 | T-ETH-Elite and both modules |
 | Nut, nyloc | M3 | 12 | RS 521-917 | 4 for the fan, rest spare |
-| Washer, nylon | M3 | 20 | Essentra MFW030A | under any head landing on acrylic |
+| Washer, nylon | M3 | 40 | Essentra MFW030A | under any head landing on acrylic |
 | Nylon standoff, adhesive base | 8 mm | 2 | — | fallback props for the TC397 |
 | Rubber foot | self-adhesive | 4 | RS 136-8964 | under plate A |
 
@@ -284,14 +301,12 @@ fan out. No soldering anywhere in the power path.
 through the board. Try one by hand first; if it binds, use M2.5 for the
 board→plate A joint. The Ø3.4 acrylic hole takes either.
 
-### Why F/F standoffs, and why plate B has eight corner holes
+### Why F/F standoffs plus studs, and not M/F
 
 An M/F standoff's male stud is 6 mm. Through a 5 mm plate that leaves 1 mm — not
-enough for a nut under plate A, and not enough thread to bite into the standoff
-below at plate B. So every joint is a plain **F/F standoff with a screw at each
-end**, and a plate cannot share one hole between the column below it and the one
-above. The **A→B column sits at the four corners** (8, 8) … (242, 172), the
-**B→C column** at (8, 40), (242, 40), (8, 140), (242, 140).
+enough thread to bite anything. So the standoffs are plain **F/F** and what
+crosses each plate is a **threaded stud**, screwed into the standoff on both
+sides. That is what collapsed two column lines into one at the four corners.
 
 Stack height ≈ 5 + 45 + 5 + 45 + 3 = **103 mm**, or **113 mm** on the
 50 mm standoffs that were actually bought.

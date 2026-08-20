@@ -33,11 +33,12 @@ U1 = (167.31, 78.69)              # LAN9692 BGA-356 centre, from the PnP file
 PW, PH = 250.0, 180.0             # plate outline
 PLATE_R = 6.0                     # corner radius
 CORNER_INSET = 8.0                # lower standoff column, in from each corner
-# The plate-to-plate joints use plain F/F standoffs with a screw at each end,
-# because an M/F standoff's 6 mm male stud cannot pass a 5 mm plate and still
-# bite. That means each plate must not share a hole between the column below it
-# and the column above it, so the two columns sit at different Y.
-UPPER_Y = (40.0, 140.0)           # B -> C column, on the same X lines
+# One column line, at the four corners, all the way up. The earlier design had
+# two sets on different Y because an F/F standoff needs a screw at each end and
+# one hole cannot take two screws. A plain THREADED STUD does take one hole and
+# serve both: it screws into the standoff below and the one above, through the
+# plate. M3 x 16 leaves 5.5 mm of thread engaged each side of a 5 mm plate and
+# 6.5 mm each side of a 3 mm one. So every plate now has the same four holes.
 M3_FREE = 3.4                     # M3 clearance in acrylic
 FAN_BORE = 36.0                   # 40 mm fan. Ø38 would match the impeller but
                                   # leaves only 1.93 mm of acrylic to the M3
@@ -323,14 +324,8 @@ def lower_columns():
             for y in (CORNER_INSET, PH - CORNER_INSET)]
 
 
-def upper_columns():
-    return [(x, y) for x in (CORNER_INSET, PW - CORNER_INSET) for y in UPPER_Y]
-
-
-def corner_holes(d, which='both'):
-    pts = (lower_columns() if which == 'lower' else
-           upper_columns() if which == 'upper' else
-           lower_columns() + upper_columns())
+def corner_holes(d, which='lower'):
+    pts = lower_columns()          # one column line now; `which` is vestigial
     for x, y in pts:
         d.circle(x, y, M3_FREE / 2)
 
@@ -361,7 +356,7 @@ def plate_middle():
     """5 mm. Fan hangs underneath blowing down onto the switch; trays on top."""
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
-    corner_holes(d, 'both')          # 8: the column below and the one above
+    corner_holes(d)                  # 4: one hole per corner, stud through it
     d.circle(FAN_C[0], FAN_C[1], FAN_BORE / 2)
     h = FAN_PITCH / 2
     for sx in (-1, 1):
@@ -419,15 +414,15 @@ def plate_upper():
     3 mm to thread into the F/F standoff below. That is the one place in this
     frame where M/F works: on the 5 mm plates it would leave 1 mm.
 
-    The vents repeat plate C's, on the same centres. Plate D sits directly over
-    plate C's intake, and a solid sheet there would throttle the fan.
+    No vents. Plate D is not in the fan's intake path: the fan hangs under plate
+    B and draws from the B-C gap, which is open on all four sides, and the C-D
+    gap above it is another 50 mm open on all four sides. Slots in the top sheet
+    would add nothing, and it is the plate whose real cutting waits on the CAN
+    board anyway.
     """
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
-    corner_holes(d, 'upper')
-    for i in range(-2, 3):
-        d.slot(FAN_C[0] + i * (VENT_SLOT[0] + 6), FAN_C[1],
-               VENT_SLOT[1], VENT_SLOT[0], horizontal=False)
+    corner_holes(d)
     return d
 
 
@@ -435,7 +430,7 @@ def plate_top():
     """3 mm. Hand and cable guard, with intake slots over the fan."""
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
-    corner_holes(d, 'upper')
+    corner_holes(d)
     for i in range(-2, 3):
         d.slot(FAN_C[0] + i * (VENT_SLOT[0] + 6), FAN_C[1],
                VENT_SLOT[1], VENT_SLOT[0], horizontal=False)
