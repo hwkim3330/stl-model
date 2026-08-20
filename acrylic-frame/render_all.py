@@ -196,14 +196,22 @@ def plate_b_layout():
             d.line([P(ox + 4, oy + 100), P(ox + bw - 4, oy + 100)],
                    fill=(230, 140, 40), width=5)
             d.text(P(ox + bw * 0.3, oy + 103), "ports", fill=(200, 110, 20))
-        elif 'FIM' in name:
-            # the two RJ45s face the two short edges - after the 90 deg turn
-            # that is the top and the bottom of the footprint
-            for yy, lab in ((oy + bh, "RJ45 out"), (oy, "RJ45 in")):
-                d.line([P(ox + 4, yy), P(ox + bw - 4, yy)],
-                       fill=(230, 140, 40), width=5)
-                d.text(P(ox + 1, yy + (2 if lab.endswith('out') else -7)), lab,
-                       fill=(200, 110, 20))
+        elif name in M.FIM:
+            # both connectors sit on the board's two SHORT edges, so which pair
+            # of footprint edges that is depends on how the board was turned
+            kind = 'RJ45' if 'RJ45' in name else 'MATEnet'
+            if M.FIM[name]['rot'] == 90:
+                for yy, lab in ((oy + bh, f"{kind} out"), (oy, f"{kind} in")):
+                    d.line([P(ox + 4, yy), P(ox + bw - 4, yy)],
+                           fill=(230, 140, 40), width=5)
+                    d.text(P(ox + 1, yy + (2 if lab.endswith('out') else -7)),
+                           lab, fill=(200, 110, 20))
+            else:
+                for xx, lab in ((ox, f"{kind} out"), (ox + bw, f"{kind} in")):
+                    d.line([P(xx, oy + 4), P(xx, oy + bh - 4)],
+                           fill=(230, 140, 40), width=5)
+                    d.text(P(xx - (26 if lab.endswith('out') else -2),
+                             oy + bh * 0.5), lab, fill=(200, 110, 20))
         else:
             d.line([P(ox + 4, oy), P(ox + bw - 4, oy)], fill=(230, 140, 40), width=5)
             d.line([P(ox + 65, oy + 4), P(ox + 65, oy + bh - 4)],

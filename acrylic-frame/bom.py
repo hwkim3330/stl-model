@@ -40,10 +40,10 @@ BOM = [
      'male stud, which cannot cross a 5 mm plate and still bite'),
     ('hardware', 'Hex standoff F/F', 'M3 x 8 mm, brass', 4,
      'Wurth 970080324 / RS 184-2873', 'RS Korea', 'TC397 on plate B'),
-    ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 8,
+    ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 12,
      'Wurth 970080144 / RS 205-2905', 'RS Korea',
-     '4 for the T-ETH-Elite, 4 for the fault injection module - both boards '
-     'have Ø2.5 mounting holes, so both are M2.5'),
+     '4 for the T-ETH-Elite and 4 for each injection module - all three have '
+     'Ø2.5 mounting holes, so all three are M2.5'),
 
     ('hardware', 'Screw, pan head', 'M3 x 6 mm', 12, 'RS 190-428', 'RS Korea',
      'LAN9692 down onto its 8 standoffs, TC397 down onto its 4'),
@@ -58,16 +58,16 @@ BOM = [
      '+ 10 mm fan + washer + a 4 mm nyloc needs about 19.5 mm engaged, so an '
      'M3 x 20 has nothing left for the nylon to lock onto. The screws in the '
      "fan's own box are fatter and want Ø4.5 holes"),
-    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 8, 'RS 528-716', 'RS Korea',
-     'T-ETH-Elite and the injection module, down onto their standoffs'),
-    ('hardware', 'Screw, pan head', 'M2.5 x 10 mm', 8, 'RS 797-6190', 'RS Korea',
+    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 12, 'RS 528-716', 'RS Korea',
+     'T-ETH-Elite and both injection modules, down onto their standoffs'),
+    ('hardware', 'Screw, pan head', 'M2.5 x 10 mm', 12, 'RS 797-6190', 'RS Korea',
      'up through plate B into those standoffs'),
     ('hardware', 'Nut, nyloc', 'M3, DIN 985', 12, 'RS 521-917', 'RS Korea',
      '4 for the fan, 8 spare. Nyloc because the fan is the one vibrating part'),
-    ('hardware', 'Washer, nylon', 'M3', 40, 'Essentra MFW030A / DK RPC1552-ND',
+    ('hardware', 'Washer, nylon', 'M3', 48, 'Essentra MFW030A / DK RPC1552-ND',
      'DigiKey Korea',
-     'under every screw head that lands on acrylic: 12 under plate A, 24 on '
-     'plate B, 4 on plate C. The 20 originally ordered covers half'),
+     'under every screw head that lands on acrylic: 12 under plate A, 32 on '
+     'plate B, 4 on plate C. The 20 originally ordered covers under half'),
     ('hardware', 'Nylon standoff, adhesive base', '8 mm', 2, '-', 'any',
      'spares - only needed if the two less certain TC397 holes are not holes'),
     ('hardware', 'Rubber foot', 'self-adhesive, ~10 mm', 4, 'RS 136-8964',

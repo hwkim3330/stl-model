@@ -88,22 +88,39 @@ ETH_SLOTTED = (2, 3)       # the top pair - the 58.00 vs 60.25 asymmetry lives h
 ZONES = LAYOUTS[LAYOUT]
 
 # --------------------------------------------------------------------------
-# KETI Fault Injection Module (RJ45), 260812. Straight out of the KiCad
-# fabrication output, so unlike the two boards above nothing here is inferred:
-#   outline  Edge_Cuts.gm1, x 100.414998..170.0, y -87.5..-53.5
-#   holes    PTH.drl tool T6, Ø2.500 - the four corner mounting holes
-# The Ø3.15 NPTH and Ø1.7 PTH holes are the two RJ45 jacks' pegs and shield
-# tabs, not mounting points. Because these came from a drill file they are cut
-# ROUND, with no slots - there is no doubt to absorb.
-FIM_BOARD = (69.585, 34.000)
-FIM_HOLES = [(3.085, 3.475), (66.335, 3.475), (3.085, 30.500), (66.335, 30.500)]
+# KETI Fault Injection Modules, 260812 - the RJ45 build and the MATEnet build.
+# Both come straight out of the KiCad fabrication output, so unlike the two
+# boards above nothing here is inferred:
+#   outline  Edge_Cuts.gm1
+#   holes    PTH.drl, the Ø2.500 tool - the four corner mounting holes
+# Their other drilled holes (Ø3.15 / Ø1.7 on the RJ45 board, Ø2.261 on the
+# MATEnet one) are the connectors' pegs and shield tabs, NOT mounting points,
+# and get no acrylic. Because these are drill-file coordinates the mounts are
+# cut plain ROUND - there is no doubt here for a slot to absorb.
+#
+# Both boards put their two connectors on OPPOSITE SHORT EDGES: traffic in one
+# side, out the other. On the MATEnet board the Ø2.261 connector pegs at x=4.085
+# and x=65.585 are what give that away.
+#
+# The two mount patterns are nearly but not quite the same - 63.25 mm apart in x
+# on both, but 27.025 mm apart in y on the RJ45 board against 26.000 on the
+# MATEnet one. As cut, a zone takes only its own board.
 FIM_HOLE_D = 2.9                  # M2.5 free fit, from the Ø2.5 drill
-FIM_SLOTTED = ()
-# The two RJ45s face opposite short edges - J1 out of x=0, J2 out of x=W - so
-# the board is turned 90 deg CCW to put both of them on the plate's y axis,
-# pointing out of the back where the LAN9692's own RJ45 J33 also faces.
-FIM_ROT = 90
-FIM_ZONE = ('FIM-RJ45', 143.8, 137.2)
+FIM = {
+    # rot 90: turned so both jacks point along the plate's y axis, out of the
+    # back, where the LAN9692's own RJ45 J33 also faces.
+    'FIM-RJ45': dict(
+        board=(69.585, 34.000),
+        holes=[(3.085, 3.475), (66.335, 3.475), (3.085, 30.500), (66.335, 30.500)],
+        rot=90, at=(143.8, 137.2)),
+    # rot 0: left flat, in the open front bay, because the LAN9692's seven
+    # MATEnet ports are along the front edge at plate x 20.4..153.9 - a turned
+    # board needs 69.6 mm of y and that bay only has 58.
+    'FIM-MATEnet': dict(
+        board=(69.585, 32.881),
+        holes=[(3.085, 3.500), (66.335, 3.500), (3.085, 29.500), (66.335, 29.500)],
+        rot=0, at=(87.0, 36.0)),
+}
 
 
 def rot90(board, holes):
@@ -358,10 +375,13 @@ def engrave_segments():
 
 def board_mounts():
     """(zone, board size, holes, hole Ø, slotted indices) for plate B."""
-    fb, fh = rot90(FIM_BOARD, FIM_HOLES) if FIM_ROT == 90 else (FIM_BOARD, FIM_HOLES)
-    return [(ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
-            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED),
-            (FIM_ZONE, fb, fh, FIM_HOLE_D, FIM_SLOTTED)]
+    out = [(ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
+           (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED)]
+    for name, f in FIM.items():
+        b, h = (rot90(f['board'], f['holes']) if f['rot'] == 90
+                else (f['board'], f['holes']))
+        out.append(((name, f['at'][0], f['at'][1]), b, h, FIM_HOLE_D, ()))
+    return out
 
 
 def plate_eth_elite():
