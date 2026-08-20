@@ -64,26 +64,49 @@ than 4.8 mm.
 
 ## Plate B changed — revision 2
 
-Plate B now also carries the **KETI Fault Injection Module (RJ45)**, so it has
-four more holes than the version quoted earlier. **If plate B has already been
-cut, it needs re-cutting; A, C, D and E are untouched.**
+Plate B now also carries **both KETI Fault Injection Modules**, the RJ45 build
+and the MATEnet build, so it has eight more holes than the version quoted
+earlier. **If plate B has already been cut, it needs re-cutting; A, C, D and E
+are untouched.**
 
-| | |
+Everything below is out of the KiCad fabrication output — outline from
+`Edge_Cuts.gm1`, mounts from the Ø2.5 tool in `PTH.drl` — so unlike the TC397 and
+the T-ETH-Elite these are **cut plain round, with no slots**. Drill-file
+coordinates carry no uncertainty for a slot to absorb.
+
+| | RJ45 build | MATEnet build |
+|---|---|---|
+| Outline | 69.585 × 34.000 mm | 69.585 × 32.881 mm |
+| Mount pattern | 63.25 × **27.025** | 63.25 × **26.000** |
+| Acrylic hole | Ø2.9, M2.5 | Ø2.9, M2.5 |
+| On plate B | turned 90° CCW, centre (143.8, 137.2) | flat, centre (87.0, 36.0) |
+
+**The two patterns differ by 1.025 mm in y, so as cut each zone takes only its
+own board.** They are not interchangeable — do not plan on swapping one for the
+other in the same four holes.
+
+Both boards put their two connectors on **opposite short edges**: traffic in one
+side, out the other. That is why the RJ45 board is turned — turned 90° its jacks
+point along Y, out of the back, where the LAN9692's own RJ45 J33 faces too (plate
+x 77.1, 67 mm away). The MATEnet board is left flat in the open front bay,
+because the LAN9692's seven MATEnet ports run along the **front** edge at plate
+x 20.4…153.9, and a turned board needs 69.6 mm of y where that bay has 58.
+
+So Ethernet leaves from the back, MATEnet from the front, and the SFP+ cages stay
+clear at the front right.
+
+| Gap | |
 |---|---|
-| Board | 69.585 × 34.000 mm, from `Edge_Cuts.gm1` |
-| Mounting | 4 × Ø2.5 from `PTH.drl` tool T6 → **Ø2.9 in acrylic, M2.5** |
-| Cut as | plain round holes, **no slots** — these are drill-file coordinates, so there is no uncertainty to absorb |
-| Placed | turned 90° CCW, centre (143.8, 137.2) |
-| Clearance | 6.8 mm to the TC397, 6.8 mm to the fan bore, 8.0 mm to the back edge |
+| RJ45 board ↔ TC397 | 6.8 mm |
+| RJ45 board ↔ fan bore | 6.8 mm |
+| RJ45 board ↔ back edge | 8.0 mm |
+| MATEnet board ↔ TC397 | 13.6 mm |
+| MATEnet board ↔ front edge | 19.6 mm |
+| thinnest web anywhere on plate B | 3.36 mm |
 
-It is turned because its two RJ45s face **opposite short edges** — in one side,
-out the other. Turned 90° they point along the plate's Y axis, so both jacks
-face the back, where the LAN9692's own RJ45 J33 also faces (plate x 77.1, 67 mm
-away). Ethernet all leaves from one side of the frame; MATEnet and SFP+ stay at
-the front.
-
-The Ø3.15 NPTH and Ø1.7 PTH holes in that board are the RJ45 jacks' pegs and
-shield tabs, not mounting points — do not cut acrylic for them.
+Their other drilled holes — Ø3.15 NPTH and Ø1.7 PTH on the RJ45 board, Ø2.261
+NPTH on the MATEnet one — are the connectors' pegs and shield tabs, **not**
+mounting points. No acrylic is cut for them.
 
 ## Check two hole patterns before sending
 
