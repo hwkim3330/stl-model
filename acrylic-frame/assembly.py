@@ -30,15 +30,14 @@ from render_preview import render      # noqa: E402
 
 # --------------------------------------------------------------------------
 # stack heights (mm)
-T_A, T_B, T_C, T_D = 5.0, 5.0, 3.0, 3.0   # plate thicknesses
+T_A, T_B, T_C, T_D = 5.0, 5.0, 5.0, 5.0   # plate thicknesses, all one stock
 H_BOARD = 10.0                         # board standoff, plate A -> PCB
-H_AB = 45.0                            # plate A -> plate B
-H_BC = 45.0                            # plate B -> plate C. 40 leaves only
+H_AB = 50.0                            # plate A -> plate B
+H_BC = 50.0                            # plate B -> plate C. 40 leaves only
                                        # 2 mm over the 38 mm TC397 case
-H_CD = 50.0                            # plate C -> plate D, the fourth tier.
-                                       # Pure air - nothing sits on plate C - so
-                                       # this is free to choose; 50 reuses the
-                                       # same standoff as the other two gaps.
+H_CD = 60.0                            # plate C -> plate D. Pure air, so free to
+                                       # choose - and 50+50+60 over 20 mm of
+                                       # plate is exactly 180 mm overall.
 STUD = 16.0                            # M3 threaded stud at plates B and C
 FAN_THICK = 11.0                       # Noctua NF-A4x10 mechanical
                                        # envelope; 12 with the anti-
@@ -48,14 +47,17 @@ FAN_THICK = 11.0                       # Noctua NF-A4x10 mechanical
 # False = the printed TC397 / T-ETH-Elite cases
 ACRYLIC_ONLY = True
 SUB_T = 3.0                            # sub-plate thickness
-ETH_STANDOFF = 6.0                     # M2.5 under the T-ETH-Elite
-TC_STANDOFF = 8.0                      # M3 under the TC397, 4 places
+ETH_STANDOFF = 20.0                    # M2.5 under the T-ETH-Elite
+TC_STANDOFF = 20.0                     # M3 under the TC397, 4 places
 ETH_PARTS_H = 15.2                     # over the PCB, from LilyGo's 3D CAD
 TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
-FIM_STANDOFF = 8.0                     # M2.5 under either injection module
+FIM_STANDOFF = 20.0                    # M2.5 under either injection module
 FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on it
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
 
+# 20 mm under every board on plate B, not 8. One stock length for all four, and
+# it leaves room under a board for connector tails and a cable to turn.
+#
 # per-zone heights, by the name in make_plates' zone tuple - a size test used to
 # pick these and would have put the rotated 34 mm injection module in the
 # T-ETH-Elite's bracket by accident
@@ -120,7 +122,7 @@ def groove(x1, y1, x2, y2, z0, z1, w=None):
 
 
 PLATE_DXF = {'A': 'plate-a-bottom-5T', 'B': 'plate-b-middle-5T',
-             'C': 'plate-c-top-3T', 'D': 'plate-d-upper-3T'}
+             'C': 'plate-c-top-5T', 'D': 'plate-d-upper-5T'}
 
 
 def dxf_features(stem, layer='CUT'):
@@ -458,7 +460,9 @@ def checks():
     e_top = module_top(Z_B + T_B)
     print(f"  tallest module top {e_top:6.1f}   clearance to plate C "
           f"{Z_C - e_top:5.1f} mm   (layout '{P.LAYOUT}')")
-    print(f"  plate C            {Z_C:6.1f} .. {TOTAL:6.1f}")
+    print(f"  plate C            {Z_C:6.1f} .. {Z_C + T_C:6.1f}")
+    print(f"  plate D            {Z_D:6.1f} .. {Z_D + T_D:6.1f}"
+          f"   <- total height {TOTAL:.0f} mm")
     if Z_B - FAN_THICK - top < 3:
         ok = False
         print("  !! raise H_AB - the fan is too close to the board")

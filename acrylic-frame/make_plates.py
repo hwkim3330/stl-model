@@ -442,20 +442,23 @@ def plate_top():
 # The small sub-plates are gone. They existed so a module could ride on its own
 # carrier instead of bolting to plate B, which stopped being worth two extra
 # parts and a deck pattern once every board bolts straight down.
+# All four in 5 mm. Three reasons, in order: it makes the stack come out at
+# exactly 180 mm, which 3 mm tops cannot (16 mm of plate needs 164 mm of gap and
+# standoffs come in 5 mm steps); it makes the order one thickness instead of
+# two; and a 5 mm top plate is the one to hang an LCD on.
 PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
           ('plate-b-middle-5T', plate_middle, 5),
-          ('plate-c-top-3T', plate_top, 3),
-          ('plate-d-upper-3T', plate_upper, 3)]
+          ('plate-c-top-5T', plate_top, 5),
+          ('plate-d-upper-5T', plate_upper, 5)]
 
 
 # Nesting: plates of the same thickness laid out on one sheet, so a shop that
 # quotes by sheet area does not charge three separate offcuts. (x, y) is the
 # lower-left corner of each plate on its sheet.
 NESTS = {
-    '5T': dict(sheet=(260, 380),
-               place=[('plate-a-bottom-5T', 5, 5), ('plate-b-middle-5T', 5, 195)]),
-    '3T': dict(sheet=(260, 380),
-               place=[('plate-c-top-3T', 5, 5), ('plate-d-upper-3T', 5, 195)]),
+    '5T': dict(sheet=(520, 380),
+               place=[('plate-a-bottom-5T', 5, 5), ('plate-b-middle-5T', 5, 195),
+                      ('plate-c-top-5T', 265, 5), ('plate-d-upper-5T', 265, 195)]),
 }
 
 
@@ -465,8 +468,8 @@ COMBINED_SHEET = (580.0, 430.0)
 COMBINED = [
     ('plate-a-bottom-5T', 15.0, 235.0, 'PLATE A (BOTTOM)  5T  CLEAR  x1'),
     ('plate-b-middle-5T', 300.0, 235.0, 'PLATE B (MIDDLE)  5T  CLEAR  x1'),
-    ('plate-c-top-3T', 15.0, 30.0, 'PLATE C (TOP)  3T  CLEAR  x1'),
-    ('plate-d-upper-3T', 300.0, 30.0, 'PLATE D (UPPER)  3T  CLEAR  x1'),
+    ('plate-c-top-5T', 15.0, 30.0, 'PLATE C (TOP)  5T  CLEAR  x1'),
+    ('plate-d-upper-5T', 300.0, 30.0, 'PLATE D (UPPER)  5T  CLEAR  x1'),
 ]
 
 
@@ -485,20 +488,20 @@ def shift_entities(sub, ox, oy):
 # part name and quantity at the top left of the cell, material and thickness
 # stacked at the top right, overall dimensions on the part. Text is ASCII
 # single-stroke so it always renders - the Korean equivalents go in the email.
-ORDER_PLATES = ['plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-3T',
-                'plate-d-upper-3T']
+ORDER_PLATES = ['plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-5T',
+                'plate-d-upper-5T']
 ORDER_SPEC = {
     'plate-a-bottom-5T': ('BOTTOM PLATE A', '5T', 1),
     'plate-b-middle-5T': ('MIDDLE PLATE B', '5T', 1),
-    'plate-c-top-3T': ('TOP PLATE C', '3T', 1),
-    'plate-d-upper-3T': ('UPPER PLATE D', '3T', 1),
+    'plate-c-top-5T': ('TOP PLATE C', '5T', 1),
+    'plate-d-upper-5T': ('UPPER PLATE D', '5T', 1),
 }
 # cell box: x, y, w, h
 ORDER_CELLS = {
     'plate-a-bottom-5T': (10.0, 300.0, 335.0, 250.0),
     'plate-b-middle-5T': (355.0, 300.0, 335.0, 250.0),
-    'plate-c-top-3T': (10.0, 30.0, 335.0, 250.0),
-    'plate-d-upper-3T': (355.0, 30.0, 335.0, 250.0),
+    'plate-c-top-5T': (10.0, 30.0, 335.0, 250.0),
+    'plate-d-upper-5T': (355.0, 30.0, 335.0, 250.0),
 }
 ORDER_SHEET = (700.0, 600.0)
 ARROW = 2.4

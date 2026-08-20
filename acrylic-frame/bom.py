@@ -21,10 +21,10 @@ BOM = [
      'plate-a-bottom-5T.dxf', 'laser shop', 'carries the LAN9692'),
     ('acrylic', 'Plate B - middle', 'clear acrylic 5 mm, 250 x 180', 1,
      'plate-b-middle-5T.dxf', 'laser shop', 'fan under, modules on top'),
-    ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180', 1,
-     'plate-c-top-3T.dxf', 'laser shop', 'guard, intake slots, KETI engraving'),
-    ('acrylic', 'Plate D - upper', 'clear acrylic 3 mm, 250 x 180', 1,
-     'plate-d-upper-3T.dxf', 'laser shop',
+    ('acrylic', 'Plate C - top', 'clear acrylic 5 mm, 250 x 180', 1,
+     'plate-c-top-5T.dxf', 'laser shop', 'guard, intake slots over the fan'),
+    ('acrylic', 'Plate D - upper', 'clear acrylic 5 mm, 250 x 180', 1,
+     'plate-d-upper-5T.dxf', 'laser shop',
      'fourth tier, for the CAN board. Column holes and vents only - the CAN '
      "board's own hole pattern is not known yet"),
 
@@ -33,10 +33,13 @@ BOM = [
      'LAN9692 on plate A. The board drill is Ø3.048, so an M3 screw is a very '
      'tight fit through it - try one by hand first, and use M2.5 here if it '
      'binds; the Ø3.4 acrylic hole takes either'),
-    ('hardware', 'Hex standoff F/F', 'M3 x 45 or 50 mm, stainless', 12,
+    ('hardware', 'Hex standoff F/F', 'M3 x 50 mm, stainless', 8,
      'RS 224-0449 (checked: F/F) / 디바이스마트 PCB서포트 금속 F-50mm', 'RS Korea',
-     '4 per gap, three gaps: A->B, B->C, C->D. 50 mm is what was bought and '
-     'substitutes for 45 with no change to any plate'),
+     'A->B and B->C. Already bought - 10 of these came in the parts order'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 60 mm, stainless', 4,
+     '-', 'RS Korea',
+     'C->D. 60 rather than 50 because 5+50+5+50+5+60+5 is exactly 180 mm '
+     'overall; the gap carries nothing, so its length is free to pick'),
     ('hardware', 'Threaded stud', 'M3 x 16 mm, fully threaded', 8,
      '- (M3 threaded rod cut to 16, or a 무두볼트)', 'RS Korea',
      '4 through plate B and 4 through plate C. This is what lets ONE corner '
@@ -44,10 +47,14 @@ BOM = [
      'screw at each end and one hole cannot take two, but a stud screws into '
      'both. 16 mm leaves 5.5 mm engaged each side of a 5 mm plate, 6.5 mm each '
      'side of a 3 mm one'),
-    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm, brass', 4,
-     'Wurth 970080324 / RS 184-2873', 'RS Korea', 'TC397 on plate B'),
-    ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 12,
-     'Wurth 970080144 / RS 205-2905', 'RS Korea',
+    ('hardware', 'Hex standoff F/F', 'M3 x 20 mm, brass', 4,
+     'Wurth 970080324 (8 mm) - want the 20 mm length in the same range', 'RS Korea',
+     'TC397 on plate B. 20 mm under every board on that plate, not 8: one stock '
+     'length for all four, and it leaves room under a board for connector tails '
+     'and for a cable to turn. Checked - the tallest module then tops out at '
+     '101.6 mm with 8.4 mm still clear under plate C'),
+    ('hardware', 'Hex standoff F/F', 'M2.5 x 20 mm, brass', 12,
+     'Wurth 970080144 (8 mm) - want the 20 mm length in the same range', 'RS Korea',
      '4 for the T-ETH-Elite and 4 for each injection module - all three have '
      'Ø2.5 mounting holes, so all three are M2.5'),
 

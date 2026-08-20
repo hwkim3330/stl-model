@@ -1,6 +1,6 @@
 # LAN9692 acrylic frame
 
-Four laser-cut plates instead of a printed box. Order file:
+Four laser-cut plates, all 250 × 180 × 5 mm, instead of a printed box. Order file:
 **[`acrylic-frame-dxf.zip`](acrylic-frame-dxf.zip)** — see [CUTTING.md](CUTTING.md)
 for the material/thickness/quantity table and the hardware list.
 
@@ -57,8 +57,8 @@ nothing else in the design changes.
 |---|---|---|---|
 | A — bottom | 5 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
 | B — middle | 5 mm clear acrylic | 250 × 180 mm | 40 mm fan underneath; four boards on top |
-| C — top | 3 mm clear | 250 × 180 mm | guard, intake slots over the fan |
-| D — upper | 3 mm clear | 250 × 180 mm | fourth tier for the CAN board; 4 holes, nothing else |
+| C — top | 5 mm clear | 250 × 180 mm | guard, intake slots over the fan |
+| D — upper | 5 mm clear | 250 × 180 mm | fourth tier for the CAN board or an LCD; 4 holes, nothing else |
 
 All four boards bolt **straight to plate B**, cut with each board's own pattern:
 the TC397's four holes, the T-ETH-Elite's four asymmetric ones, and four each for
@@ -77,8 +77,7 @@ back edge, the T-ETH-Elite's USB-C 10 mm from the front and its RJ45 17 mm from
 the right. Cables leave the frame instead of crossing it. Both boards clear the
 fan and the standoff columns by ≥ 7.8 mm, and there is 48 mm between them.
 
-Stack ≈ 5 + 45 + 5 + 45 + 3 + 45 + 3 = **151 mm** tall, or **166 mm** on the
-50 mm standoffs actually bought.
+Stack = 5 + 50 + 5 + 50 + 5 + 60 + 5 = **exactly 180 mm**.
 
 ### Plate B layout
 

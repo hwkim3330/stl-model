@@ -137,8 +137,8 @@ def expected_features():
     """
     import make_plates as M
     exp = {n: [] for n, _, _ in M.PLATES}
-    A, B, C = 'plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-3T'
-    D = 'plate-d-upper-3T'
+    A, B, C = 'plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-5T'
+    D = 'plate-d-upper-5T'
     # one column line at the four corners, identical on all four plates: a
     # threaded stud through each of B's and C's holes serves the standoff below
     # and the one above, which is what removed the second set.

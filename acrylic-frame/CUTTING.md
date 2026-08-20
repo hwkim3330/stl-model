@@ -12,21 +12,20 @@ Text on the drawing is ASCII so it always renders, whatever CAD the shop uses.
 The Korean equivalents for the order mail:
 
 ```
-투명 아크릴 5T   250 x 180 mm   2EA   (하판 A, 중판 B)
-투명 아크릴 3T   250 x 180 mm   2EA   (상판 C, 최상판 D)
+투명 아크릴 5T   250 x 180 mm   4EA   (하판 A, 중판 B, 상판 C, 최상판 D)
 CUT 레이어 = 절단,  DIM/SHEET 레이어 = 가공 없음
 각인 없음
 ```
 
-**Four plates, all 250 × 180 mm, all clear** — two in 5 mm, two in 3 mm. The
-small sub-plates are gone, and so is the engraving.
+**Four plates, all 250 × 180 mm, all clear 5 mm** — one thickness for the whole
+order. The small sub-plates are gone, and so is the engraving.
 
 | Plate | File | Material | Size | Qty |
 |---|---|---|---|---:|
 | A — bottom | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) 5 mm | 250 × 180 mm | 1 |
 | B — middle | `plate-b-middle-5T.dxf` | clear acrylic 5 mm | 250 × 180 mm | 1 |
-| C — top | `plate-c-top-3T.dxf` | clear acrylic 3 mm | 250 × 180 mm | 1 |
-| D — upper | `plate-d-upper-3T.dxf` | clear acrylic 3 mm | 250 × 180 mm | 1 |
+| C — top | `plate-c-top-5T.dxf` | clear acrylic 5 mm | 250 × 180 mm | 1 |
+| D — upper | `plate-d-upper-5T.dxf` | clear acrylic 5 mm | 250 × 180 mm | 1 |
 
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
 * Everything on layer **`CUT`** is a cut path — outline, holes and slots alike.
@@ -61,8 +60,8 @@ plate:
 | | through | thread engaged per end |
 |---|---|---|
 | stud at plate B | 5 mm | **5.5 mm** |
-| stud at plate C | 3 mm | **6.5 mm** |
-| an M/F standoff's 6 mm stud at plate B | 5 mm | 1.0 mm — what this replaces |
+| stud at plate C | 5 mm | **5.5 mm** |
+| an M/F standoff's 6 mm stud | 5 mm | 1.0 mm — what this replaces |
 
 The column is: screw up through plate A → standoff → **stud** through plate B →
 standoff → **stud** through plate C → standoff → screw down through plate D.
@@ -80,20 +79,25 @@ which is 45–50 mm and open on all four sides; the C–D gap above it is anothe
 50 mm open on all four sides. Slots in the top sheet would add nothing to that.
 Plate C keeps its vents because it is the sheet directly over the fan bore.
 
-| Stack | |
-|---|---|
-| 5 + 45 + 5 + 45 + 3 + 45 + 3 | **151 mm** on 45 mm standoffs |
-| 5 + 50 + 5 + 50 + 3 + 50 + 3 | **166 mm** on the 50 mm ones bought |
+```
+5 + 50 + 5 + 50 + 5 + 60 + 5 = 180 mm
+```
 
-The C–D gap is free to choose — nothing sits on plate C. Exactly 180 mm would
-need a 64 mm standoff, which is not a stock length.
+**Exactly 180 mm**, and that is why all four plates are 5 mm. With 3 mm tops the
+plate total is 16 mm, the gaps would have to sum to 164, and standoffs come in
+5 mm steps — 164 is not reachable. At 20 mm of plate the gaps sum to 160, which
+50 + 50 + 60 hits exactly. It also makes the order one thickness instead of two,
+and a 5 mm top plate is the one to hang an LCD on.
+
+The C–D gap carries nothing, so its 60 mm is the free variable that lands the
+total on a round number.
 
 ## Plates D and E are gone
 
 The two small sub-plates existed so a module could ride on its own carrier
 instead of bolting to plate B. Every board now bolts straight down, so the
 carriers and plate B's 35 × 45 deck pattern went with them — eight fewer holes in
-plate B and two fewer parts to order. `plate-d-upper-3T.dxf` is the new fourth
+plate B and two fewer parts to order. `plate-d-upper-5T.dxf` is the new fourth
 tier and has nothing to do with the old sub-plate D.
 
 ## Plate B changed — revision 3
@@ -207,10 +211,11 @@ supply and the barrel socket; a domestic shop for the fan and the Y splitter.
 | Part | Size | Qty | Part number | Note |
 |---|---|---:|---|---|
 | Hex standoff F/F | M3 × 10 mm | 8 | RS 224-0443 | LAN9692 on plate A |
-| Hex standoff F/F | M3 × 45 or 50 mm | 12 | RS 224-0449 | 4 per gap, three gaps |
+| Hex standoff F/F | M3 × 50 mm | 8 | RS 224-0449 | A→B and B→C — already bought |
+| Hex standoff F/F | M3 × 60 mm | 4 | — | C→D, the length that makes the total 180 |
 | **Threaded stud** | **M3 × 16 mm** | **8** | M3 rod cut to 16 / 무두볼트 | 4 through plate B, 4 through plate C |
-| Hex standoff F/F | M3 × 8 mm | 4 | Würth 970080324 | TC397 |
-| Hex standoff F/F | M2.5 × 8 mm | 12 | Würth 970080144 | T-ETH-Elite and both modules |
+| Hex standoff F/F | **M3 × 20 mm** | 4 | — | TC397 |
+| Hex standoff F/F | **M2.5 × 20 mm** | 12 | — | T-ETH-Elite and both modules |
 | Screw, pan head | M3 × 6 / 8 / 10 mm | 12 / 12 / 8 | RS 190-428 / 797-6193 / 528-744 | `BOM.csv` says which goes where |
 | Screw, pan head | **M3 × 25 mm** | 4 | RS 914-1490 | fan only — see below |
 | Screw, pan head | M2.5 × 6 / 10 mm | 12 / 12 | RS 528-716 / 797-6190 | T-ETH-Elite and both modules |
