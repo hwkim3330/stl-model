@@ -137,8 +137,8 @@ def expected_features():
     """
     import make_plates as M
     exp = {n: [] for n, _, _ in M.PLATES}
-    A, B, C = 'plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-5T'
-    D = 'plate-d-upper-5T'
+    A, B, C = 'plate-a-bottom-3T', 'plate-b-middle-3T', 'plate-c-top-3T'
+    D = 'plate-d-upper-3T'
     # one column line at the four corners, identical on all four plates: a
     # threaded stud through each of B's and C's holes serves the standoff below
     # and the one above, which is what removed the second set.
@@ -305,10 +305,10 @@ def fastener_audit():
     import make_plates as M
     import bom
     need = {
-        # one column line: a screw up through plate A at the bottom, a screw
-        # down through plate D at the top, and a threaded stud - not a screw -
-        # through plates B and C in between.
-        'column, screw at each end of the stack': 2 * len(M.lower_columns()),
+        # One column line of M/F standoffs. Only the bottom end takes a screw -
+        # each standoff's own stud makes every joint above it, and the top stud
+        # takes a nut, which is counted separately.
+        'column, screw up through plate A': len(M.lower_columns()),
         'LAN9692 to plate A': 2 * len(M.LAN_HOLES),
         'fan to plate B': 4,
     }
@@ -321,11 +321,16 @@ def fastener_audit():
         need['TC397 to plate E'] = 2 * len(M.TC_HOLES + M.TC_EXTRA_HOLES)
     ordered = sum(b[3] for b in bom.BOM
                   if b[0] == 'hardware' and b[1].startswith('Screw'))
+    nuts_need = len(M.lower_columns())          # one per column stud at plate D
+    nuts_have = sum(b[3] for b in bom.BOM
+                    if b[0] == 'hardware' and b[1].startswith('Nut'))
     print(f"\nfasteners: {sum(need.values())} screw positions in the design, "
           f"{ordered} screws in the BOM"
           f"   {'OK' if ordered >= sum(need.values()) else 'SHORT'}")
     for k, v in need.items():
         print(f"    {v:3d}  {k}")
+    print(f"  nuts: {nuts_need} needed on the column studs at plate D, "
+          f"{nuts_have} in the BOM   {'OK' if nuts_have >= nuts_need else 'SHORT'}")
 
 
 if __name__ == '__main__':

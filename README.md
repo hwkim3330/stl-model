@@ -11,18 +11,17 @@ Nothing in that build is 3D printed.
 
 ## The build
 
-Five clear acrylic plates and threaded standoffs. The LAN9692 lies on the bottom
+Four clear acrylic plates, all the same size and thickness, on M/F standoffs. The LAN9692 lies on the bottom
 plate, a 40 mm fan hangs under the middle plate over the switch die, the two
 small boards bolt to the top of the middle plate, and the top plate is a guard
 with intake slots and a KETI engraving.
 
 | Plate | Thickness | Size | Carries |
 |---|---|---|---|
-| A bottom | 5 mm | 250 × 180 | LAN9692 on 8 standoffs |
-| B middle | 5 mm | 250 × 180 | fan under, TC397 + T-ETH-Elite on top |
-| C top | 3 mm | 250 × 180 | vents, engraving |
-| D | 3 mm | 76 × 60 | optional sub-plate, T-ETH-Elite |
-| E | 3 mm | 110 × 110 | optional sub-plate, TC397 |
+| A bottom | 3 mm | 250 × 180 | LAN9692 on 8 standoffs |
+| B middle | 3 mm | 250 × 180 | fan under; TC397, T-ETH-Elite and two fault injection modules on top |
+| C top | 3 mm | 250 × 180 | guard, intake slots over the fan |
+| D upper | 3 mm | 250 × 180 | fourth tier, for the CAN board or an LCD |
 
 Order it as **DXF**, never as STL — laser cutting wants 2D paths and a stated
 thickness, not a mesh. `acrylic-frame/dxf/combined-order.dxf` is the single file

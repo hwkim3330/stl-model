@@ -243,8 +243,8 @@ if __name__ == '__main__':
              os.path.join(IMG, 'order_drawing.png'), scale=2.0)
     draw_dxf([os.path.join(dxf, n + '.dxf') for n in M.ORDER_PLATES],
              os.path.join(IMG, 'plates.png'), scale=3.0, dark=False, cols=2)
-    draw_dxf([os.path.join(dxf, 'nested-5T.dxf'), os.path.join(dxf, 'nested-3T.dxf')],
-             os.path.join(IMG, 'nested.png'), scale=3.0, dark=False, cols=2)
+    draw_dxf([os.path.join(dxf, 'nested-3T.dxf')],
+             os.path.join(IMG, 'nested.png'), scale=3.0, dark=False)
     print("diagrams")
     hole_check()
     plate_b_layout()

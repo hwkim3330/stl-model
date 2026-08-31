@@ -30,15 +30,18 @@ from render_preview import render      # noqa: E402
 
 # --------------------------------------------------------------------------
 # stack heights (mm)
-T_A, T_B, T_C, T_D = 5.0, 5.0, 5.0, 5.0   # plate thicknesses, all one stock
+T_A, T_B, T_C, T_D = 3.0, 3.0, 3.0, 3.0   # plate thicknesses, all one stock
 H_BOARD = 10.0                         # board standoff, plate A -> PCB
 H_AB = 50.0                            # plate A -> plate B
 H_BC = 50.0                            # plate B -> plate C. 40 leaves only
                                        # 2 mm over the 38 mm TC397 case
-H_CD = 60.0                            # plate C -> plate D. Pure air, so free to
-                                       # choose - and 50+50+60 over 20 mm of
-                                       # plate is exactly 180 mm overall.
-STUD = 16.0                            # M3 threaded stud at plates B and C
+H_CD = 50.0                            # plate C -> plate D. Pure air, free to
+                                       # choose; 50 keeps one standoff length.
+# The column is M/F standoffs, male end up. Each one's stud crosses the plate
+# above it and threads into the standoff beyond, so a plate needs only one hole
+# per corner. 6 mm through a 3 mm plate leaves 3 mm engaged - the reason every
+# plate here is 3 mm.
+MF_STUD = 6.0
 FAN_THICK = 11.0                       # Noctua NF-A4x10 mechanical
                                        # envelope; 12 with the anti-
                                        # vibration pads fitted
@@ -121,8 +124,8 @@ def groove(x1, y1, x2, y2, z0, z1, w=None):
     return trimesh.boolean.union([m] + ends, engine='manifold')
 
 
-PLATE_DXF = {'A': 'plate-a-bottom-5T', 'B': 'plate-b-middle-5T',
-             'C': 'plate-c-top-5T', 'D': 'plate-d-upper-5T'}
+PLATE_DXF = {'A': 'plate-a-bottom-3T', 'B': 'plate-b-middle-3T',
+             'C': 'plate-c-top-3T', 'D': 'plate-d-upper-3T'}
 
 
 def dxf_features(stem, layer='CUT'):
@@ -264,8 +267,8 @@ def build(upto='D'):
     for s in hexs(T_A, Z_B, corner_points('lower')):
         add(s, METAL)
     for x, y in corner_points('lower'):
-        add(screw(x, y, Z_A, 10.0, up=True), METAL)       # into the A->B standoff
-    JOINTS.append(('A->B standoff, from under plate A', 10.0, T_A, H_AB))
+        add(screw(x, y, Z_A, 8.0, up=True), METAL)       # into the A->B standoff
+    JOINTS.append(('A->B standoff, from under plate A', 8.0, T_A, H_AB))
 
     fan = trimesh.boolean.difference(
         [bx(P.FAN_C[0] - 20, P.FAN_C[0] + 20, P.FAN_C[1] - 20, P.FAN_C[1] + 20,
@@ -275,15 +278,13 @@ def build(upto='D'):
     add(fan, FAN_COL)
 
     add(plate('B', Z_B, T_B), ACRYLIC)
-    # No screw from above here: plate B has ONE corner hole and a threaded stud
-    # goes through it, screwing into the standoff below and the one above. That
-    # is what lets one hole do the work of the two it used to take.
+    # No screw at plate B: the standoff below sends its male stud up through the
+    # single corner hole and into the standoff above.
     for s in hexs(Z_B + T_B, Z_C, corner_points()):
         add(s, METAL)
     for x, y in corner_points():
-        add(cyl(3.0, Z_B - (STUD - T_B) / 2, Z_B + T_B + (STUD - T_B) / 2, x, y,
-                sections=16), METAL)
-    JOINTS.append(('stud through plate B, per end', STUD, T_B, H_BC, True))
+        add(cyl(3.0, Z_B, Z_B + MF_STUD, x, y, sections=16), METAL)
+    JOINTS.append(('M/F stud through plate B', MF_STUD, T_B, H_BC))
 
     for m, c in modules(Z_B + T_B):
         add(m, c)
@@ -291,21 +292,24 @@ def build(upto='D'):
     add(plate('C', Z_C, T_C), ACRYLIC)
     if upto == 'C':
         for x, y in corner_points():
-            add(screw(x, y, Z_C + T_C, 8.0), METAL)
-        JOINTS.append(('screw down through plate C, top of the stack', 8.0, T_C, H_BC))
+            add(cyl(3.0, Z_C, Z_C + MF_STUD, x, y, sections=16), METAL)
+            add(cyl(5.5, Z_C + T_C, Z_C + T_C + 2.4, x, y, sections=6), METAL)
+        JOINTS.append(('M/F stud through plate C, nut on top', MF_STUD, T_C, MF_STUD))
         return parts, cols
 
-    # Fourth tier, same trick again at plate C.
+    # Fourth tier, same again at plate C.
     for s in hexs(Z_C + T_C, Z_D, corner_points()):
         add(s, METAL)
     for x, y in corner_points():
-        add(cyl(3.0, Z_C - (STUD - T_C) / 2, Z_C + T_C + (STUD - T_C) / 2, x, y,
-                sections=16), METAL)
-    JOINTS.append(('stud through plate C, per end', STUD, T_C, H_CD, True))
+        add(cyl(3.0, Z_C, Z_C + MF_STUD, x, y, sections=16), METAL)
+    JOINTS.append(('M/F stud through plate C', MF_STUD, T_C, H_CD))
     add(plate('D', Z_D, T_D), ACRYLIC)
+    # The top standoff's stud comes through plate D and takes a nut - the one
+    # fastener in the column that is not a screw or a standoff.
     for x, y in corner_points():
-        add(screw(x, y, Z_D + T_D, 8.0), METAL)
-    JOINTS.append(('screw down through plate D, top of the stack', 8.0, T_D, H_CD))
+        add(cyl(3.0, Z_D, Z_D + MF_STUD, x, y, sections=16), METAL)
+        add(cyl(5.5, Z_D + T_D, Z_D + T_D + 2.4, x, y, sections=6), METAL)
+    JOINTS.append(('M/F stud through plate D, nut on top', MF_STUD, T_D, MF_STUD))
     return parts, cols
 
 

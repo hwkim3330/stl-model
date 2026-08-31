@@ -12,20 +12,20 @@ Text on the drawing is ASCII so it always renders, whatever CAD the shop uses.
 The Korean equivalents for the order mail:
 
 ```
-투명 아크릴 5T   250 x 180 mm   4EA   (하판 A, 중판 B, 상판 C, 최상판 D)
+투명 아크릴 3T   250 x 180 mm   4EA   (하판 A, 중판 B, 상판 C, 최상판 D)
 CUT 레이어 = 절단,  DIM/SHEET 레이어 = 가공 없음
 각인 없음
 ```
 
-**Four plates, all 250 × 180 mm, all clear 5 mm** — one thickness for the whole
+**Four plates, all 250 × 180 mm, all clear 3 mm** — one thickness for the whole
 order. The small sub-plates are gone, and so is the engraving.
 
 | Plate | File | Material | Size | Qty |
 |---|---|---|---|---:|
-| A — bottom | `plate-a-bottom-5T.dxf` | clear acrylic (PMMA) 5 mm | 250 × 180 mm | 1 |
-| B — middle | `plate-b-middle-5T.dxf` | clear acrylic 5 mm | 250 × 180 mm | 1 |
-| C — top | `plate-c-top-5T.dxf` | clear acrylic 5 mm | 250 × 180 mm | 1 |
-| D — upper | `plate-d-upper-5T.dxf` | clear acrylic 5 mm | 250 × 180 mm | 1 |
+| A — bottom | `plate-a-bottom-3T.dxf` | clear acrylic (PMMA) 3 mm | 250 × 180 mm | 1 |
+| B — middle | `plate-b-middle-3T.dxf` | clear acrylic 3 mm | 250 × 180 mm | 1 |
+| C — top | `plate-c-top-3T.dxf` | clear acrylic 3 mm | 250 × 180 mm | 1 |
+| D — upper | `plate-d-upper-3T.dxf` | clear acrylic 3 mm | 250 × 180 mm | 1 |
 
 * Units are **millimetres** (R12 DXF, `$INSUNITS = 4`).
 * Everything on layer **`CUT`** is a cut path — outline, holes and slots alike.
@@ -51,22 +51,21 @@ artwork ever turns up. Engraving artwork has to be **vector** (AI / SVG / DXF).
 **Every plate has the same four holes**, at (8, 8) (242, 8) (8, 172) (242, 172),
 and nothing else about the columns differs between plates.
 
-It used to take two sets on different Y lines, for a hardware reason: an F/F
-standoff is threaded at both ends, so each end wants its own screw, and one hole
-cannot take two screws. A plain **M3 × 16 threaded stud** does take one hole and
-serve both — it screws into the standoff below and the one above, through the
-plate:
+The column is **M/F standoffs, all fitted male end up**. Each one's 6 mm stud
+crosses the plate above it and threads into the standoff beyond, so one hole per
+corner serves the joint below and the one above:
 
-| | through | thread engaged per end |
+| | through | thread engaged |
 |---|---|---|
-| stud at plate B | 5 mm | **5.5 mm** |
-| stud at plate C | 5 mm | **5.5 mm** |
-| an M/F standoff's 6 mm stud | 5 mm | 1.0 mm — what this replaces |
+| M/F stud at plate B, C, D | **3 mm** | **3.0 mm** |
+| the same stud through a 5 mm plate | 5 mm | 1.0 mm — will not bite |
 
-The column is: screw up through plate A → standoff → **stud** through plate B →
-standoff → **stud** through plate C → standoff → screw down through plate D.
-Three standoffs and two studs per corner, four corners. A stud is M3 threaded rod
-cut to 16 mm, or a 무두볼트 — nothing exotic.
+**That is why every plate is 3 mm.** It is the thickness the standoffs already
+bought are made to stack through.
+
+The column is: screw up through plate A → standoff → stud through plate B →
+standoff → stud through plate C → standoff → stud through plate D → **nut**.
+Three standoffs per corner, four corners, twelve in all.
 
 ## The fourth tier, plate D
 
@@ -80,24 +79,34 @@ which is 45–50 mm and open on all four sides; the C–D gap above it is anothe
 Plate C keeps its vents because it is the sheet directly over the fan bore.
 
 ```
-5 + 50 + 5 + 50 + 5 + 60 + 5 = 180 mm
+3 + 50 + 3 + 50 + 3 + 50 + 3 = 162 mm
 ```
 
-**Exactly 180 mm**, and that is why all four plates are 5 mm. With 3 mm tops the
-plate total is 16 mm, the gaps would have to sum to 164, and standoffs come in
-5 mm steps — 164 is not reachable. At 20 mm of plate the gaps sum to 160, which
-50 + 50 + 60 hits exactly. It also makes the order one thickness instead of two,
-and a 5 mm top plate is the one to hang an LCD on.
+Exactly 180 is **not reachable at 3 mm**: 12 mm of plate needs the gaps to sum to
+168 and standoffs come in 5 mm steps. The near misses are 177 (50 + 55 + 60) and
+182 (55 + 55 + 60). 162 keeps one standoff length for the whole column.
 
-The C–D gap carries nothing, so its 60 mm is the free variable that lands the
-total on a round number.
+### Plate A and sag
+
+3 mm on a 250 × 180 plate carried at four corners is thin for the plate holding
+the board. Day one, across the 250 mm span:
+
+| | 400 g board | |
+|---|---|---|
+| 3 mm | ≈ 1.0 mm | acrylic also creeps under a standing load |
+| 5 mm | ≈ 0.2 mm | |
+
+About a millimetre is liveable, and there is 13.5 mm of clearance under the fan
+to give away. If it does sag, **plate A alone can be re-cut in 5 mm with no
+hardware change at all** — nothing crosses plate A, it only takes a screw up into
+the first standoff. Plates B, C and D cannot: a stud passes through each of them.
 
 ## Plates D and E are gone
 
 The two small sub-plates existed so a module could ride on its own carrier
 instead of bolting to plate B. Every board now bolts straight down, so the
 carriers and plate B's 35 × 45 deck pattern went with them — eight fewer holes in
-plate B and two fewer parts to order. `plate-d-upper-5T.dxf` is the new fourth
+plate B and two fewer parts to order. `plate-d-upper-3T.dxf` is the new fourth
 tier and has nothing to do with the old sub-plate D.
 
 ## Plate B changed — revision 3
@@ -211,15 +220,13 @@ supply and the barrel socket; a domestic shop for the fan and the Y splitter.
 | Part | Size | Qty | Part number | Note |
 |---|---|---:|---|---|
 | Hex standoff F/F | M3 × 10 mm | 8 | RS 224-0443 | LAN9692 on plate A |
-| Hex standoff F/F | M3 × 50 mm | 8 | RS 224-0449 | A→B and B→C — already bought |
-| Hex standoff F/F | M3 × 60 mm | 4 | — | C→D, the length that makes the total 180 |
-| **Threaded stud** | **M3 × 16 mm** | **8** | M3 rod cut to 16 / 무두볼트 | 4 through plate B, 4 through plate C |
+| **Hex standoff M/F** | **M3 × 50 mm, 6 mm stud** | **12** | 디바이스마트 PCB서포트 금속 F-50mm | the whole column, 4 per gap — 10 already bought, 2 more needed |
 | Hex standoff F/F | **M3 × 20 mm** | 4 | — | TC397 |
 | Hex standoff F/F | **M2.5 × 20 mm** | 12 | — | T-ETH-Elite and both modules |
-| Screw, pan head | M3 × 6 / 8 / 10 mm | 12 / 12 / 8 | RS 190-428 / 797-6193 / 528-744 | `BOM.csv` says which goes where |
+| Screw, pan head | M3 × 6 / 8 mm | 12 / 16 | RS 190-428 / 797-6193 | at 3 mm of plate an M3 × 8 reaches everywhere a 10 used to |
 | Screw, pan head | **M3 × 25 mm** | 4 | RS 914-1490 | fan only — see below |
-| Screw, pan head | M2.5 × 6 / 10 mm | 12 / 12 | RS 528-716 / 797-6190 | T-ETH-Elite and both modules |
-| Nut, nyloc | M3 | 12 | RS 521-917 | 4 for the fan, rest spare |
+| Screw, pan head | M2.5 × 6 / 8 mm | 12 / 12 | RS 528-716 / 797-6190 | T-ETH-Elite and both modules |
+| Nut, nyloc | M3 | 12 | RS 521-917 | 4 for the fan, 4 on the column studs at plate D, rest spare |
 | Washer, nylon | M3 | 40 | Essentra MFW030A | under any head landing on acrylic |
 | Nylon standoff, adhesive base | 8 mm | 2 | — | fallback props for the TC397 |
 | Rubber foot | self-adhesive | 4 | RS 136-8964 | under plate A |

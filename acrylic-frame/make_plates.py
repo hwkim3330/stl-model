@@ -33,12 +33,12 @@ U1 = (167.31, 78.69)              # LAN9692 BGA-356 centre, from the PnP file
 PW, PH = 250.0, 180.0             # plate outline
 PLATE_R = 6.0                     # corner radius
 CORNER_INSET = 8.0                # lower standoff column, in from each corner
-# One column line, at the four corners, all the way up. The earlier design had
-# two sets on different Y because an F/F standoff needs a screw at each end and
-# one hole cannot take two screws. A plain THREADED STUD does take one hole and
-# serve both: it screws into the standoff below and the one above, through the
-# plate. M3 x 16 leaves 5.5 mm of thread engaged each side of a 5 mm plate and
-# 6.5 mm each side of a 3 mm one. So every plate now has the same four holes.
+# One column line, at the four corners, all the way up: every plate has the same
+# four holes. That works because the standoffs are M/F and the plates are 3 mm -
+# each standoff's 6 mm male stud crosses the plate above it and threads 3 mm into
+# the standoff beyond, so one hole serves the joint below and the one above. On a
+# 5 mm plate the same stud would leave 1 mm, which is what forced two separate
+# column lines in earlier revisions.
 M3_FREE = 3.4                     # M3 clearance in acrylic
 FAN_BORE = 36.0                   # 40 mm fan. Ø38 would match the impeller but
                                   # leaves only 1.93 mm of acrylic to the M3
@@ -442,23 +442,27 @@ def plate_top():
 # The small sub-plates are gone. They existed so a module could ride on its own
 # carrier instead of bolting to plate B, which stopped being worth two extra
 # parts and a deck pattern once every board bolts straight down.
-# All four in 5 mm. Three reasons, in order: it makes the stack come out at
-# exactly 180 mm, which 3 mm tops cannot (16 mm of plate needs 164 mm of gap and
-# standoffs come in 5 mm steps); it makes the order one thickness instead of
-# two; and a 5 mm top plate is the one to hang an LCD on.
-PLATES = [('plate-a-bottom-5T', plate_bottom, 5),
-          ('plate-b-middle-5T', plate_middle, 5),
-          ('plate-c-top-5T', plate_top, 5),
-          ('plate-d-upper-5T', plate_upper, 5)]
+# All four in 3 mm, one thickness for the whole order. 3 mm is also what makes
+# the M/F standoffs work: their 6 mm male stud crosses a 3 mm plate with 3 mm of
+# thread left for the standoff below, where a 5 mm plate would leave 1 mm.
+#
+# Plate A is the one carrying weight - a 400 g board on four corner supports sags
+# about 1 mm at 3 mm thick against 0.2 mm at 5 mm, and acrylic creeps. If that
+# matters later, plate A alone can be re-cut in 5 mm with NO hardware change:
+# nothing crosses plate A, it only takes a screw up into the first standoff.
+PLATES = [('plate-a-bottom-3T', plate_bottom, 3),
+          ('plate-b-middle-3T', plate_middle, 3),
+          ('plate-c-top-3T', plate_top, 3),
+          ('plate-d-upper-3T', plate_upper, 3)]
 
 
 # Nesting: plates of the same thickness laid out on one sheet, so a shop that
 # quotes by sheet area does not charge three separate offcuts. (x, y) is the
 # lower-left corner of each plate on its sheet.
 NESTS = {
-    '5T': dict(sheet=(520, 380),
-               place=[('plate-a-bottom-5T', 5, 5), ('plate-b-middle-5T', 5, 195),
-                      ('plate-c-top-5T', 265, 5), ('plate-d-upper-5T', 265, 195)]),
+    '3T': dict(sheet=(520, 380),
+               place=[('plate-a-bottom-3T', 5, 5), ('plate-b-middle-3T', 5, 195),
+                      ('plate-c-top-3T', 265, 5), ('plate-d-upper-3T', 265, 195)]),
 }
 
 
@@ -466,10 +470,10 @@ NESTS = {
 # for. (name, x, y, label) with the label written under each plate.
 COMBINED_SHEET = (580.0, 430.0)
 COMBINED = [
-    ('plate-a-bottom-5T', 15.0, 235.0, 'PLATE A (BOTTOM)  5T  CLEAR  x1'),
-    ('plate-b-middle-5T', 300.0, 235.0, 'PLATE B (MIDDLE)  5T  CLEAR  x1'),
-    ('plate-c-top-5T', 15.0, 30.0, 'PLATE C (TOP)  5T  CLEAR  x1'),
-    ('plate-d-upper-5T', 300.0, 30.0, 'PLATE D (UPPER)  5T  CLEAR  x1'),
+    ('plate-a-bottom-3T', 15.0, 235.0, 'PLATE A (BOTTOM)  3T  CLEAR  x1'),
+    ('plate-b-middle-3T', 300.0, 235.0, 'PLATE B (MIDDLE)  3T  CLEAR  x1'),
+    ('plate-c-top-3T', 15.0, 30.0, 'PLATE C (TOP)  3T  CLEAR  x1'),
+    ('plate-d-upper-3T', 300.0, 30.0, 'PLATE D (UPPER)  3T  CLEAR  x1'),
 ]
 
 
@@ -488,20 +492,20 @@ def shift_entities(sub, ox, oy):
 # part name and quantity at the top left of the cell, material and thickness
 # stacked at the top right, overall dimensions on the part. Text is ASCII
 # single-stroke so it always renders - the Korean equivalents go in the email.
-ORDER_PLATES = ['plate-a-bottom-5T', 'plate-b-middle-5T', 'plate-c-top-5T',
-                'plate-d-upper-5T']
+ORDER_PLATES = ['plate-a-bottom-3T', 'plate-b-middle-3T', 'plate-c-top-3T',
+                'plate-d-upper-3T']
 ORDER_SPEC = {
-    'plate-a-bottom-5T': ('BOTTOM PLATE A', '5T', 1),
-    'plate-b-middle-5T': ('MIDDLE PLATE B', '5T', 1),
-    'plate-c-top-5T': ('TOP PLATE C', '5T', 1),
-    'plate-d-upper-5T': ('UPPER PLATE D', '5T', 1),
+    'plate-a-bottom-3T': ('BOTTOM PLATE A', '3T', 1),
+    'plate-b-middle-3T': ('MIDDLE PLATE B', '3T', 1),
+    'plate-c-top-3T': ('TOP PLATE C', '3T', 1),
+    'plate-d-upper-3T': ('UPPER PLATE D', '3T', 1),
 }
 # cell box: x, y, w, h
 ORDER_CELLS = {
-    'plate-a-bottom-5T': (10.0, 300.0, 335.0, 250.0),
-    'plate-b-middle-5T': (355.0, 300.0, 335.0, 250.0),
-    'plate-c-top-5T': (10.0, 30.0, 335.0, 250.0),
-    'plate-d-upper-5T': (355.0, 30.0, 335.0, 250.0),
+    'plate-a-bottom-3T': (10.0, 300.0, 335.0, 250.0),
+    'plate-b-middle-3T': (355.0, 300.0, 335.0, 250.0),
+    'plate-c-top-3T': (10.0, 30.0, 335.0, 250.0),
+    'plate-d-upper-3T': (355.0, 30.0, 335.0, 250.0),
 }
 ORDER_SHEET = (700.0, 600.0)
 ARROW = 2.4
