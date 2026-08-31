@@ -64,6 +64,9 @@ CAN_PARTS_H = 15.0                     # assumed - its connector heights are not
                                        # in the fabrication set
 LCD_STANDOFF = 12.0                    # under the display, to clear its back pan
 LCD_THICK = 6.0                        # module thickness, RP-008246-DS-1
+LCD_PAN_T = 2.0                        # back pan, for the preview
+SCREEN = (0.06, 0.10, 0.16)            # the active area, so it reads as a screen
+BEZEL = (0.10, 0.10, 0.11)
 
 # 20 mm under the injection modules only - their RJ45 and MATEnet jacks are
 # through-hole and want the room underneath. The TC397 and the T-ETH-Elite go
@@ -324,8 +327,16 @@ def build(upto='D'):
     for hx, hy in P.LCD_HOLES:
         add(cyl(5.5, Z_D + T_D, Z_D + T_D + LCD_STANDOFF, lx + hx, ly + hy), METAL)
     zl = Z_D + T_D + LCD_STANDOFF
-    add(bx(lx, lx + P.LCD_LENS[0], ly, ly + P.LCD_LENS[1], zl, zl + LCD_THICK),
-        (0.10, 0.10, 0.12))
+    # back pan, then the lens, then the active area a hair above it - the last
+    # two are preview only, nothing here is cut
+    add(bx(lx + P.LCD_PAN_AT[0], lx + P.LCD_PAN_AT[0] + P.LCD_PAN[0],
+           ly + P.LCD_PAN_AT[1], ly + P.LCD_PAN_AT[1] + P.LCD_PAN[1],
+           zl, zl + LCD_PAN_T), METAL)
+    add(bx(lx, lx + P.LCD_LENS[0], ly, ly + P.LCD_LENS[1],
+           zl + LCD_PAN_T, zl + LCD_THICK), BEZEL)
+    ax, ay = lx + P.LCD_ACTIVE_AT[0], ly + P.LCD_ACTIVE_AT[1]
+    add(bx(ax, ax + P.LCD_ACTIVE[0], ay, ay + P.LCD_ACTIVE[1],
+           zl + LCD_THICK, zl + LCD_THICK + 0.4), SCREEN)
     # The top standoff's stud comes through plate D and takes a nut - the one
     # fastener in the column that is not a screw or a standoff.
     for x, y in corner_points():

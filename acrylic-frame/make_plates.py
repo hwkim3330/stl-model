@@ -183,6 +183,12 @@ LCD_HOLES = [(LCD_PAN_AT[0] + hx, LCD_PAN_AT[1] + hy)
              for hx in (20.0, 146.2) for hy in (20.0, 85.65)]
 LCD_HOLE_D = 3.4
 LCD_AT = (PW / 2, PH / 2)         # lens centred on plate D
+# For the preview only, so the top tier reads as a screen instead of a slab.
+# From the left-hand view of the same drawing: 154.08 x 85.92 active area, inset
+# 19.04 from one long edge and 11.01 / 13.83 top and bottom. Nothing is cut from
+# these - they do not touch a plate.
+LCD_ACTIVE = (154.08, 85.92)
+LCD_ACTIVE_AT = (19.04, 13.83)    # within the lens outline
 
 # --------------------------------------------------------------------------
 # KETI KA7_UNO REV1 on plate C - the CAN board. TCAN1044V and TJA1410A CAN
