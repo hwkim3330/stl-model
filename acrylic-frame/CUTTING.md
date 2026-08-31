@@ -75,15 +75,21 @@ simplest plate in the set.
 
 ### Plate C carries the Raspberry Pi
 
+From `RP-008343-DS-1`, the Pi 4 Model B official mechanical drawing:
+
 | | |
 |---|---|
-| Board | 85 × 56 mm |
-| Holes | 4 × Ø2.7, 3.5 mm in from each edge → **58.0 × 49.0 pitch** |
+| Board | 85 × 56 mm, corner radius 3.0 |
+| Holes | 3.5 mm in from the left and top edges → **58.0 × 49.0 pitch** |
 | Cut as | Ø2.9 round, M2.5 |
 | Placed | centre (66, 44) — USB/Ethernet edge to the front rim, power/HDMI edge to the left, 9.5 mm clear of the corner column |
+| Tallest part | **16.0 mm**, the USB stacks (RJ45 is 13.5, GPIO header 8.5) |
 
-That 58.0 × 49.0 is corroborated by the Raspberry Pi 7-inch display's own
-mechanical drawing, which carries the same pitch for the Pi it mounts.
+On 8 mm standoffs the Pi tops out at 134.6 mm with **24.4 mm clear under plate
+D** — room for the display's ribbon to turn.
+
+The same 58.0 × 49.0 appears on the 7-inch display's own drawing, for the Pi it
+carries, so the two sources agree.
 
 ### The 7-inch display, when you want it
 
@@ -96,10 +102,20 @@ From `RP-008246-DS-1`, the official mechanical drawing:
 | Thickness | ≈ 5.96 mm plus the FPC tails |
 | Mounting | **two** patterns on the back: 4 × M2.5 and 4 × M3.0, at 58.0 × 49.0 and 126.2 × 65.85 |
 
-58.0 × 49.0 is the Pi's own pattern, so that is where a Pi bolts to the display's
-back; 126.2 × 65.85 is then the display's own mounting. **The drawing labels the
-threads but not which pitch carries which**, so no display holes are cut yet —
-that is one measurement off the real part, or one line in the datasheet, away.
+58.0 × 49.0 is the Pi 4's own pattern — now confirmed against `RP-008343-DS-1` —
+so that is where a Pi bolts to the display's back, on the M2.5 thread, and
+126.2 × 65.85 is the display's own M3 mounting.
+
+**No display holes are cut yet, and the reason is the datum, not the pitch.** The
+drawing gives 126.2 × 65.85 but its right-hand view dimensions (166.2, 164.9,
+11.89, 12.54, 20.0, 48.45) do not resolve against the 192.96 × 110.76 lens
+outline on the left-hand view — the two views are measuring different things, the
+lens and the metal frame. Where that rectangle sits inside the outline is what a
+plate needs, and guessing it scraps the plate.
+
+Two ways to settle it, both cheap: measure from one corner of the real display to
+two adjacent holes, or find the display's DXF/STEP. Plate D is four cuts — the
+cheapest plate here to re-cut once the number is known.
 
 **No vents anywhere.** They were cut when the fan hung *under* plate B and drew
 down through the bore, which put plate C in the intake path. The fan now sits on

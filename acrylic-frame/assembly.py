@@ -57,6 +57,8 @@ TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
 FIM_STANDOFF = 20.0                    # M2.5 under either injection module
 FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on it
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
+RPI_STANDOFF = 8.0                     # M2.5 under the Raspberry Pi on plate C
+RPI_PARTS_H = 16.0                     # the USB stacks, from RP-008343-DS-1
 
 # 20 mm under the injection modules only - their RJ45 and MATEnet jacks are
 # through-hole and want the room underneath. The TC397 and the T-ETH-Elite go
@@ -295,6 +297,8 @@ def build(upto='D'):
         add(m, c)
 
     add(plate('C', Z_C, T_C), ACRYLIC)
+    for m, c in pi_on_plate_c(Z_C + T_C):
+        add(m, c)
     if upto == 'C':
         for x, y in corner_points():
             add(cyl(3.0, Z_C, Z_C + MF_STUD, x, y, sections=16), METAL)
@@ -404,6 +408,25 @@ def modules(z_top):
     return out
 
 
+def pi_on_plate_c(z_top):
+    """The Raspberry Pi 4B, on its own standoffs on plate C."""
+    out = []
+    bw, bh = P.RPI_BOARD
+    bx0, by0 = P.RPI_AT[0] - bw / 2, P.RPI_AT[1] - bh / 2
+    for hx, hy in P.RPI_HOLES:
+        out.append((cyl(5.0, z_top, z_top + RPI_STANDOFF,
+                        bx0 + hx, by0 + hy), METAL))
+    z = z_top + RPI_STANDOFF
+    out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
+    out.append((bx(bx0 + 3, bx0 + bw - 3, by0 + 3, by0 + bh - 3,
+                   z + 1.6, z + 1.6 + RPI_PARTS_H), (0.13, 0.14, 0.16)))
+    return out
+
+
+def pi_top(z_top):
+    return max(float(m.bounds[1][2]) for m, _ in pi_on_plate_c(z_top))
+
+
 def module_top(z_top):
     return max(float(m.bounds[1][2]) for m, _ in modules(z_top))
 
@@ -470,6 +493,11 @@ def checks():
     print(f"  tallest module top {e_top:6.1f}   clearance to plate C "
           f"{Z_C - e_top:5.1f} mm   (layout '{P.LAYOUT}')")
     print(f"  plate C            {Z_C:6.1f} .. {Z_C + T_C:6.1f}")
+    p_top = pi_top(Z_C + T_C)
+    print(f"  Raspberry Pi top   {p_top:6.1f}   clearance to plate D "
+          f"{Z_D - p_top:5.1f} mm")
+    if Z_D - p_top < 3:
+        ok = False
     print(f"  plate D            {Z_D:6.1f} .. {Z_D + T_D:6.1f}"
           f"   <- total height {TOTAL:.0f} mm")
     if Z_B - top < 3:
