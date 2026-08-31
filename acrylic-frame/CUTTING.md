@@ -73,7 +73,7 @@ Plate D carries the CAN board, or the 7-inch display. **Neither hole pattern is
 settled**, so it ships with the four column holes and nothing else — 4 cuts, the
 simplest plate in the set.
 
-### Plate C carries the Raspberry Pi
+### Plate C carries the Raspberry Pi and the CAN board
 
 From `RP-008343-DS-1`, the Pi 4 Model B official mechanical drawing:
 
@@ -90,6 +90,25 @@ D** — room for the display's ribbon to turn.
 
 The same 58.0 × 49.0 appears on the 7-inch display's own drawing, for the Pi it
 carries, so the two sources agree.
+
+**KETI KA7_UNO REV1**, the CAN board — TCAN1044V and TJA1410A transceivers with
+LAN8671C (10BASE-T1S), LAN8830 and LAN8870 automotive Ethernet PHYs, six layers.
+Out of its fabrication set, with two files agreeing:
+
+| | |
+|---|---|
+| Outline | **70.000 × 90.000 mm** — the `BOARD_OUTLINE` layer of `TOP.dxf` |
+| Holes | 4 × Ø3.5, 3.5 mm in from each edge → **63 × 83 pitch** — in `ThruHoleNonPlated.ncd` and again on `MOUNTING_HOLES_LAYER_TOP` |
+| Cut as | Ø3.4 round, M3 |
+| Placed | centre (170, 100) — right of the Pi, 26.5 mm between them, 37.4 mm to the nearest column |
+
+Its other drilled holes — Ø3.25 at (49.535, 82.7) and (60.965, 82.7), Ø0.75 at
+y 13.75, Ø0.65 at x 64.21 — are connector and bracket features, **not** mounting
+points. No acrylic is cut for them.
+
+Its component heights are not in the fabrication set, so the 3D model assumes
+15 mm. There is 24.4 mm of clearance under plate D, so it would take a 24 mm
+connector to be a problem.
 
 ### The 7-inch display, when you want it
 

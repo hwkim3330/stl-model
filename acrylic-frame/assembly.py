@@ -59,6 +59,9 @@ FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on 
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
 RPI_STANDOFF = 8.0                     # M2.5 under the Raspberry Pi on plate C
 RPI_PARTS_H = 16.0                     # the USB stacks, from RP-008343-DS-1
+CAN_STANDOFF = 8.0                     # M3 under the KA7_UNO CAN board
+CAN_PARTS_H = 15.0                     # assumed - its connector heights are not
+                                       # in the fabrication set
 LCD_STANDOFF = 12.0                    # under the display, to clear its back pan
 LCD_THICK = 6.0                        # module thickness, RP-008246-DS-1
 
@@ -299,7 +302,7 @@ def build(upto='D'):
         add(m, c)
 
     add(plate('C', Z_C, T_C), ACRYLIC)
-    for m, c in pi_on_plate_c(Z_C + T_C):
+    for m, c in pi_on_plate_c(Z_C + T_C) + can_on_plate_c(Z_C + T_C):
         add(m, c)
     if upto == 'C':
         for x, y in corner_points():
@@ -433,8 +436,24 @@ def pi_on_plate_c(z_top):
     return out
 
 
+def can_on_plate_c(z_top):
+    """The KETI KA7_UNO CAN board, beside the Pi on plate C."""
+    out = []
+    bw, bh = P.CAN_BOARD
+    bx0, by0 = P.CAN_AT[0] - bw / 2, P.CAN_AT[1] - bh / 2
+    for hx, hy in P.CAN_HOLES:
+        out.append((cyl(5.5, z_top, z_top + CAN_STANDOFF,
+                        bx0 + hx, by0 + hy), METAL))
+    z = z_top + CAN_STANDOFF
+    out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
+    out.append((bx(bx0 + 4, bx0 + bw - 4, by0 + 4, by0 + bh - 4,
+                   z + 1.6, z + 1.6 + CAN_PARTS_H), (0.13, 0.14, 0.16)))
+    return out
+
+
 def pi_top(z_top):
-    return max(float(m.bounds[1][2]) for m, _ in pi_on_plate_c(z_top))
+    return max(float(m.bounds[1][2])
+               for m, _ in pi_on_plate_c(z_top) + can_on_plate_c(z_top))
 
 
 def module_top(z_top):
@@ -504,7 +523,7 @@ def checks():
           f"{Z_C - e_top:5.1f} mm   (layout '{P.LAYOUT}')")
     print(f"  plate C            {Z_C:6.1f} .. {Z_C + T_C:6.1f}")
     p_top = pi_top(Z_C + T_C)
-    print(f"  Raspberry Pi top   {p_top:6.1f}   clearance to plate D "
+    print(f"  plate C boards top {p_top:6.1f}   clearance to plate D "
           f"{Z_D - p_top:5.1f} mm")
     if Z_D - p_top < 3:
         ok = False

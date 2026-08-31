@@ -22,11 +22,10 @@ BOM = [
     ('acrylic', 'Plate B - middle', 'clear acrylic 3 mm, 250 x 180', 1,
      'plate-b-middle-3T.dxf', 'laser shop', 'fan under, modules on top'),
     ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180', 1,
-     'plate-c-top-3T.dxf', 'laser shop', 'guard, and the Raspberry Pi deck'),
+     'plate-c-top-3T.dxf', 'laser shop', 'Raspberry Pi and the KA7_UNO CAN board'),
     ('acrylic', 'Plate D - upper', 'clear acrylic 3 mm, 250 x 180', 1,
      'plate-d-upper-3T.dxf', 'laser shop',
-     'fourth tier: the Raspberry Pi 7-inch Touch Display, centred. The CAN '
-     "board's holes still have to be added when its dimensions turn up"),
+     'fourth tier: the Raspberry Pi 7-inch Touch Display, centred'),
 
     ('hardware', 'Hex standoff F/F', 'M3 x 10 mm, stainless', 8,
      'RS 224-0443 (checked: F/F)', 'RS Korea',
@@ -47,6 +46,9 @@ BOM = [
     ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 8,
      'Wurth 970080144 / RS 205-2905', 'RS Korea',
      '4 for the T-ETH-Elite on plate B, 4 for the Raspberry Pi on plate C'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm, brass', 4,
+     'Wurth 970080324 / RS 184-2873', 'RS Korea',
+     'KA7_UNO CAN board on plate C - its holes are Ø3.5, so M3 here'),
     ('hardware', 'Hex standoff M/F or F/F', 'M3 x 10-15 mm', 4,
      '-', 'RS Korea',
      'under the 7-inch display on plate D. The display\'s back pan is not flat - '
@@ -57,9 +59,10 @@ BOM = [
      '4 for each injection module. 20 mm and not 8 because their RJ45 and '
      'MATEnet jacks are through-hole and want the room underneath'),
 
-    ('hardware', 'Screw, pan head', 'M3 x 6 mm', 12, 'RS 190-428', 'RS Korea',
-     'LAN9692 down onto its 8 standoffs, TC397 down onto its 4'),
-    ('hardware', 'Screw, pan head', 'M3 x 8 mm', 20, 'RS 797-6193', 'RS Korea',
+    ('hardware', 'Screw, pan head', 'M3 x 6 mm', 16, 'RS 190-428', 'RS Korea',
+     'LAN9692 down onto its 8 standoffs, TC397 onto its 4, the CAN board onto '
+     'its 4'),
+    ('hardware', 'Screw, pan head', 'M3 x 8 mm', 24, 'RS 797-6193', 'RS Korea',
      '8 up through plate A into the LAN9692 standoffs, 4 up through plate A '
      'into the first column standoff, 4 up through plate B into the TC397 '
      'standoffs. At 3 mm of plate an M3 x 8 engages 5 mm everywhere, so the '

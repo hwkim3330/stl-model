@@ -184,6 +184,26 @@ LCD_HOLES = [(LCD_PAN_AT[0] + hx, LCD_PAN_AT[1] + hy)
 LCD_HOLE_D = 3.4
 LCD_AT = (PW / 2, PH / 2)         # lens centred on plate D
 
+# --------------------------------------------------------------------------
+# KETI KA7_UNO REV1 on plate C - the CAN board. TCAN1044V and TJA1410A CAN
+# transceivers with LAN8671C (10BASE-T1S), LAN8830 and LAN8870 automotive
+# Ethernet PHYs, six layers.
+#
+# Straight out of the fabrication set, and confirmed by two files that agree:
+#   outline  BOARD_OUTLINE layer of TOP.dxf   -> 70.000 x 90.000 mm exactly
+#   holes    4 x Ø3.5 in ThruHoleNonPlated.ncd, and the same four on the
+#            MOUNTING_HOLES_LAYER_TOP of the DXF
+# 3.5 mm in from each edge, so a 63 x 83 pitch. Ø3.5 in the board takes an M3,
+# and the acrylic gets Ø3.4 clearance like every other M3 here.
+#
+# Its other drilled holes - Ø3.25 at (49.535, 82.7) and (60.965, 82.7), Ø0.75
+# at y 13.75, Ø0.65 at x 64.21 - are connector and bracket features, not
+# mounting points, and get no acrylic.
+CAN_BOARD = (70.0, 90.0)
+CAN_HOLES = [(3.5, 3.5), (66.5, 3.5), (3.5, 86.5), (66.5, 86.5)]
+CAN_HOLE_D = 3.4
+CAN_AT = (170.0, 100.0)           # right of the Pi on plate C, 26.5 mm clear
+
 # Engraving. Empty: the KETI mark is not approved for use here, so nothing is
 # engraved and the ENGRAVE layer is not emitted at all - which also takes the
 # second operation, and its charge, off the order. The machinery stays because
@@ -474,6 +494,9 @@ def plate_top():
     ox, oy = RPI_AT[0] - RPI_BOARD[0] / 2, RPI_AT[1] - RPI_BOARD[1] / 2
     for hx, hy in RPI_HOLES:
         d.circle(ox + hx, oy + hy, RPI_HOLE_D / 2)
+    cx, cy = CAN_AT[0] - CAN_BOARD[0] / 2, CAN_AT[1] - CAN_BOARD[1] / 2
+    for hx, hy in CAN_HOLES:
+        d.circle(cx + hx, cy + hy, CAN_HOLE_D / 2)
     for x, y, h, txt in ENGRAVE:
         d.stroke_text(x, y, h, txt)
     return d

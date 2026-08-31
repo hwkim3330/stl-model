@@ -167,6 +167,10 @@ def expected_features():
     oy = M.RPI_AT[1] - M.RPI_BOARD[1] / 2
     for hx, hy in M.RPI_HOLES:
         exp[C].append(('circle', ox + hx, oy + hy, M.RPI_HOLE_D, 0))
+    cx = M.CAN_AT[0] - M.CAN_BOARD[0] / 2
+    cy = M.CAN_AT[1] - M.CAN_BOARD[1] / 2
+    for hx, hy in M.CAN_HOLES:
+        exp[C].append(('circle', cx + hx, cy + hy, M.CAN_HOLE_D, 0))
     lx = M.LCD_AT[0] - M.LCD_LENS[0] / 2
     ly = M.LCD_AT[1] - M.LCD_LENS[1] / 2
     for hx, hy in M.LCD_HOLES:
@@ -320,6 +324,7 @@ def fastener_audit():
     for (name, _, _), _, holes, _, _ in M.board_mounts():
         need[f'{name} to plate B'] = 2 * len(holes)
     need['Raspberry Pi to plate C'] = 2 * len(M.RPI_HOLES)
+    need['CAN board to plate C'] = 2 * len(M.CAN_HOLES)
     need['7-inch display to plate D'] = len(M.LCD_HOLES)   # threaded in the pan
     ordered = sum(b[3] for b in bom.BOM
                   if b[0] == 'hardware' and b[1].startswith('Screw'))
