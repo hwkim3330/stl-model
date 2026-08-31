@@ -45,6 +45,15 @@ They are not part of the acrylic order.
 | [`tc397-appkit-case/`](tc397-appkit-case/) | AURIX Application Kit TC3X7 | tray + vented lid | 82.9 cm³ |
 | [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 20.7 cm³ |
 
+## Looking at it
+
+[`viewer/`](viewer/) builds a **single self-contained HTML file** — no server, no
+network, no CDN — with the frame, the exploded view, the CAN board and the
+LAN9692 in it. `python3 viewer/make_viewer.py`, then open `viewer/index.html`.
+
+GitHub will also render any STL in this repo in 3D if you click it, e.g.
+[`acrylic-frame/assembly.stl`](acrylic-frame/assembly.stl).
+
 ## Board models
 
 [`ka7-uno-can-board/`](ka7-uno-can-board/) is not an enclosure — it is the KETI

@@ -4,3 +4,5 @@ board-data/
 board_mock.stl
 # vendor archives live outside the repo (board-data/); the acrylic order zip
 # is a deliverable and is tracked
+# the viewer is 1.1 MB of base64 and rebuilds in one command
+viewer/index.html
