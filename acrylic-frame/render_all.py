@@ -12,14 +12,14 @@ import sys
 
 import numpy as np
 import trimesh
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path[:0] = [HERE, os.path.join(HERE, '..', 'lan9692-evb-case')]
 
 import assembly as A                     # noqa: E402
 import make_plates as M                  # noqa: E402
-from render_preview import render        # noqa: E402
+from render_preview import render, rot, W, H   # noqa: E402
 
 IMG = os.path.join(HERE, 'img')
 LAYER_COL = {'CUT': (255, 170, 60), 'DIM': (215, 215, 215),
@@ -111,6 +111,7 @@ def three_d():
                              ('assembly_front', 6, -2), ('assembly_top', 89, 0)):
         render(m, elev, azim, face_colors=fc).save(os.path.join(IMG, name + '.png'))
         print(f"  img/{name}.png")
+    labelled(m, fc, 22, -54, os.path.join(IMG, 'assembly_labelled.png'))
     ex = A.exploded(list(zip(parts, cols)))
     m, fc = scene([p for p, _ in ex], [c for _, c in ex])
     render(m, 20, -56, face_colors=fc).save(os.path.join(IMG, 'exploded.png'))
@@ -124,6 +125,75 @@ def three_d():
     e = trimesh.load(os.path.join(HERE, 'assembly.stl'))
     print(f"  assembly.stl  {len(e.faces)} faces  "
           f"{'x'.join(f'{v:.0f}' for v in e.bounds[1] - e.bounds[0])} mm")
+
+
+FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+
+
+def project(mesh, elev, azim, pts):
+    """Same camera render() uses, so a 3D point lands on the right pixel."""
+    R = rot(elev, azim)
+    v = mesh.vertices @ R.T
+    lo, hi = v.min(0), v.max(0)
+    span = max(hi[0] - lo[0], hi[2] - lo[2]) * 1.08
+    s = min(W, H) / span
+    p = np.asarray(pts, float) @ R.T
+    return np.stack([(p[:, 0] - (lo[0] + hi[0]) / 2) * s + W / 2,
+                     H / 2 - (p[:, 2] - (lo[2] + hi[2]) / 2) * s], 1)
+
+
+def label_targets():
+    """(label, x, y, z) for everything worth naming, at its own top face."""
+    zb = A.Z_B + A.T_B
+    zc = A.Z_C + A.T_C
+    out = [('LAN9692 EVB', M.BOARD_OFF[0] + M.BW / 2, M.BOARD_OFF[1] + M.BH / 2, 30.5),
+           ('40 mm fan', M.FAN_C[0], M.FAN_C[1], zb + A.FAN_THICK)]
+    for (name, cx, cy), _, _, _, _ in M.board_mounts():
+        so, ph = A.HEIGHTS[name]
+        out.append((name, cx, cy, zb + so + 1.6 + ph))
+    out.append(('Raspberry Pi 4B', M.RPI_AT[0], M.RPI_AT[1],
+                zc + A.RPI_STANDOFF + 1.6 + A.RPI_PARTS_H))
+    out.append(('KA7_UNO CAN', M.CAN_AT[0], M.CAN_AT[1],
+                zc + A.CAN_STANDOFF + 1.6 + A.CAN_PARTS_H))
+    for nm, z in (('plate A', A.Z_A + A.T_A), ('plate B', zb),
+                  ('plate C', zc), ('plate D', A.Z_D + A.T_D)):
+        out.append((nm, 6.0, M.PH - 6.0, z))
+    return out
+
+
+def labelled(mesh, fc, elev, azim, out):
+    """Render, then hang a named leader off each board."""
+    im = render(mesh, elev, azim, face_colors=fc).convert('RGB')
+    d = ImageDraw.Draw(im)
+    try:
+        f = ImageFont.truetype(FONT, 21)
+    except OSError:
+        f = ImageFont.load_default()
+    items = label_targets()
+    pts = project(mesh, elev, azim, [(x, y, z) for _, x, y, z in items])
+    # two columns of labels, chosen by which side of the picture the part is on,
+    # then spread vertically so no two collide
+    cols = {0: [], 1: []}
+    for (name, *_), (px, py) in zip(items, pts):
+        cols[0 if px < W / 2 else 1].append([name, px, py])
+    for side, rows in cols.items():
+        rows.sort(key=lambda r: r[2])
+        step = (H - 120) / max(len(rows), 1)
+        for i, r in enumerate(rows):
+            ly = 60 + step * (i + 0.5)
+            lx = 16 if side == 0 else W - 16
+            anchor = 'la' if side == 0 else 'ra'
+            d.line([(r[1], r[2]), (lx + (150 if side == 0 else -150), ly),
+                    (lx + (10 if side == 0 else -10), ly)],
+                   fill=(120, 128, 140), width=2)
+            d.ellipse([r[1] - 4, r[2] - 4, r[1] + 4, r[2] + 4],
+                      fill=(230, 90, 70))
+            box = d.textbbox((lx, ly - 12), r[0], font=f, anchor=anchor)
+            d.rectangle([box[0] - 6, box[1] - 3, box[2] + 6, box[3] + 3],
+                        fill=(255, 255, 255), outline=(200, 205, 212))
+            d.text((lx, ly - 12), r[0], font=f, fill=(30, 34, 40), anchor=anchor)
+    im.save(out)
+    print(f"  {os.path.relpath(out, HERE)}")
 
 
 def hole_check():

@@ -321,27 +321,9 @@ def build(upto='D'):
         add(cyl(3.0, Z_C, Z_C + MF_STUD, x, y, sections=16), METAL)
     JOINTS.append(('M/F stud through plate C', MF_STUD, T_C, H_CD))
     add(plate('D', Z_D, T_D), ACRYLIC)
-    # the 7-inch display, screen up, on standoffs that clear its own back pan
-    lx = P.LCD_AT[0] - P.LCD_LENS[0] / 2
-    ly = P.LCD_AT[1] - P.LCD_LENS[1] / 2
-    for hx, hy in P.LCD_HOLES:
-        add(cyl(5.5, Z_D + T_D, Z_D + T_D + LCD_STANDOFF, lx + hx, ly + hy), METAL)
-    zl = Z_D + T_D + LCD_STANDOFF
-    # back pan, then the lens, then the active area a hair above it - the last
-    # two are preview only, nothing here is cut
-    add(bx(lx + P.LCD_PAN_AT[0], lx + P.LCD_PAN_AT[0] + P.LCD_PAN[0],
-           ly + P.LCD_PAN_AT[1], ly + P.LCD_PAN_AT[1] + P.LCD_PAN[1],
-           zl, zl + LCD_PAN_T), METAL)
-    add(bx(lx, lx + P.LCD_LENS[0], ly, ly + P.LCD_LENS[1],
-           zl + LCD_PAN_T, zl + LCD_THICK), BEZEL)
-    ax, ay = lx + P.LCD_ACTIVE_AT[0], ly + P.LCD_ACTIVE_AT[1]
-    add(bx(ax, ax + P.LCD_ACTIVE[0], ay, ay + P.LCD_ACTIVE[1],
-           zl + LCD_THICK, zl + LCD_THICK + 0.4), SCREEN)
-    # The top standoff's stud comes through plate D and takes a nut - the one
-    # fastener in the column that is not a screw or a standoff.
-    for x, y in corner_points():
-        add(cyl(3.0, Z_D, Z_D + MF_STUD, x, y, sections=16), METAL)
-        add(cyl(5.5, Z_D + T_D, Z_D + T_D + 2.4, x, y, sections=6), METAL)
+    if P.LCD_ON:
+        for m, c in display_on_plate_d(Z_D + T_D):
+            add(m, c)
     JOINTS.append(('M/F stud through plate D, nut on top', MF_STUD, T_D, MF_STUD))
     return parts, cols
 
@@ -459,6 +441,25 @@ def can_on_plate_c(z_top):
     out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
     out.append((bx(bx0 + 4, bx0 + bw - 4, by0 + 4, by0 + bh - 4,
                    z + 1.6, z + 1.6 + CAN_PARTS_H), (0.13, 0.14, 0.16)))
+    return out
+
+
+def display_on_plate_d(z_top):
+    """The 7-inch Touch Display, screen up. Off by default - see P.LCD_ON."""
+    out = []
+    lx = P.LCD_AT[0] - P.LCD_LENS[0] / 2
+    ly = P.LCD_AT[1] - P.LCD_LENS[1] / 2
+    for hx, hy in P.LCD_HOLES:
+        out.append((cyl(5.5, z_top, z_top + LCD_STANDOFF, lx + hx, ly + hy), METAL))
+    zl = z_top + LCD_STANDOFF
+    out.append((bx(lx + P.LCD_PAN_AT[0], lx + P.LCD_PAN_AT[0] + P.LCD_PAN[0],
+                   ly + P.LCD_PAN_AT[1], ly + P.LCD_PAN_AT[1] + P.LCD_PAN[1],
+                   zl, zl + LCD_PAN_T), METAL))
+    out.append((bx(lx, lx + P.LCD_LENS[0], ly, ly + P.LCD_LENS[1],
+                   zl + LCD_PAN_T, zl + LCD_THICK), BEZEL))
+    ax, ay = lx + P.LCD_ACTIVE_AT[0], ly + P.LCD_ACTIVE_AT[1]
+    out.append((bx(ax, ax + P.LCD_ACTIVE[0], ay, ay + P.LCD_ACTIVE[1],
+                   zl + LCD_THICK, zl + LCD_THICK + 0.4), SCREEN))
     return out
 
 

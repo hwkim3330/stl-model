@@ -4,7 +4,7 @@ Four laser-cut plates, all 250 × 180 × 3 mm, instead of a printed box. Order f
 **[`acrylic-frame-dxf.zip`](acrylic-frame-dxf.zip)** — see [CUTTING.md](CUTTING.md)
 for the material/thickness/quantity table and the hardware list.
 
-![assembly](img/assembly.png)
+![assembly](img/assembly_labelled.png)
 ![joints](img/joint_detail.png)
 ![exploded](img/exploded.png)
 
@@ -66,10 +66,10 @@ the RJ45 and MATEnet fault injection modules. No sub-plates.
 
 ![plate B layout](img/plateB_layout.png)
 
-The mount features are **9 mm slots**, not round holes. Plate A's pattern is from
-the LAN9692's drill file and exact; these two came off drawings, so the slots buy
-±2.8 mm in case a coordinate is misread — see `CUTTING.md` for a check sheet to
-hold against the real boards.
+Every mount is a **plain round hole**. Two of four per board used to be 9 mm slots,
+buying ±2.8 mm against a misread of the drawing-derived TC397 and T-ETH-Elite
+coordinates — but a board has since been offered up to a cut plate and sat
+centred, so the slots are gone. `MOUNT_SLOT = 9.0` puts them back.
 
 Positions are chosen so each board's **port edge lands next to a plate edge**,
 not in the middle of the plate: the TC397's connector row ends 14 mm from the
@@ -79,25 +79,20 @@ fan and the standoff columns by ≥ 7.8 mm, and there is 48 mm between them.
 
 Stack = 3 + 50 + 3 + 50 + 3 + 50 + 3 = **162 mm**.
 
-### Plate B layout
+### What sits where
 
-`LAYOUT` at the top of `make_plates.py` picks what plate B carries. Both options
-use the same 35 × 45 mm deck pattern, so a sub-plate fits either:
+| Plate | Carries |
+|---|---|
+| A | LAN9692 EVB on 8 × M3 standoffs |
+| B | 40 mm fan on top over the bore; TC397, T-ETH-Elite, and the RJ45 and MATEnet fault injection modules |
+| C | Raspberry Pi 4B, and the KETI KA7_UNO CAN board |
+| D | plain guard |
 
-| `LAYOUT` | Zones | Fits? |
-|---|---|---|
-| **`tc397+eth-elite`** (default) | TC397 case at (74, 90), T-ETH-Elite at (178, 36) | yes — 8.5 mm between the cases, 11.3 mm under the fan |
-| `two-s31` | two 85 × 75 trays at (60, 132) and (60, 48) | yes — 9 mm apart |
-
-The **ESP32-S31 CoreBoard case (85 × 75) will not fit beside the TC397** — the
-strip left between the TC397 case and the fan bore is 39.1 mm. The LilyGo
-T-ETH-Elite case is 72 × 53, which does fit, in the space under the fan.
-
-The T-ETH-Elite case is a third-party design with no deck holes, so print
-**`adapter_lilygo.stl`** (79 × 60 × 8.5 mm, 14.5 cm³): it bolts to the plate on
-the 35 × 45 deck through counterbored holes and the case drops into its rim. It
-takes that pattern from `make_plates` rather than repeating the number, because
-it did once and stopped fitting when the deck changed.
+Plate B was solved as a whole rather than filled in board by board, so every board
+has at least 20 mm to its nearest neighbour. The T-ETH-Elite is turned 180° to put
+its USB-C at the back rim, which is what frees the whole front of the plate for
+the two injection modules — one per half, 71.4 mm apart so two facing RJ45 plugs
+both have room.
 
 ## You cannot order acrylic from an STL
 
@@ -140,31 +135,11 @@ photo:
   pick-and-place coordinate (167.31, 78.69) → plate (185.63, 93.76). The fan
   hangs underneath and blows down onto it. Ø36 bore, 32 mm M3 pitch, for a
   standard 40 mm fan.
-* **Plate B** — each small board's own mount pattern as 9 mm slots, plus a
-  35 × 45 mm deck pattern per zone so a sub-plate (D or E) can be used instead.
-* **Plate C** — five 8 × 60 mm intake slots over the fan.
-
-## How the sub-plates attach to plate B
-
-Four M3 through a **35 × 45 mm deck pattern**, Ø3.4 round on both plates:
-
-```
-        board on M2.5 / M3 standoffs
-   ┌──────────────────────────────┐
-   │   plate D or E   3 mm        │   4 x Ø3.4 on 35 x 45
-   ╞══════════════════════════════╡ ← M3 x 12 pan head, from above
-   │   plate B        5 mm        │   4 x Ø3.4 on 35 x 45, same centres
-   └──────────────────────────────┘ ← M3 nut underneath
-```
-
-35 × 45 rather than a square because a 45 mm square fouled the T-ETH-Elite's own
-mount slots. The centres coincide to **0.000 mm**, and the nut hangs into
-19.5 mm of clear space above the LAN9692's tallest part, so nothing fouls.
-
-**This is not the pattern the printed trays use.** The TC397 and ESP32-S31 trays
-and the printed LAN9692 box lid are all on a 45 mm square, which matches each
-other and not plate B. Changing `DECK_X, DECK_Y` here or `DECK_HOLES['pitch']`
-there is a one-line crossing, but as generated they do not interchange.
+* **Plate B** — each board's own mount pattern, round: the TC397, the
+  T-ETH-Elite and both fault injection modules.
+* **Plate C** — the Raspberry Pi 4B at 58 × 49, and the KA7_UNO CAN board at
+  63 × 83.
+* **Plate D** — four column holes and nothing else.
 
 ## Fan power
 

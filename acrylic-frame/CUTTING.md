@@ -69,9 +69,9 @@ Three standoffs per corner, four corners, twelve in all.
 
 ## The fourth tier, plate D
 
-Plate D carries the CAN board, or the 7-inch display. **Neither hole pattern is
-settled**, so it ships with the four column holes and nothing else — 4 cuts, the
-simplest plate in the set.
+Plate D is a **plain guard** over the Pi and the CAN board — four column holes and
+an outline, 4 cuts, the simplest plate in the set. The CAN board went to plate C
+and the 7-inch display is getting its own case.
 
 ### Plate C carries the Raspberry Pi and the CAN board
 
@@ -121,7 +121,12 @@ From `RP-008246-DS-1`, the official mechanical drawing:
 | Thickness | ≈ 5.96 mm plus the FPC tails |
 | Mounting | **two** patterns on the back: 4 × M2.5 and 4 × M3.0, at 58.0 × 49.0 and 126.2 × 65.85 |
 
-**Plate D is cut for it.** The datum took reading the drawing at 400 dpi to find:
+**Not fitted.** The module is 192.96 × 110.76 — it covers most of plate D and
+dominates the whole rig, so it gets a bought case of its own instead.
+`LCD_ON = True` in `make_plates.py` puts the four holes back; the numbers below
+stay because they cost a 400 dpi read and four cross-checks to establish.
+
+The datum took reading the drawing at 400 dpi to find:
 everything in that view is dimensioned from the **metal back pan, 166.2 × 100.6**,
 not from the glass, which is why the pattern would not resolve against the
 192.96 × 110.76 lens outline. The pan sits inside the lens at (11.89, 3.53).
@@ -141,10 +146,8 @@ which puts them at (60.41, 58.15), (186.61, 58.15), (60.41, 123.80) and
 (186.61, 123.80). Cut **Ø3.4** — the display's holes are threaded M3 in the pan,
 so the screw goes **up from under plate D** into the display.
 
-Mount it on **10–15 mm standoffs**, not flat: the back pan carries the DSI and
-power connectors and the Pi's own bosses, so it needs lifting clear, and the
-ribbon then has room to leave sideways. Plate D has 28 mm of margin each side of
-the lens for that.
+If it is ever fitted, mount it on **10–15 mm standoffs**, not flat: the back pan
+carries the DSI and power connectors and the Pi's own bosses.
 
 **No vents anywhere.** They were cut when the fan hung *under* plate B and drew
 down through the bore, which put plate C in the intake path. The fan now sits on
@@ -270,12 +273,11 @@ the top; the T-ETH-Elite's corner holes are 58.00 mm apart at the bottom against
 | TC397 (96.99, 59), (16, 82) | Ø4 pads, dimensioned but not proven | leave that screw out and prop the corner with an adhesive nylon standoff |
 | T-ETH-Elite, 4 holes | LilyGo 2D DXF + 3D CAD | measure and re-cut plate B |
 
-Two of the four mounts per board are cut as **9 mm slots** rather than round
-holes, so a misread of ±2.8 mm in X still bolts up; the other two are round and
-locate the board so it cannot slide while being tightened. Setting
-`MOUNT_SLOT = 0` in `make_plates.py` turns all of them into plain holes once the
-boards have been measured. (`3.4` is not enough — it only rounds the Ø3.4 TC397
-mounts and leaves the Ø2.9 T-ETH-Elite pair as short stadiums.)
+**All mounts are now plain round holes.** Two of the four per board used to be
+9 mm slots in X, to absorb a misread of the drawing-derived coordinates. A board
+has since been offered up to a cut plate and sat centred on its holes — which is
+the measurement those slots were standing in for — so they are gone.
+`MOUNT_SLOT = 9.0` in `make_plates.py` puts them back.
 
 ## Two separate orders
 

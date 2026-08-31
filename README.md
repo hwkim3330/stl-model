@@ -7,21 +7,21 @@ that is the actual build, and printable cases for the individual boards.
 [`acrylic-frame/CUTTING.md`](acrylic-frame/CUTTING.md) is what goes to the shop.
 Nothing in that build is 3D printed.
 
-![stack](acrylic-frame/img/assembly.png)
+![stack](acrylic-frame/img/assembly_labelled.png)
 
 ## The build
 
-Four clear acrylic plates, all the same size and thickness, on M/F standoffs. The LAN9692 lies on the bottom
-plate, a 40 mm fan hangs under the middle plate over the switch die, the two
-small boards bolt to the top of the middle plate, and the top plate is a guard
-with intake slots and a KETI engraving.
+Four clear acrylic plates, all 250 × 180 × 3 mm, on M/F standoffs. The LAN9692
+lies on the bottom plate; a 40 mm fan sits on **top** of the middle plate and
+blows down through a bore onto the switch die, with four boards beside it; the
+Raspberry Pi and the CAN board are on the third; the top plate is a plain guard.
 
 | Plate | Thickness | Size | Carries |
 |---|---|---|---|
 | A bottom | 3 mm | 250 × 180 | LAN9692 on 8 standoffs |
 | B middle | 3 mm | 250 × 180 | fan under; TC397, T-ETH-Elite and two fault injection modules on top |
-| C top | 3 mm | 250 × 180 | guard, intake slots over the fan |
-| D upper | 3 mm | 250 × 180 | fourth tier, for the CAN board or an LCD |
+| C top | 3 mm | 250 × 180 | Raspberry Pi 4B and the KA7_UNO CAN board |
+| D upper | 3 mm | 250 × 180 | plain guard over them |
 
 Order it as **DXF**, never as STL — laser cutting wants 2D paths and a stated
 thickness, not a mesh. `acrylic-frame/dxf/combined-order.dxf` is the single file
@@ -53,21 +53,6 @@ here to hold.
 For the LAN9692 the printed options are 119–235 cm³, which is where the acrylic
 frame came from: cheaper, board visible, and the one unverified dimension
 (clearance above the board) becomes a standoff length instead of a reprint.
-
-## Two deck patterns, and they do not interchange
-
-Anything that stacks bolts on four M3. There are two patterns, and mixing them
-across the boundary does not fit:
-
-| Pattern | Used by |
-|---|---|
-| **35 × 45 mm** | acrylic plate B, plates D and E, `adapter_lilygo.stl` |
-| **45 × 45 mm square** | printed LAN9692 box lid bosses, TC397 tray, ESP32-S31 tray |
-
-Plate B went to 35 × 45 because a 45 mm square fouled the T-ETH-Elite's own
-mount slots. The printed trays stayed on the square that matches the printed
-box lid. To cross over, change one constant and regenerate — `DECK_X, DECK_Y`
-in `acrylic-frame/make_plates.py`, or `DECK_HOLES['pitch']` in the tray script.
 
 ## Where the numbers come from
 

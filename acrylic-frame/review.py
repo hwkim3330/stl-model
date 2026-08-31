@@ -171,10 +171,11 @@ def expected_features():
     cy = M.CAN_AT[1] - M.CAN_BOARD[1] / 2
     for hx, hy in M.CAN_HOLES:
         exp[C].append(('circle', cx + hx, cy + hy, M.CAN_HOLE_D, 0))
-    lx = M.LCD_AT[0] - M.LCD_LENS[0] / 2
-    ly = M.LCD_AT[1] - M.LCD_LENS[1] / 2
-    for hx, hy in M.LCD_HOLES:
-        exp[D].append(('circle', lx + hx, ly + hy, M.LCD_HOLE_D, 0))
+    if M.LCD_ON:
+        lx = M.LCD_AT[0] - M.LCD_LENS[0] / 2
+        ly = M.LCD_AT[1] - M.LCD_LENS[1] / 2
+        for hx, hy in M.LCD_HOLES:
+            exp[D].append(('circle', lx + hx, ly + hy, M.LCD_HOLE_D, 0))
     return exp
 
 
@@ -325,7 +326,8 @@ def fastener_audit():
         need[f'{name} to plate B'] = 2 * len(holes)
     need['Raspberry Pi to plate C'] = 2 * len(M.RPI_HOLES)
     need['CAN board to plate C'] = 2 * len(M.CAN_HOLES)
-    need['7-inch display to plate D'] = len(M.LCD_HOLES)   # threaded in the pan
+    if M.LCD_ON:
+        need['7-inch display to plate D'] = len(M.LCD_HOLES)
     ordered = sum(b[3] for b in bom.BOM
                   if b[0] == 'hardware' and b[1].startswith('Screw'))
     nuts_need = len(M.lower_columns())          # one per column stud at plate D

@@ -79,14 +79,13 @@ LAYOUT = 'tc397+eth-elite'
 #         and E, which keeps plate B generic if you swap modules later.
 DIRECT_MOUNT = True
 
-# The board hole positions were read off drawings, not off the boards, and that
-# is the one error that could scrap plate B. So each board gets a mix: the holes
-# whose position is agreed by every source are cut ROUND, and they locate the
-# board; the ones carrying doubt are cut as MOUNT_SLOT-long slots in X, which
-# absorbs +/-(MOUNT_SLOT - hole)/2 without letting the board float. Four slots
-# would tolerate the same error but leave nothing to register against while you
-# tighten. Set MOUNT_SLOT = 0 for all-round once the boards are measured.
-MOUNT_SLOT = 9.0
+# ALL ROUND. The TC397's and the T-ETH-Elite's hole positions were read off
+# drawings rather than off the boards, so two of each board's four mounts used to
+# be cut as 9 mm slots in X to absorb a misread. A board has since been offered up
+# to a cut plate and sat centred on its holes, which is the measurement those
+# slots were standing in for - so they are gone and every mount is a plain hole.
+# Set MOUNT_SLOT = 9.0 to put the slots back.
+MOUNT_SLOT = 0.0
 # index into each board's hole list: which ones are slotted
 TC_SLOTTED = (2, 3)        # (96.99, 59) and (16, 82) - existence not proven
 ETH_SLOTTED = (2, 3)       # the top pair - the 58.00 vs 60.25 asymmetry lives here
@@ -174,6 +173,11 @@ RPI_AT = (66.0, 44.0)
 #   M3 from the pan top    14.95     M2.5 from the pan top   20.80
 #   M3 from the glass top  21.58     pan inset at the top     6.63
 #
+# NOT FITTED. The 7-inch module is 192.96 x 110.76 - it covers most of plate D
+# and dominates the whole rig, so it gets its own bought case instead. The
+# numbers stay because they cost a 400 dpi read of the drawing to establish and
+# four cross-checks to trust; LCD_ON = True puts the holes back.
+LCD_ON = False
 # 4 x M3.0 threaded in the pan, so the acrylic gets Ø3.4 clearance and the screw
 # goes UP from under plate D into the display.
 LCD_LENS = (192.96, 110.76)
@@ -474,15 +478,18 @@ def plate_upper():
     3 mm to thread into the F/F standoff below. That is the one place in this
     frame where M/F works: on the 5 mm plates it would leave 1 mm.
 
-    No vents - plate D is not in the fan's intake path. The fan sits on top of
-    plate B and draws from the B-C gap, which is open on all four sides.
+    With the 7-inch display dropped, this is a plain guard over the Pi and the
+    CAN board - four holes and an outline. No vents: plate D is not in the fan's
+    intake path, since the fan sits on top of plate B and draws from the B-C gap,
+    which is open on all four sides.
     """
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
     corner_holes(d)
-    ox, oy = LCD_AT[0] - LCD_LENS[0] / 2, LCD_AT[1] - LCD_LENS[1] / 2
-    for hx, hy in LCD_HOLES:
-        d.circle(ox + hx, oy + hy, LCD_HOLE_D / 2)
+    if LCD_ON:
+        ox, oy = LCD_AT[0] - LCD_LENS[0] / 2, LCD_AT[1] - LCD_LENS[1] / 2
+        for hx, hy in LCD_HOLES:
+            d.circle(ox + hx, oy + hy, LCD_HOLE_D / 2)
     return d
 
 
