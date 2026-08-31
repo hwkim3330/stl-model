@@ -247,6 +247,7 @@ def screw(x, y, z_head, length, up=False, d=3.0, head_d=5.5, head_h=2.0):
 
 # joint: name, screw length, material it passes through, standoff it enters
 JOINTS = []
+NAMES = []      # one per part from build(), for labelling a render
 
 
 def corner_points(which='lower'):
@@ -257,12 +258,16 @@ def build(upto='D'):
     """upto='A' gives just plate A, its standoffs and the board - the view that
     shows whether the drilled pattern really lines up."""
     parts, cols = [], []
+    NAMES.clear()
     JOINTS.clear()          # build() may be called more than once per run
+    tag = ['']
 
     def add(m, c):
         parts.append(m)
         cols.append(c)
+        NAMES.append(tag[0])
 
+    tag[0] = 'plate A'
     add(plate('A', Z_A, T_A), ACRYLIC)
     pcb_pts = [(P.BOARD_OFF[0] + x, P.BOARD_OFF[1] + y) for x, y in P.LAN_HOLES]
     for s in hexs(T_A, Z_PCB, pcb_pts):
@@ -272,6 +277,7 @@ def build(upto='D'):
     JOINTS.append(('LAN9692 standoff, from under plate A', 8.0, T_A, 10.0))
     board, bcol = board_mock.build(Z_PCB, colors=True)
     board.apply_translation((P.BOARD_OFF[0], P.BOARD_OFF[1], 0))
+    tag[0] = 'LAN9692 EVB'
     add(board, bcol)
     if upto == 'A':
         return parts, cols
@@ -281,6 +287,7 @@ def build(upto='D'):
         add(screw(x, y, Z_A, 8.0, up=True), METAL)       # into the A->B standoff
     JOINTS.append(('A->B standoff, from under plate A', 8.0, T_A, H_AB))
 
+    tag[0] = 'plate B'
     add(plate('B', Z_B, T_B), ACRYLIC)
     # The fan sits ON TOP of plate B, like every other board on that plate, and
     # blows down through the bore onto the switch. Same airflow as hanging it
@@ -292,6 +299,7 @@ def build(upto='D'):
          cyl(P.FAN_BORE, Z_B + T_B - 1, Z_B + T_B + FAN_THICK + 1, *P.FAN_C,
              sections=64)],
         engine='manifold')
+    tag[0] = '40 mm fan'
     add(fan, FAN_COL)
     # No screw at plate B: the standoff below sends its male stud up through the
     # single corner hole and into the standoff above.
@@ -301,11 +309,18 @@ def build(upto='D'):
         add(cyl(3.0, Z_B, Z_B + MF_STUD, x, y, sections=16), METAL)
     JOINTS.append(('M/F stud through plate B', MF_STUD, T_B, H_BC))
 
-    for m, c in modules(Z_B + T_B):
-        add(m, c)
+    for name, group in modules(Z_B + T_B, named=True):
+        tag[0] = name
+        for m, c in group:
+            add(m, c)
 
+    tag[0] = 'plate C'
     add(plate('C', Z_C, T_C), ACRYLIC)
-    for m, c in pi_on_plate_c(Z_C + T_C) + can_on_plate_c(Z_C + T_C):
+    tag[0] = 'Raspberry Pi 4B'
+    for m, c in pi_on_plate_c(Z_C + T_C):
+        add(m, c)
+    tag[0] = 'KA7_UNO CAN'
+    for m, c in can_on_plate_c(Z_C + T_C):
         add(m, c)
     if upto == 'C':
         for x, y in corner_points():
@@ -320,6 +335,7 @@ def build(upto='D'):
     for x, y in corner_points():
         add(cyl(3.0, Z_C, Z_C + MF_STUD, x, y, sections=16), METAL)
     JOINTS.append(('M/F stud through plate C', MF_STUD, T_C, H_CD))
+    tag[0] = 'plate D'
     add(plate('D', Z_D, T_D), ACRYLIC)
     if P.LCD_ON:
         for m, c in display_on_plate_d(Z_D + T_D):
@@ -369,18 +385,28 @@ def sub_stack(cx, cy, plate_wh, board_wh, holes, standoff, parts_h, z_top,
     return out
 
 
-def modules(z_top):
-    """Whatever the current plate-B layout carries, at its real height."""
-    out = []
+def modules(z_top, named=False):
+    """Whatever the current plate-B layout carries, at its real height.
+
+    named=True groups the output per board, so build() can tag each part with
+    the board it belongs to and a render can label it without anyone
+    reconstructing build()'s ordering by hand.
+    """
+    out, groups = [], []
     if ACRYLIC_ONLY and P.DIRECT_MOUNT:
         for (name, cx, cy), (bw, bh), holes, _, _ in P.board_mounts():
             if name not in HEIGHTS:
                 raise KeyError(f"no standoff/height for zone {name!r} - add it "
                                "to HEIGHTS rather than guessing from the size")
             standoff, parts_h = HEIGHTS[name]
-            out += sub_stack(cx, cy, (bw, bh), (bw, bh), holes,
-                             standoff, parts_h, z_top, plate=False)
-        return out
+            g = sub_stack(cx, cy, (bw, bh), (bw, bh), holes,
+                          standoff, parts_h, z_top, plate=False)
+            groups.append((name, g))
+            out += g
+        return groups if named else out
+    if named:
+        raise NotImplementedError('named grouping only covers the direct-mount '
+                                  'layout, which is the one in use')
     if ACRYLIC_ONLY:
         (_, tx, ty, _tr), (_, lx, ly, _lr) = P.ZONES
         out += sub_stack(tx, ty, P.TC_PLATE, P.TC_BOARD, P.TC_HOLES,

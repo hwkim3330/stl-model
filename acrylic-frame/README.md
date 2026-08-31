@@ -5,8 +5,8 @@ Four laser-cut plates, all 250 × 180 × 3 mm, instead of a printed box. Order f
 for the material/thickness/quantity table and the hardware list.
 
 ![assembly](img/assembly_labelled.png)
+![exploded](img/exploded_labelled.png)
 ![joints](img/joint_detail.png)
-![exploded](img/exploded.png)
 
 `assembly.py` builds the whole stack in 3D from the same constants the DXFs come
 from, so the plates here and the plates the cutter gets cannot drift apart. It

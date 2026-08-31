@@ -57,15 +57,30 @@ def models():
 
     import assembly as A
     parts, cols = A.build()
-    out['frame'] = dict(label='Acrylic frame, four plates', **pack(parts, cols))
+    out['frame'] = dict(label='Acrylic frame', **pack(parts, cols),
+                        facts=[['plates', '4 x 250 x 180 x 3 mm clear'],
+                               ['stack', '3+50+3+50+3+50+3 = 162 mm'],
+                               ['column', '12 x M/F standoff, 4 corners'],
+                               ['boards', '6'],
+                               ['thinnest web', '3.36 mm']])
 
     ex = A.exploded(list(zip(parts, cols)))
-    out['exploded'] = dict(label='Frame, exploded',
-                           **pack([p for p, _ in ex], [c for _, c in ex]))
+    out['exploded'] = dict(label='Exploded',
+                           **pack([p for p, _ in ex], [c for _, c in ex]),
+                           facts=[['plate A', 'LAN9692 EVB'],
+                                  ['plate B', 'fan, TC397, T-ETH-Elite, 2 x injection'],
+                                  ['plate C', 'Raspberry Pi 4B, KA7_UNO CAN'],
+                                  ['plate D', 'guard']])
 
     import ka7_mock
     p, c = ka7_mock.build(colors=True)
-    out['ka7'] = dict(label='KA7_UNO REV1 CAN board', **pack(p, c))
+    out['ka7'] = dict(label='KA7_UNO CAN', **pack(p, c),
+                      labels=[[n, x, y, ka7_mock.PCB_T] for n, x, y in ka7_mock.LABELS],
+                      facts=[['outline', '70.000 x 90.000 mm'],
+                             ['mounts', '4 x Ø3.5, 63 x 83 pitch'],
+                             ['components', f'{len(ka7_mock.DATA["components"])}'],
+                             ['layers', '6'],
+                             ['source', 'fabrication DXF + drill']])
 
     import board_mock
     m, fc = board_mock.build(0.0, colors=True)
@@ -79,58 +94,208 @@ def models():
             cols2.append(c0)
     else:
         parts2, cols2 = [m], [(0.09, 0.36, 0.20)]
-    out['lan9692'] = dict(label='LAN9692 EVB', **pack(parts2, cols2))
+    out['lan9692'] = dict(label='LAN9692 EVB', **pack(parts2, cols2),
+                          facts=[['outline', '213.360 x 149.860 mm'],
+                                 ['mounts', '8, from drill tool T23 Ø3.048'],
+                                 ['parts', 'placed from pick-and-place'],
+                                 ['ports', '7 x MATEnet, 4 x SFP+, RJ45']])
     return out
 
 
 HTML = """<meta charset="utf-8">
-<title>stl-model viewer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KETI TSN bench &mdash; model viewer</title>
 <style>
-  :root { color-scheme: light dark; }
-  * { box-sizing: border-box; }
-  body { margin: 0; font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
-         background: #f4f5f7; color: #1b1f24; overflow: hidden; }
-  @media (prefers-color-scheme: dark) {
-    body { background: #16181c; color: #e8eaed; }
-    .panel { background: #21242a; border-color: #33373f; }
-    button { background: #2b2f36; color: #e8eaed; border-color: #3a3f48; }
-    button[aria-pressed=true] { background: #3d6ea5; border-color: #4b82bd; }
+  /* Cool neutrals biased toward the acrylic blue; the DXF CUT-layer orange is
+     held back for the one live measurement. Tokens first, so the theme toggle
+     and the OS preference both drive the same variables. */
+  :root {
+    --ground: #eceef1;  --panel: #fbfcfd;  --edge: #cfd6de;
+    --ink: #10141a;     --ink-2: #55606d;  --ink-3: #8b95a3;
+    --accent: #1f6f9e;  --accent-ink: #fff;
+    --signal: #b45f16;
+    --pcb: #1d6b3a;
+    --canvas-bg: 0.925,0.933,0.945;
   }
-  canvas { display: block; width: 100vw; height: 100vh; }
-  .panel { position: fixed; top: 14px; left: 14px; padding: 12px 14px;
-           background: #fff; border: 1px solid #dfe3e8; border-radius: 10px;
-           box-shadow: 0 2px 10px rgba(0,0,0,.07); max-width: 300px; }
-  h1 { margin: 0 0 8px; font-size: 15px; font-weight: 650; letter-spacing: -.01em; }
-  .row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-  button { font: inherit; padding: 5px 10px; border: 1px solid #d3d8de;
-           border-radius: 7px; background: #f7f8fa; cursor: pointer; }
-  button[aria-pressed=true] { background: #2f6fb0; border-color: #2f6fb0;
-                              color: #fff; }
-  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px;
-       font-variant-numeric: tabular-nums; }
-  dt { opacity: .62; } dd { margin: 0; }
-  .hint { margin: 10px 0 0; font-size: 12px; opacity: .6; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #14171b; --panel: #1b1f25; --edge: #2c333c;
+      --ink: #e6e9ee;    --ink-2: #9aa5b2; --ink-3: #6b7ембb;
+      --accent: #4f9fd0; --accent-ink: #0d1116;
+      --signal: #e0913f;
+      --pcb: #3f9a63;
+      --canvas-bg: 0.078,0.090,0.106;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #eceef1;  --panel: #fbfcfd;  --edge: #cfd6de;
+    --ink: #10141a;     --ink-2: #55606d;  --ink-3: #8b95a3;
+    --accent: #1f6f9e;  --accent-ink: #fff; --signal: #b45f16;
+    --pcb: #1d6b3a;     --canvas-bg: 0.925,0.933,0.945;
+  }
+  :root[data-theme="dark"] {
+    --ground: #14171b; --panel: #1b1f25; --edge: #2c333c;
+    --ink: #e6e9ee;    --ink-2: #9aa5b2; --ink-3: #6b737f;
+    --accent: #4f9fd0; --accent-ink: #0d1116; --signal: #e0913f;
+    --pcb: #3f9a63;    --canvas-bg: 0.078,0.090,0.106;
+  }
+
+  --mono: ui-monospace, "DejaVu Sans Mono", "SF Mono", "Cascadia Mono", Menlo, monospace;
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font: 400 13px/1.55 ui-monospace, "DejaVu Sans Mono", "SF Mono", Menlo, monospace;
+    overflow: hidden; -webkit-font-smoothing: antialiased;
+  }
+  #stage { position: fixed; inset: 0; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  #overlay { position: absolute; inset: 0; pointer-events: none; }
+
+  /* silkscreen labels, projected onto the board */
+  .pin {
+    position: absolute; transform: translate(-50%, -50%);
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10.5px; letter-spacing: .02em; white-space: nowrap;
+    color: var(--ink); opacity: .96;
+  }
+  .pin::before {
+    content: ""; width: 5px; height: 5px; flex: none; border-radius: 50%;
+    background: var(--signal); box-shadow: 0 0 0 2px var(--ground);
+  }
+  .pin span {
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    padding: 1px 4px; border: 1px solid var(--edge); border-radius: 2px;
+  }
+
+  /* rail */
+  .rail {
+    position: absolute; top: 0; left: 0; bottom: 0; width: 288px;
+    display: flex; flex-direction: column; gap: 0;
+    background: color-mix(in srgb, var(--panel) 94%, transparent);
+    border-right: 1px solid var(--edge); backdrop-filter: blur(8px);
+    overflow-y: auto;
+  }
+  .rail > * { padding: 14px 16px; border-bottom: 1px solid var(--edge); }
+  .rail > *:last-child { border-bottom: 0; }
+
+  .brand h1 {
+    margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-2);
+  }
+  .brand p {
+    margin: 3px 0 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em;
+    color: var(--ink); text-wrap: balance;
+  }
+
+  .pick { display: flex; flex-direction: column; gap: 5px; }
+  .pick button {
+    font: inherit; font-size: 12px; text-align: left; cursor: pointer;
+    padding: 7px 10px; border: 1px solid var(--edge); border-radius: 3px;
+    background: transparent; color: var(--ink-2);
+    display: flex; justify-content: space-between; gap: 10px;
+  }
+  .pick button:hover { border-color: var(--accent); color: var(--ink); }
+  .pick button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pick button[aria-pressed="true"] {
+    background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+    font-weight: 700;
+  }
+  .pick button b { font-weight: inherit; }
+  .pick button i {
+    font-style: normal; font-size: 11px; opacity: .7;
+    font-variant-numeric: tabular-nums;
+  }
+
+  dl.facts {
+    margin: 0; display: grid; grid-template-columns: auto 1fr;
+    gap: 3px 12px; font-size: 11.5px; font-variant-numeric: tabular-nums;
+  }
+  dl.facts dt { color: var(--ink-3); }
+  dl.facts dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+
+  .live { display: grid; gap: 3px; font-size: 11.5px;
+          font-variant-numeric: tabular-nums; }
+  .live div { display: flex; justify-content: space-between; gap: 10px; }
+  .live span:first-child { color: var(--ink-3); }
+  .live span:last-child { color: var(--signal); font-weight: 700; }
+
+  .toggles { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toggles button {
+    font: inherit; font-size: 11px; cursor: pointer; padding: 5px 9px;
+    border: 1px solid var(--edge); border-radius: 3px;
+    background: transparent; color: var(--ink-2);
+  }
+  .toggles button[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    border-color: var(--accent); color: var(--ink);
+  }
+  .toggles button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .hint { font-size: 11px; color: var(--ink-3); line-height: 1.6;
+          font-family: ui-sans-serif, system-ui, sans-serif; }
+  .hint kbd {
+    font: inherit; font-family: inherit; border: 1px solid var(--edge);
+    border-bottom-width: 2px; border-radius: 3px; padding: 0 4px;
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 720px) {
+    .rail { width: 100%; height: 46%; bottom: auto; border-right: 0;
+            border-bottom: 1px solid var(--edge); }
+    #overlay .pin { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
-<canvas id="c"></canvas>
-<div class="panel">
-  <h1>stl-model</h1>
-  <div class="row" id="pick"></div>
-  <dl>
-    <dt>size</dt><dd id="size">—</dd>
-    <dt>faces</dt><dd id="faces">—</dd>
-  </dl>
-  <p class="hint">drag to orbit · wheel to zoom · right-drag to pan</p>
+
+<div id="stage">
+  <canvas id="c"></canvas>
+  <div id="overlay"></div>
+
+  <div class="rail">
+    <div class="brand">
+      <h1>KETI TSN bench</h1>
+      <p id="title">Acrylic frame</p>
+    </div>
+
+    <div class="pick" id="pick" role="group" aria-label="model"></div>
+
+    <dl class="facts" id="facts"></dl>
+
+    <div class="live">
+      <div><span>bounding box</span><span id="bbox">&mdash;</span></div>
+      <div><span>triangles</span><span id="faces">&mdash;</span></div>
+      <div><span>eye distance</span><span id="dist">&mdash;</span></div>
+    </div>
+
+    <div class="toggles">
+      <button id="tlabels" aria-pressed="false">silkscreen</button>
+      <button id="tfit">fit</button>
+      <button id="ttheme">theme</button>
+    </div>
+
+    <p class="hint">
+      <kbd>drag</kbd> orbit &middot; <kbd>wheel</kbd> zoom &middot;
+      <kbd>right-drag</kbd> pan. Geometry is quantised to 0.004&nbsp;mm; component
+      heights on the CAN board are inferred from footprint, everything else comes
+      from fabrication data.
+    </p>
+  </div>
 </div>
+
 <script>
 const MODELS = __DATA__;
-const gl = document.getElementById('c').getContext('webgl2', {antialias: true});
-if (!gl) document.body.innerHTML = '<p style="padding:2em">needs WebGL2</p>';
+const cv = document.getElementById('c');
+const gl = cv.getContext('webgl2', {antialias: true});
+if (!gl) document.body.innerHTML =
+  '<p style="padding:2rem;font:14px system-ui">This viewer needs WebGL2.</p>';
 
 const VS = `#version 300 es
 in vec3 p; in float cid;
 uniform mat4 mvp; uniform mat4 mv;
 out vec3 vpos; out float vcid;
-void main(){ vpos = (mv * vec4(p,1.)).xyz; vcid = cid; gl_Position = mvp*vec4(p,1.); }`;
+void main(){ vpos=(mv*vec4(p,1.)).xyz; vcid=cid; gl_Position=mvp*vec4(p,1.); }`;
 
 const FS = `#version 300 es
 precision highp float;
@@ -140,121 +305,195 @@ out vec4 o;
 void main(){
   vec3 n = normalize(cross(dFdx(vpos), dFdy(vpos)));
   if (n.z < 0.) n = -n;
-  float d = max(dot(n, normalize(vec3(0.36,0.30,0.88))), 0.);
-  float rim = pow(1.0 - abs(n.z), 2.5) * 0.10;
-  vec3 c = pal[int(vcid + 0.5)] * (0.34 + 0.70*d) + rim;
-  o = vec4(pow(c, vec3(0.4545)), 1.);
+  float key = max(dot(n, normalize(vec3(0.38,0.26,0.89))), 0.);
+  float fill = max(dot(n, normalize(vec3(-0.5,-0.3,0.4))), 0.) * 0.22;
+  float rim = pow(1.0 - abs(n.z), 3.0) * 0.09;
+  vec3 c = pal[int(vcid+0.5)] * (0.30 + 0.72*key + fill) + rim;
+  o = vec4(pow(clamp(c,0.,1.), vec3(0.4545)), 1.);
 }`;
 
-function sh(t, src){ const s = gl.createShader(t); gl.shaderSource(s, src);
-  gl.compileShader(s);
+function sh(t, src){
+  const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s);
   if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s);
-  return s; }
+  return s;
+}
 const prog = gl.createProgram();
 gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
 gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
 gl.linkProgram(prog); gl.useProgram(prog);
 const U = n => gl.getUniformLocation(prog, n);
 
-function b64(s){ const raw = atob(s); const u = new Uint8Array(raw.length);
-  for (let i=0;i<raw.length;i++) u[i]=raw.charCodeAt(i); return u; }
+const b64 = s => { const r = atob(s), u = new Uint8Array(r.length);
+  for (let i=0;i<r.length;i++) u[i]=r.charCodeAt(i); return u; };
 
-let cur = null, vao = null, nverts = 0;
+let cur=null, curKey=null, vao=null, nverts=0;
+let yaw=-0.72, pitch=0.50, dist=400, centre=[0,0,0], pan=[0,0];
+let showLabels=false;
+
+function fit(){
+  const s = cur.span;
+  centre = [cur.lo[0]+s[0]/2, cur.lo[1]+s[1]/2, cur.lo[2]+s[2]/2];
+  dist = Math.max(...s) * 2.05; pan = [0,0];
+}
+
 function load(key){
-  const m = MODELS[key];
+  const m = MODELS[key]; cur = m; curKey = key;
   const q = new Uint16Array(b64(m.pos).buffer);
   const pos = new Float32Array(q.length);
   for (let i=0;i<q.length;i++) pos[i] = m.lo[i%3] + q[i]/65535*m.span[i%3];
-  const cid = b64(m.cid);
   if (vao) gl.deleteVertexArray(vao);
   vao = gl.createVertexArray(); gl.bindVertexArray(vao);
   const bp = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bp);
   gl.bufferData(gl.ARRAY_BUFFER, pos, gl.STATIC_DRAW);
-  const lp = gl.getAttribLocation(prog, 'p');
-  gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
+  const lp = gl.getAttribLocation(prog,'p');
+  gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp,3,gl.FLOAT,false,0,0);
   const bc = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bc);
-  gl.bufferData(gl.ARRAY_BUFFER, cid, gl.STATIC_DRAW);
-  const lc = gl.getAttribLocation(prog, 'cid');
-  gl.enableVertexAttribArray(lc); gl.vertexAttribPointer(lc, 1, gl.UNSIGNED_BYTE, false, 0, 0);
+  gl.bufferData(gl.ARRAY_BUFFER, b64(m.cid), gl.STATIC_DRAW);
+  const lc = gl.getAttribLocation(prog,'cid');
+  gl.enableVertexAttribArray(lc);
+  gl.vertexAttribPointer(lc,1,gl.UNSIGNED_BYTE,false,0,0);
   const flat = new Float32Array(64*3);
   m.palette.forEach((c,i) => flat.set(c, i*3));
   gl.uniform3fv(U('pal'), flat);
-  nverts = pos.length/3; cur = m;
-  const s = m.span;
-  document.getElementById('size').textContent =
-    `${s[0].toFixed(0)} × ${s[1].toFixed(0)} × ${s[2].toFixed(0)} mm`;
+  nverts = pos.length/3;
+
+  document.getElementById('title').textContent = m.label;
+  document.getElementById('bbox').textContent =
+    m.span.map(v => v.toFixed(1)).join(' \u00d7 ') + ' mm';
   document.getElementById('faces').textContent = m.faces.toLocaleString();
-  centre = [m.lo[0]+s[0]/2, m.lo[1]+s[1]/2, m.lo[2]+s[2]/2];
-  dist = Math.max(...s) * 2.1; pan = [0,0];
-  draw();
+  const fl = document.getElementById('facts'); fl.textContent = '';
+  (m.facts || []).forEach(([k,v]) => {
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v;
+    fl.append(dt, dd);
+  });
+  const tl = document.getElementById('tlabels');
+  tl.disabled = !m.labels;
+  tl.style.opacity = m.labels ? 1 : .4;
+  fit(); draw();
 }
 
-let yaw = -0.72, pitch = 0.52, dist = 400, centre = [0,0,0], pan = [0,0];
-function draw(){
-  const dpr = Math.min(devicePixelRatio||1, 2);
-  const c = gl.canvas;
-  c.width = innerWidth*dpr; c.height = innerHeight*dpr;
-  gl.viewport(0,0,c.width,c.height);
-  gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
-  const bg = matchMedia('(prefers-color-scheme: dark)').matches
-    ? [0.086,0.094,0.11,1] : [0.957,0.961,0.968,1];
-  gl.clearColor(...bg); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  if (!cur) return;
-
-  const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
-  // orbit around Z-up, looking in from the side
-  const eye = [centre[0] + dist*cp*sy, centre[1] - dist*cp*cy, centre[2] + dist*sp];
-  const f = norm(sub(centre, eye));
-  const r = norm(cross(f, [0,0,1]));
-  const u = cross(r, f);
-  const t = [-dot(r,eye) + pan[0], -dot(u,eye) + pan[1], dot(f,eye)];
-  const mv = [r[0],u[0],-f[0],0, r[1],u[1],-f[1],0, r[2],u[2],-f[2],0, t[0],t[1],t[2],1];
-  const asp = c.width/c.height, n = dist*0.02, fa = dist*6, ft = 1/Math.tan(0.42);
-  const P = [ft/asp,0,0,0, 0,ft,0,0, 0,0,(fa+n)/(n-fa),-1, 0,0,2*fa*n/(n-fa),0];
-  gl.uniformMatrix4fv(U('mv'), false, mv);
-  gl.uniformMatrix4fv(U('mvp'), false, mul(P, mv));
-  gl.bindVertexArray(vao);
-  gl.drawArrays(gl.TRIANGLES, 0, nverts);
-}
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
 const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const norm=a=>{const l=Math.hypot(...a)||1;return [a[0]/l,a[1]/l,a[2]/l];};
-function mul(A,B){const C=new Array(16).fill(0);
+function mul(A,B){ const C=new Array(16).fill(0);
   for(let i=0;i<4;i++)for(let j=0;j<4;j++)for(let k=0;k<4;k++)
     C[j*4+i]+=A[k*4+i]*B[j*4+k];
-  return C;}
+  return C; }
 
-let drag = null;
-const cv = gl.canvas;
-cv.addEventListener('pointerdown', e => { drag = {x:e.clientX, y:e.clientY, b:e.button};
-  cv.setPointerCapture(e.pointerId); });
-cv.addEventListener('pointerup', () => drag = null);
+let MVP = null, VW = 0, VH = 0;
+
+function draw(){
+  const dpr = Math.min(devicePixelRatio||1, 2);
+  const r = cv.getBoundingClientRect();
+  VW = Math.max(r.width, 1); VH = Math.max(r.height, 1);
+  cv.width = Math.round(VW*dpr); cv.height = Math.round(VH*dpr);
+  gl.viewport(0,0,cv.width,cv.height);
+  gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
+  const bg = getComputedStyle(document.documentElement)
+    .getPropertyValue('--canvas-bg').split(',').map(Number);
+  gl.clearColor(bg[0], bg[1], bg[2], 1);
+  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  if (!cur) return;
+
+  const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
+  const eye=[centre[0]+dist*cp*sy, centre[1]-dist*cp*cy, centre[2]+dist*sp];
+  const f=norm(sub(centre,eye)), rt=norm(cross(f,[0,0,1])), up=cross(rt,f);
+  const t=[-dot(rt,eye)+pan[0], -dot(up,eye)+pan[1], dot(f,eye)];
+  const mv=[rt[0],up[0],-f[0],0, rt[1],up[1],-f[1],0, rt[2],up[2],-f[2],0,
+            t[0],t[1],t[2],1];
+  const asp=cv.width/cv.height, n=dist*0.02, fa=dist*6, ft=1/Math.tan(0.42);
+  const P=[ft/asp,0,0,0, 0,ft,0,0, 0,0,(fa+n)/(n-fa),-1, 0,0,2*fa*n/(n-fa),0];
+  MVP = mul(P, mv);
+  gl.uniformMatrix4fv(U('mv'), false, mv);
+  gl.uniformMatrix4fv(U('mvp'), false, MVP);
+  gl.bindVertexArray(vao);
+  gl.drawArrays(gl.TRIANGLES, 0, nverts);
+
+  document.getElementById('dist').textContent = dist.toFixed(0) + ' mm';
+  labels();
+}
+
+function screenOf(p){
+  const X=MVP[0]*p[0]+MVP[4]*p[1]+MVP[8]*p[2]+MVP[12];
+  const Y=MVP[1]*p[0]+MVP[5]*p[1]+MVP[9]*p[2]+MVP[13];
+  const W=MVP[3]*p[0]+MVP[7]*p[1]+MVP[11]*p[2]+MVP[15];
+  if (W <= 0) return null;
+  return [(X/W*0.5+0.5)*VW, (0.5-Y/W*0.5)*VH];
+}
+
+const ov = document.getElementById('overlay');
+function labels(){
+  ov.textContent = '';
+  if (!showLabels || !cur.labels) return;
+  // bus and function names first, bare pin numbers last, then drop anything
+  // that would land on top of a label already placed
+  const ranked = cur.labels.map((l,i) => [l, /[A-Za-z]{3}/.test(l[0]) ? 0 : 1, i])
+    .sort((a,b) => a[1]-b[1] || a[2]-b[2]);
+  const placed = [];
+  for (const [[name,x,y,z]] of ranked) {
+    const s = screenOf([x,y,z]);
+    if (!s || s[0] < 300 || s[0] > VW-8 || s[1] < 8 || s[1] > VH-8) continue;
+    if (placed.some(p => Math.abs(p[0]-s[0]) < 62 && Math.abs(p[1]-s[1]) < 15)) continue;
+    placed.push(s);
+    const d = document.createElement('div');
+    d.className = 'pin';
+    d.style.left = s[0] + 'px'; d.style.top = s[1] + 'px';
+    const sp = document.createElement('span'); sp.textContent = name;
+    d.appendChild(sp); ov.appendChild(d);
+  }
+}
+
+let drag=null;
+cv.addEventListener('pointerdown', e => {
+  drag={x:e.clientX,y:e.clientY,b:e.button}; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointerup', () => drag=null);
+cv.addEventListener('pointercancel', () => drag=null);
 cv.addEventListener('pointermove', e => {
   if (!drag) return;
-  const dx = e.clientX-drag.x, dy = e.clientY-drag.y;
-  drag.x = e.clientX; drag.y = e.clientY;
-  if (drag.b === 2) { pan[0] -= dx*dist/900; pan[1] += dy*dist/900; }
-  else { yaw += dx*0.008; pitch = Math.max(-1.5, Math.min(1.5, pitch + dy*0.008)); }
+  const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+  drag.x=e.clientX; drag.y=e.clientY;
+  if (drag.b === 2) { pan[0]-=dx*dist/900; pan[1]+=dy*dist/900; }
+  else { yaw+=dx*0.008; pitch=Math.max(-1.5,Math.min(1.5,pitch+dy*0.008)); }
   draw();
 });
 cv.addEventListener('contextmenu', e => e.preventDefault());
-cv.addEventListener('wheel', e => { e.preventDefault();
-  dist *= Math.exp(e.deltaY*0.0011); draw(); }, {passive:false});
+cv.addEventListener('wheel', e => {
+  e.preventDefault(); dist*=Math.exp(e.deltaY*0.0011); draw(); }, {passive:false});
 addEventListener('resize', draw);
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
 
 const pick = document.getElementById('pick');
 Object.entries(MODELS).forEach(([k,m],i) => {
   const b = document.createElement('button');
-  b.textContent = m.label; b.setAttribute('aria-pressed', i===0);
-  b.onclick = () => { [...pick.children].forEach(o => o.setAttribute('aria-pressed', o===b));
-    load(k); };
+  b.type='button'; b.setAttribute('aria-pressed', String(i===0));
+  const nm=document.createElement('b'); nm.textContent=m.label;
+  const ct=document.createElement('i'); ct.textContent=m.faces.toLocaleString();
+  b.append(nm, ct);
+  b.onclick = () => {
+    [...pick.children].forEach(o => o.setAttribute('aria-pressed', String(o===b)));
+    load(k);
+  };
   pick.appendChild(b);
 });
+
+const tl = document.getElementById('tlabels');
+tl.onclick = () => { showLabels = !showLabels;
+  tl.setAttribute('aria-pressed', String(showLabels)); draw(); };
+document.getElementById('tfit').onclick = () => { fit(); draw(); };
+document.getElementById('ttheme').onclick = () => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark'
+    || (!document.documentElement.getAttribute('data-theme')
+        && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  draw();
+};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+
 load(Object.keys(MODELS)[0]);
 </script>
 """
+
 
 if __name__ == '__main__':
     data = models()

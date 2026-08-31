@@ -111,7 +111,8 @@ def three_d():
                              ('assembly_front', 6, -2), ('assembly_top', 89, 0)):
         render(m, elev, azim, face_colors=fc).save(os.path.join(IMG, name + '.png'))
         print(f"  img/{name}.png")
-    labelled(m, fc, 22, -54, os.path.join(IMG, 'assembly_labelled.png'))
+    labelled(22, -54, os.path.join(IMG, 'assembly_labelled.png'))
+    labelled(20, -56, os.path.join(IMG, 'exploded_labelled.png'), explode=True)
     ex = A.exploded(list(zip(parts, cols)))
     m, fc = scene([p for p, _ in ex], [c for _, c in ex])
     render(m, 20, -56, face_colors=fc).save(os.path.join(IMG, 'exploded.png'))
@@ -130,6 +131,54 @@ def three_d():
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
 
 
+def visible_ids(mesh, gid, elev, azim):
+    """Which group owns each pixel, by the same z-buffer render() uses.
+
+    A label anchored at a 3D point lands wherever that point projects even when
+    something else is in front of it - which is how "plate B" ended up pointing
+    at plate C's surface. Anchoring instead at the centroid of a part's own
+    VISIBLE pixels cannot do that: if a part is hidden it has no pixels and gets
+    no label.
+    """
+    R = rot(elev, azim)
+    v = mesh.vertices @ R.T
+    lo, hi = v.min(0), v.max(0)
+    span = max(hi[0] - lo[0], hi[2] - lo[2]) * 1.08
+    sc = min(W, H) / span
+    px = (v[:, 0] - (lo[0] + hi[0]) / 2) * sc + W / 2
+    py = H / 2 - (v[:, 2] - (lo[2] + hi[2]) / 2) * sc
+    depth = v[:, 1]
+
+    ids = np.full((H, W), -1, np.int32)
+    zbuf = np.full((H, W), np.inf)
+    order = np.argsort(-mesh.triangles_center @ R.T @ np.array([0, 1, 0]))
+    for f in order:
+        i0, i1, i2 = mesh.faces[f]
+        xs = np.array([px[i0], px[i1], px[i2]])
+        ys = np.array([py[i0], py[i1], py[i2]])
+        zs = np.array([depth[i0], depth[i1], depth[i2]])
+        x0, x1 = int(max(np.floor(xs.min()), 0)), int(min(np.ceil(xs.max()) + 1, W))
+        y0, y1 = int(max(np.floor(ys.min()), 0)), int(min(np.ceil(ys.max()) + 1, H))
+        if x0 >= x1 or y0 >= y1:
+            continue
+        gx, gy = np.meshgrid(np.arange(x0, x1) + 0.5, np.arange(y0, y1) + 0.5)
+        d = ((ys[1] - ys[2]) * (xs[0] - xs[2]) + (xs[2] - xs[1]) * (ys[0] - ys[2]))
+        if abs(d) < 1e-9:
+            continue
+        w0 = ((ys[1] - ys[2]) * (gx - xs[2]) + (xs[2] - xs[1]) * (gy - ys[2])) / d
+        w1 = ((ys[2] - ys[0]) * (gx - xs[2]) + (xs[0] - xs[2]) * (gy - ys[2])) / d
+        w2 = 1 - w0 - w1
+        ins = (w0 >= 0) & (w1 >= 0) & (w2 >= 0)
+        if not ins.any():
+            continue
+        z = w0 * zs[0] + w1 * zs[1] + w2 * zs[2]
+        sl = (slice(y0, y1), slice(x0, x1))
+        win = ins & (z < zbuf[sl])
+        zb = zbuf[sl]; zb[win] = z[win]; zbuf[sl] = zb
+        ib = ids[sl]; ib[win] = gid[f]; ids[sl] = ib
+    return ids
+
+
 def project(mesh, elev, azim, pts):
     """Same camera render() uses, so a 3D point lands on the right pixel."""
     R = rot(elev, azim)
@@ -142,58 +191,65 @@ def project(mesh, elev, azim, pts):
                      H / 2 - (p[:, 2] - (lo[2] + hi[2]) / 2) * s], 1)
 
 
-def label_targets():
-    """(label, x, y, z) for everything worth naming, at its own top face."""
-    zb = A.Z_B + A.T_B
-    zc = A.Z_C + A.T_C
-    out = [('LAN9692 EVB', M.BOARD_OFF[0] + M.BW / 2, M.BOARD_OFF[1] + M.BH / 2, 30.5),
-           ('40 mm fan', M.FAN_C[0], M.FAN_C[1], zb + A.FAN_THICK)]
-    for (name, cx, cy), _, _, _, _ in M.board_mounts():
-        so, ph = A.HEIGHTS[name]
-        out.append((name, cx, cy, zb + so + 1.6 + ph))
-    out.append(('Raspberry Pi 4B', M.RPI_AT[0], M.RPI_AT[1],
-                zc + A.RPI_STANDOFF + 1.6 + A.RPI_PARTS_H))
-    out.append(('KA7_UNO CAN', M.CAN_AT[0], M.CAN_AT[1],
-                A.ka7_mock.top(zc + A.CAN_STANDOFF)))
-    for nm, z in (('plate A', A.Z_A + A.T_A), ('plate B', zb),
-                  ('plate C', zc), ('plate D', A.Z_D + A.T_D)):
-        out.append((nm, 6.0, M.PH - 6.0, z))
-    return out
+def labelled(elev, azim, out, explode=False):
+    """Render, then hang a name off each part's own visible pixels.
 
-
-def labelled(mesh, fc, elev, azim, out):
-    """Render, then hang a named leader off each board."""
+    The names come from build() itself - assembly.NAMES, one per part - so
+    nothing here reconstructs build()'s ordering, which is the mistake that put
+    "plate B" over plate C's surface.
+    """
+    parts, cols = A.build()
+    names = list(A.NAMES)
+    if explode:
+        ex = A.exploded(list(zip(parts, cols)))
+        parts = [p for p, _ in ex]
+        cols = [c for _, c in ex]
+    order = []
+    for n in names:
+        if n and n not in order:
+            order.append(n)
+    gid = np.concatenate([np.full(len(p.faces),
+                                  order.index(n) if n in order else -1, np.int32)
+                          for p, n in zip(parts, names)])
+    groups = [(n, None) for n in order]
+    mesh, fc = scene(parts, cols)
     im = render(mesh, elev, azim, face_colors=fc).convert('RGB')
+    ids = visible_ids(mesh, gid, elev, azim)
+
     d = ImageDraw.Draw(im)
     try:
         f = ImageFont.truetype(FONT, 21)
     except OSError:
         f = ImageFont.load_default()
-    items = label_targets()
-    pts = project(mesh, elev, azim, [(x, y, z) for _, x, y, z in items])
-    # two columns of labels, chosen by which side of the picture the part is on,
-    # then spread vertically so no two collide
-    cols = {0: [], 1: []}
-    for (name, *_), (px, py) in zip(items, pts):
-        cols[0 if px < W / 2 else 1].append([name, px, py])
-    for side, rows in cols.items():
+
+    anchors = []
+    for g, (name, _) in enumerate(groups):
+        ys, xs = np.nonzero(ids == g)
+        if len(xs) < 60:                      # hidden, or a sliver - no label
+            continue
+        anchors.append([name, float(np.median(xs)), float(np.median(ys)), len(xs)])
+
+    cols_ = {0: [], 1: []}
+    for a in anchors:
+        cols_[0 if a[1] < W / 2 else 1].append(a)
+    for side, rows in cols_.items():
         rows.sort(key=lambda r: r[2])
-        step = (H - 120) / max(len(rows), 1)
+        step = (H - 110) / max(len(rows), 1)
         for i, r in enumerate(rows):
-            ly = 60 + step * (i + 0.5)
+            ly = 55 + step * (i + 0.5)
             lx = 16 if side == 0 else W - 16
-            anchor = 'la' if side == 0 else 'ra'
+            anch = 'la' if side == 0 else 'ra'
             d.line([(r[1], r[2]), (lx + (150 if side == 0 else -150), ly),
                     (lx + (10 if side == 0 else -10), ly)],
                    fill=(120, 128, 140), width=2)
-            d.ellipse([r[1] - 4, r[2] - 4, r[1] + 4, r[2] + 4],
-                      fill=(230, 90, 70))
-            box = d.textbbox((lx, ly - 12), r[0], font=f, anchor=anchor)
+            d.ellipse([r[1] - 4, r[2] - 4, r[1] + 4, r[2] + 4], fill=(230, 90, 70))
+            box = d.textbbox((lx, ly - 12), r[0], font=f, anchor=anch)
             d.rectangle([box[0] - 6, box[1] - 3, box[2] + 6, box[3] + 3],
                         fill=(255, 255, 255), outline=(200, 205, 212))
-            d.text((lx, ly - 12), r[0], font=f, fill=(30, 34, 40), anchor=anchor)
+            d.text((lx, ly - 12), r[0], font=f, fill=(30, 34, 40), anchor=anch)
     im.save(out)
-    print(f"  {os.path.relpath(out, HERE)}")
+    print(f"  {os.path.relpath(out, HERE)}  ({len(anchors)} of {len(groups)} "
+          f"parts visible enough to label)")
 
 
 def hole_check():
