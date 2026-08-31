@@ -161,11 +161,12 @@ def expected_features():
                 exp[B].append(('slot', X, Y, M.MOUNT_SLOT, hd))
             else:
                 exp[B].append(('circle', X, Y, hd, 0))
-    # plate C only: it is the sheet directly over the fan bore. Plate D has no
-    # vents - it is not in the intake path.
-    for i in range(-2, 3):
-        exp[C].append(('slotv', M.FAN_C[0] + i * (M.VENT_SLOT[0] + 6),
-                       M.FAN_C[1], M.VENT_SLOT[1], M.VENT_SLOT[0]))
+    # No vents on any plate now that the fan sits on top of plate B. Plate C
+    # carries the Raspberry Pi instead.
+    ox = M.RPI_AT[0] - M.RPI_BOARD[0] / 2
+    oy = M.RPI_AT[1] - M.RPI_BOARD[1] / 2
+    for hx, hy in M.RPI_HOLES:
+        exp[C].append(('circle', ox + hx, oy + hy, M.RPI_HOLE_D, 0))
     return exp
 
 
@@ -312,13 +313,9 @@ def fastener_audit():
         'LAN9692 to plate A': 2 * len(M.LAN_HOLES),
         'fan to plate B': 4,
     }
-    if M.DIRECT_MOUNT:
-        for (name, _, _), _, holes, _, _ in M.board_mounts():
-            need[f'{name} to plate B'] = 2 * len(holes)
-    else:
-        need['plate D + E to plate B'] = 8
-        need['T-ETH-Elite to plate D'] = 2 * len(M.ETH_HOLES)
-        need['TC397 to plate E'] = 2 * len(M.TC_HOLES + M.TC_EXTRA_HOLES)
+    for (name, _, _), _, holes, _, _ in M.board_mounts():
+        need[f'{name} to plate B'] = 2 * len(holes)
+    need['Raspberry Pi to plate C'] = 2 * len(M.RPI_HOLES)
     ordered = sum(b[3] for b in bom.BOM
                   if b[0] == 'hardware' and b[1].startswith('Screw'))
     nuts_need = len(M.lower_columns())          # one per column stud at plate D

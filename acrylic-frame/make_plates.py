@@ -148,7 +148,19 @@ def orient(board, holes, rot):
     raise ValueError(f"rotation {rot} not supported")
 
 
-VENT_SLOT = (8.0, 60.0)           # top-plate intake slots (w, l)
+VENT_SLOT = (8.0, 60.0)           # kept for reference; no plate cuts these now
+
+# --------------------------------------------------------------------------
+# Raspberry Pi 4 / 5 on plate C. 85 x 56 board, four Ø2.7 holes 3.5 mm in from
+# each edge, so a 58.0 x 49.0 pitch - the same 58.0 x 49.0 that appears on the
+# Raspberry Pi 7-inch display's own mechanical drawing for the Pi it carries.
+# Opened to Ø2.9 for M2.5, like the other Ø2.5-class boards here.
+RPI_BOARD = (85.0, 56.0)
+RPI_HOLES = [(3.5, 3.5), (61.5, 3.5), (3.5, 52.5), (61.5, 52.5)]
+RPI_HOLE_D = 2.9
+# Front-left of plate C, USB/Ethernet long edge to the front rim and the
+# power/HDMI short edge to the left rim, clear of the corner column by 9.5 mm.
+RPI_AT = (66.0, 44.0)
 
 # Engraving. Empty: the KETI mark is not approved for use here, so nothing is
 # engraved and the ENGRAVE layer is not emitted at all - which also takes the
@@ -427,13 +439,19 @@ def plate_upper():
 
 
 def plate_top():
-    """3 mm. Hand and cable guard, with intake slots over the fan."""
+    """3 mm. Guard, and the Raspberry Pi deck.
+
+    No vents any more. They were cut when the fan hung UNDER plate B and drew
+    down through the bore, so plate C sat in the intake path. The fan now sits on
+    top of plate B and draws from the B-C gap, which is 50 mm and open on all
+    four sides - slots in this sheet would be drawing from the same air.
+    """
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
     corner_holes(d)
-    for i in range(-2, 3):
-        d.slot(FAN_C[0] + i * (VENT_SLOT[0] + 6), FAN_C[1],
-               VENT_SLOT[1], VENT_SLOT[0], horizontal=False)
+    ox, oy = RPI_AT[0] - RPI_BOARD[0] / 2, RPI_AT[1] - RPI_BOARD[1] / 2
+    for hx, hy in RPI_HOLES:
+        d.circle(ox + hx, oy + hy, RPI_HOLE_D / 2)
     for x, y, h, txt in ENGRAVE:
         d.stroke_text(x, y, h, txt)
     return d

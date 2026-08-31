@@ -22,11 +22,11 @@ BOM = [
     ('acrylic', 'Plate B - middle', 'clear acrylic 3 mm, 250 x 180', 1,
      'plate-b-middle-3T.dxf', 'laser shop', 'fan under, modules on top'),
     ('acrylic', 'Plate C - top', 'clear acrylic 3 mm, 250 x 180', 1,
-     'plate-c-top-3T.dxf', 'laser shop', 'guard, intake slots over the fan'),
+     'plate-c-top-3T.dxf', 'laser shop', 'guard, and the Raspberry Pi deck'),
     ('acrylic', 'Plate D - upper', 'clear acrylic 3 mm, 250 x 180', 1,
      'plate-d-upper-3T.dxf', 'laser shop',
-     'fourth tier, for the CAN board. Column holes and vents only - the CAN '
-     "board's own hole pattern is not known yet"),
+     'fourth tier, for the CAN board or the 7-inch display. Column holes only - '
+     "neither one's hole pattern is settled yet"),
 
     ('hardware', 'Hex standoff F/F', 'M3 x 10 mm, stainless', 8,
      'RS 224-0443 (checked: F/F)', 'RS Korea',
@@ -42,16 +42,15 @@ BOM = [
      'the parts order, so 2 more are needed'),
     ('hardware', 'Nut', 'M3', 4, 'RS 521-917 or plain', 'RS Korea',
      'on the four studs that come through plate D, the top of the stack'),
-    ('hardware', 'Hex standoff F/F', 'M3 x 20 mm, brass', 4,
-     'Wurth 970080324 (8 mm) - want the 20 mm length in the same range', 'RS Korea',
-     'TC397 on plate B. 20 mm under every board on that plate, not 8: one stock '
-     'length for all four, and it leaves room under a board for connector tails '
-     'and for a cable to turn. Checked - the tallest module then tops out at '
-     '101.6 mm with 8.4 mm still clear under plate C'),
-    ('hardware', 'Hex standoff F/F', 'M2.5 x 20 mm, brass', 12,
-     'Wurth 970080144 (8 mm) - want the 20 mm length in the same range', 'RS Korea',
-     '4 for the T-ETH-Elite and 4 for each injection module - all three have '
-     'Ø2.5 mounting holes, so all three are M2.5'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 8 mm, brass', 4,
+     'Wurth 970080324 / RS 184-2873', 'RS Korea', 'TC397 on plate B'),
+    ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 8,
+     'Wurth 970080144 / RS 205-2905', 'RS Korea',
+     '4 for the T-ETH-Elite on plate B, 4 for the Raspberry Pi on plate C'),
+    ('hardware', 'Hex standoff F/F', 'M2.5 x 20 mm, brass', 8,
+     '-', 'RS Korea',
+     '4 for each injection module. 20 mm and not 8 because their RJ45 and '
+     'MATEnet jacks are through-hole and want the room underneath'),
 
     ('hardware', 'Screw, pan head', 'M3 x 6 mm', 12, 'RS 190-428', 'RS Korea',
      'LAN9692 down onto its 8 standoffs, TC397 down onto its 4'),
@@ -61,15 +60,16 @@ BOM = [
      'standoffs. At 3 mm of plate an M3 x 8 engages 5 mm everywhere, so the '
      'M3 x 10 line is gone'),
 
-    ('hardware', 'Screw, pan head', 'M3 x 25 mm', 4, 'RS 914-1490', 'RS Korea',
-     'fan: right through plate B and the fan, nyloc nut underneath. 5 mm plate '
-     '+ 10 mm fan + washer + a 4 mm nyloc needs about 19.5 mm engaged, so an '
-     'M3 x 20 has nothing left for the nylon to lock onto. The screws in the '
-     "fan's own box are fatter and want Ø4.5 holes"),
-    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 12, 'RS 528-716', 'RS Korea',
-     'T-ETH-Elite and both injection modules, down onto their standoffs'),
-    ('hardware', 'Screw, pan head', 'M2.5 x 8 mm', 12, 'RS 797-6190', 'RS Korea',
-     'up through plate B into those standoffs'),
+    ('hardware', 'Screw, pan head', 'M3 x 20 mm', 4, '-', 'RS Korea',
+     'fan: down through the fan and plate B, nyloc nut underneath. The fan sits '
+     'ON TOP of plate B now, so 10 mm fan + 3 mm plate + washer + a 4 mm nyloc '
+     'is 17.5 mm. The M3 x 25 already bought also works, just 7.5 mm proud. The '
+     "screws in the fan's own box are fatter and want Ø4.5 holes"),
+    ('hardware', 'Screw, pan head', 'M2.5 x 6 mm', 16, 'RS 528-716', 'RS Korea',
+     'T-ETH-Elite, both injection modules and the Raspberry Pi, down onto their '
+     'standoffs'),
+    ('hardware', 'Screw, pan head', 'M2.5 x 8 mm', 16, 'RS 797-6190', 'RS Korea',
+     'up through plate B and plate C into those standoffs'),
     ('hardware', 'Nut, nyloc', 'M3, DIN 985', 12, 'RS 521-917', 'RS Korea',
      '4 for the fan, 8 spare. Nyloc because the fan is the one vibrating part'),
     ('hardware', 'Washer, nylon', 'M3', 40, 'Essentra MFW030A / DK RPC1552-ND',

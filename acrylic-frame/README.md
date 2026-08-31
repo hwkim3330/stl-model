@@ -56,9 +56,9 @@ nothing else in the design changes.
 | Plate | Material | Size | Carries |
 |---|---|---|---|
 | A — bottom | 3 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
-| B — middle | 3 mm clear acrylic | 250 × 180 mm | 40 mm fan underneath; four boards on top |
-| C — top | 3 mm clear | 250 × 180 mm | guard, intake slots over the fan |
-| D — upper | 3 mm clear | 250 × 180 mm | fourth tier for the CAN board or an LCD; 4 holes, nothing else |
+| B — middle | 3 mm clear acrylic | 250 × 180 mm | 40 mm fan and four boards, all on top |
+| C — top | 3 mm clear | 250 × 180 mm | Raspberry Pi deck |
+| D — upper | 3 mm clear | 250 × 180 mm | fourth tier for the CAN board or the 7-inch display; 4 holes, nothing else |
 
 All four boards bolt **straight to plate B**, cut with each board's own pattern:
 the TC397's four holes, the T-ETH-Elite's four asymmetric ones, and four each for

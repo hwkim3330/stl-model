@@ -69,14 +69,48 @@ Three standoffs per corner, four corners, twelve in all.
 
 ## The fourth tier, plate D
 
-Plate D carries the CAN board. **Its hole pattern is not known yet**, so it ships
-with the four column holes and nothing else — 4 cuts, the simplest plate in the
-set. The board's own holes get added once its dimensions exist.
+Plate D carries the CAN board, or the 7-inch display. **Neither hole pattern is
+settled**, so it ships with the four column holes and nothing else — 4 cuts, the
+simplest plate in the set.
 
-**No vents in plate D.** The fan hangs under plate B and draws from the B–C gap,
-which is 45–50 mm and open on all four sides; the C–D gap above it is another
-50 mm open on all four sides. Slots in the top sheet would add nothing to that.
-Plate C keeps its vents because it is the sheet directly over the fan bore.
+### Plate C carries the Raspberry Pi
+
+| | |
+|---|---|
+| Board | 85 × 56 mm |
+| Holes | 4 × Ø2.7, 3.5 mm in from each edge → **58.0 × 49.0 pitch** |
+| Cut as | Ø2.9 round, M2.5 |
+| Placed | centre (66, 44) — USB/Ethernet edge to the front rim, power/HDMI edge to the left, 9.5 mm clear of the corner column |
+
+That 58.0 × 49.0 is corroborated by the Raspberry Pi 7-inch display's own
+mechanical drawing, which carries the same pitch for the Pi it mounts.
+
+### The 7-inch display, when you want it
+
+From `RP-008246-DS-1`, the official mechanical drawing:
+
+| | |
+|---|---|
+| Module outline | 192.96 × 110.76 mm — fits plate D with 28 mm to spare each way |
+| Active area | 154.08 × 85.92 mm |
+| Thickness | ≈ 5.96 mm plus the FPC tails |
+| Mounting | **two** patterns on the back: 4 × M2.5 and 4 × M3.0, at 58.0 × 49.0 and 126.2 × 65.85 |
+
+58.0 × 49.0 is the Pi's own pattern, so that is where a Pi bolts to the display's
+back; 126.2 × 65.85 is then the display's own mounting. **The drawing labels the
+threads but not which pitch carries which**, so no display holes are cut yet —
+that is one measurement off the real part, or one line in the datasheet, away.
+
+**No vents anywhere.** They were cut when the fan hung *under* plate B and drew
+down through the bore, which put plate C in the intake path. The fan now sits on
+**top** of plate B, like every other board on that plate, and blows down through
+the bore onto the switch — same airflow, but it draws from the B–C gap, which is
+50 mm and open on all four sides. Slots in plate C or D would be drawing from the
+same air.
+
+Putting the fan on top also gives the LAN9692 back the space it was eating:
+clearance from the board's tallest part to plate B goes from 13.5 mm to
+**24.5 mm**, and every fastener on plate B is now reached from above.
 
 ```
 3 + 50 + 3 + 50 + 3 + 50 + 3 = 162 mm

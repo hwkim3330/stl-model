@@ -50,16 +50,17 @@ FAN_THICK = 11.0                       # Noctua NF-A4x10 mechanical
 # False = the printed TC397 / T-ETH-Elite cases
 ACRYLIC_ONLY = True
 SUB_T = 3.0                            # sub-plate thickness
-ETH_STANDOFF = 20.0                    # M2.5 under the T-ETH-Elite
-TC_STANDOFF = 20.0                     # M3 under the TC397, 4 places
+ETH_STANDOFF = 8.0                     # M2.5 under the T-ETH-Elite
+TC_STANDOFF = 8.0                      # M3 under the TC397, 4 places
 ETH_PARTS_H = 15.2                     # over the PCB, from LilyGo's 3D CAD
 TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
 FIM_STANDOFF = 20.0                    # M2.5 under either injection module
 FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on it
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
 
-# 20 mm under every board on plate B, not 8. One stock length for all four, and
-# it leaves room under a board for connector tails and a cable to turn.
+# 20 mm under the injection modules only - their RJ45 and MATEnet jacks are
+# through-hole and want the room underneath. The TC397 and the T-ETH-Elite go
+# back to 8 mm, which is what they were bought with.
 #
 # per-zone heights, by the name in make_plates' zone tuple - a size test used to
 # pick these and would have put the rotated 34 mm injection module in the
@@ -270,14 +271,18 @@ def build(upto='D'):
         add(screw(x, y, Z_A, 8.0, up=True), METAL)       # into the A->B standoff
     JOINTS.append(('A->B standoff, from under plate A', 8.0, T_A, H_AB))
 
+    add(plate('B', Z_B, T_B), ACRYLIC)
+    # The fan sits ON TOP of plate B, like every other board on that plate, and
+    # blows down through the bore onto the switch. Same airflow as hanging it
+    # underneath, but it stops eating into the A-B gap where the LAN9692's tall
+    # parts are, and every fastener on plate B is then reached from above.
     fan = trimesh.boolean.difference(
         [bx(P.FAN_C[0] - 20, P.FAN_C[0] + 20, P.FAN_C[1] - 20, P.FAN_C[1] + 20,
-            Z_B - FAN_THICK, Z_B),
-         cyl(P.FAN_BORE, Z_B - FAN_THICK - 1, Z_B + 1, *P.FAN_C, sections=64)],
+            Z_B + T_B, Z_B + T_B + FAN_THICK),
+         cyl(P.FAN_BORE, Z_B + T_B - 1, Z_B + T_B + FAN_THICK + 1, *P.FAN_C,
+             sections=64)],
         engine='manifold')
     add(fan, FAN_COL)
-
-    add(plate('B', Z_B, T_B), ACRYLIC)
     # No screw at plate B: the standoff below sends its male stud up through the
     # single corner hole and into the standoff above.
     for s in hexs(Z_B + T_B, Z_C, corner_points()):
@@ -444,9 +449,9 @@ def checks():
     print(f"  plate A            {Z_A:6.1f} .. {Z_A + T_A:6.1f}")
     print(f"  PCB                {Z_PCB:6.1f} .. {Z_PCB + board_mock.PCB_T:6.1f}")
     print(f"  tallest part top   {top:6.1f}   ({tall[0]}, {tall[6]})")
-    print(f"  fan                {Z_B - FAN_THICK:6.1f} .. {Z_B:6.1f}"
-          f"   clearance to board {Z_B - FAN_THICK - top:5.1f} mm")
-    print(f"  plate B            {Z_B:6.1f} .. {Z_B + T_B:6.1f}")
+    print(f"  plate B            {Z_B:6.1f} .. {Z_B + T_B:6.1f}"
+          f"   clearance to the board below {Z_B - top:5.1f} mm")
+    print(f"  fan (on top of B)  {Z_B + T_B:6.1f} .. {Z_B + T_B + FAN_THICK:6.1f}")
     print(f"\nmodules on plate B (layout '{P.LAYOUT}'"
           f"{', all-acrylic' if ACRYLIC_ONLY else ', printed cases'})")
     boxes = []
@@ -467,7 +472,7 @@ def checks():
     print(f"  plate C            {Z_C:6.1f} .. {Z_C + T_C:6.1f}")
     print(f"  plate D            {Z_D:6.1f} .. {Z_D + T_D:6.1f}"
           f"   <- total height {TOTAL:.0f} mm")
-    if Z_B - FAN_THICK - top < 3:
+    if Z_B - top < 3:
         ok = False
         print("  !! raise H_AB - the fan is too close to the board")
     if Z_C - e_top < 3:
