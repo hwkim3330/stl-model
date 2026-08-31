@@ -120,7 +120,7 @@ HTML = """<meta charset="utf-8">
   @media (prefers-color-scheme: dark) {
     :root {
       --ground: #14171b; --panel: #1b1f25; --edge: #2c333c;
-      --ink: #e6e9ee;    --ink-2: #9aa5b2; --ink-3: #6b7ембb;
+      --ink: #e6e9ee;    --ink-2: #9aa5b2; --ink-3: #6b737f;
       --accent: #4f9fd0; --accent-ink: #0d1116;
       --signal: #e0913f;
       --pcb: #3f9a63;
@@ -139,8 +139,6 @@ HTML = """<meta charset="utf-8">
     --accent: #4f9fd0; --accent-ink: #0d1116; --signal: #e0913f;
     --pcb: #3f9a63;    --canvas-bg: 0.078,0.090,0.106;
   }
-
-  --mono: ui-monospace, "DejaVu Sans Mono", "SF Mono", "Cascadia Mono", Menlo, monospace;
 
   * { box-sizing: border-box; }
   html, body { height: 100%; }

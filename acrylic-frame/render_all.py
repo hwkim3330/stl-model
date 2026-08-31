@@ -229,24 +229,37 @@ def labelled(elev, azim, out, explode=False):
             continue
         anchors.append([name, float(np.median(xs)), float(np.median(ys)), len(xs)])
 
-    cols_ = {0: [], 1: []}
-    for a in anchors:
-        cols_[0 if a[1] < W / 2 else 1].append(a)
-    for side, rows in cols_.items():
-        rows.sort(key=lambda r: r[2])
-        step = (H - 110) / max(len(rows), 1)
-        for i, r in enumerate(rows):
-            ly = 55 + step * (i + 0.5)
-            lx = 16 if side == 0 else W - 16
-            anch = 'la' if side == 0 else 'ra'
-            d.line([(r[1], r[2]), (lx + (150 if side == 0 else -150), ly),
-                    (lx + (10 if side == 0 else -10), ly)],
-                   fill=(120, 128, 140), width=2)
-            d.ellipse([r[1] - 4, r[2] - 4, r[1] + 4, r[2] + 4], fill=(230, 90, 70))
-            box = d.textbbox((lx, ly - 12), r[0], font=f, anchor=anch)
-            d.rectangle([box[0] - 6, box[1] - 3, box[2] + 6, box[3] + 3],
-                        fill=(255, 255, 255), outline=(200, 205, 212))
-            d.text((lx, ly - 12), r[0], font=f, fill=(30, 34, 40), anchor=anch)
+    # Put each name NEXT TO its own dot with a short leader, not out in an edge
+    # column. Edge columns were technically correct and unreadable: with twelve
+    # labels on a spread-out object the leaders crossed each other, so telling
+    # which name belonged to which dot took tracing a line across the picture.
+    boxes = []
+    for r in sorted(anchors, key=lambda r: -r[3]):      # biggest part placed first
+        name, ax, ay = r[0], r[1], r[2]
+        tw = d.textlength(name, font=f)
+        out_left = ax < W / 2
+        best = None
+        for ddx, ddy in ((0, -34), (0, 30), (0, -58), (0, 54), (0, -82), (0, 78),
+                         (0, -106), (0, 102)):
+            lx = ax - tw - 26 if out_left else ax + 26
+            ly = ay + ddy
+            if lx < 4 or lx + tw + 12 > W - 4 or ly < 16 or ly > H - 16:
+                continue
+            box = (lx - 6, ly - 14, lx + tw + 6, ly + 12)
+            if any(box[0] < o[2] and box[2] > o[0]
+                   and box[1] < o[3] and box[3] > o[1] for o in boxes):
+                continue
+            best = (lx, ly, box)
+            break
+        if best is None:
+            continue
+        lx, ly, box = best
+        boxes.append(box)
+        d.line([(ax, ay), (lx + (tw + 10 if out_left else -10), ly)],
+               fill=(120, 128, 140), width=2)
+        d.ellipse([ax - 4, ay - 4, ax + 4, ay + 4], fill=(230, 90, 70))
+        d.rectangle(box, fill=(255, 255, 255), outline=(200, 205, 212))
+        d.text((lx, ly - 12), name, font=f, fill=(30, 34, 40))
     im.save(out)
     print(f"  {os.path.relpath(out, HERE)}  ({len(anchors)} of {len(groups)} "
           f"parts visible enough to label)")

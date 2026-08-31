@@ -22,11 +22,9 @@ from trimesh.creation import box, cylinder
 HERE = os.path.dirname(os.path.abspath(__file__))
 L9 = os.path.join(HERE, '..', 'lan9692-evb-case')
 S31 = os.path.join(HERE, '..', 'esp32-s31-coreboard-case')
-KA7 = os.path.join(HERE, '..', 'ka7-uno-can-board')
-sys.path[:0] = [HERE, L9, S31, KA7]
+sys.path[:0] = [HERE, L9, S31]
 
 import board_mock                      # noqa: E402
-import ka7_mock                        # noqa: E402
 import make_plates as P                # noqa: E402
 from render_preview import render      # noqa: E402
 
@@ -62,6 +60,12 @@ FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
 RPI_STANDOFF = 8.0                     # M2.5 under the Raspberry Pi on plate C
 RPI_PARTS_H = 16.0                     # the USB stacks, from RP-008343-DS-1
 CAN_STANDOFF = 8.0                     # M3 under the KA7_UNO CAN board
+CAN_PARTS_H = 13.0                     # over the PCB. Its 206-component model in
+                                       # ../ka7-uno-can-board/ tops out at 12.6;
+                                       # the frame preview draws one block like
+                                       # every other board, because a board that
+                                       # is ten times as detailed as its
+                                       # neighbours just looks wrong
 LCD_STANDOFF = 12.0                    # under the display, to clear its back pan
 LCD_THICK = 6.0                        # module thickness, RP-008246-DS-1
 LCD_PAN_T = 2.0                        # back pan, for the preview
@@ -458,10 +462,9 @@ def pi_on_plate_c(z_top):
 def can_on_plate_c(z_top):
     """The KETI KA7_UNO CAN board, beside the Pi on plate C.
 
-    The real board, block per component, out of ../ka7-uno-can-board/ - not a
-    slab. Positions come from its fabrication DXF; the component heights are
-    guessed from footprint size, which is stated there and is why the tallest
-    part is worth checking against plate D rather than trusted.
+    Outline and holes are its own fab data; the parts are one block, same as
+    every other board on the frame. ../ka7-uno-can-board/ has the detailed
+    206-component model if you want to look at the board itself.
     """
     out = []
     bw, bh = P.CAN_BOARD
@@ -469,10 +472,10 @@ def can_on_plate_c(z_top):
     for hx, hy in P.CAN_HOLES:
         out.append((cyl(5.5, z_top, z_top + CAN_STANDOFF,
                         bx0 + hx, by0 + hy), METAL))
-    parts, cols = ka7_mock.build(z_top + CAN_STANDOFF, colors=True)
-    for m, c in zip(parts, cols):
-        m.apply_translation((bx0, by0, 0))
-        out.append((m, c))
+    z = z_top + CAN_STANDOFF
+    out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
+    out.append((bx(bx0 + 4, bx0 + bw - 4, by0 + 4, by0 + bh - 4,
+                   z + 1.6, z + 1.6 + CAN_PARTS_H), (0.13, 0.14, 0.16)))
     return out
 
 
