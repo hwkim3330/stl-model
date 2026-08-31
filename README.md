@@ -93,6 +93,18 @@ are called out in [`acrylic-frame/CUTTING.md`](acrylic-frame/CUTTING.md).
 ```bash
 pip3 install --break-system-packages trimesh manifold3d numpy scipy pillow
 
+./rebuild.sh --check    # regenerate everything, run every check, fail if git is dirty
+```
+
+`--check` is the one worth running. Nothing tracked here should differ from what
+its generator produces, so a dirty tree after a full rebuild means something
+committed has drifted from the code that makes it. The order zip is written with
+fixed member timestamps for exactly this reason — otherwise it differed on every
+run and the check could never be clean.
+
+Individually:
+
+```bash
 python3 check_stls.py                  # every STL: watertight, single body, no degenerate faces
 cd acrylic-frame && python3 review.py  # webs, geometry vs DXF, mesh vs DXF, zip freshness, fasteners
 ```
