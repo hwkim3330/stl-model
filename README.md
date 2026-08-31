@@ -45,6 +45,13 @@ They are not part of the acrylic order.
 | [`tc397-appkit-case/`](tc397-appkit-case/) | AURIX Application Kit TC3X7 | tray + vented lid | 82.9 cm³ |
 | [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 20.7 cm³ |
 
+## Board models
+
+[`ka7-uno-can-board/`](ka7-uno-can-board/) is not an enclosure — it is the KETI
+KA7_UNO REV1 CAN board rebuilt from its own fabrication set, so the acrylic frame
+can show the real board and take its hole pattern from fab data. Six layers,
+70 × 90 mm, 2 × CAN FD, 2 × 10BASE-T1S, Ethernet and 2 × LIN.
+
 The ESP32-S31 case is **for a different board than the one on this bench** — it
 was drawn before the ESP32 board was identified as the LilyGo T-ETH-Elite. The
 design is sound and sourced from Espressif's own drawing; it just has no board

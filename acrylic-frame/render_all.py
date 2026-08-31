@@ -154,7 +154,7 @@ def label_targets():
     out.append(('Raspberry Pi 4B', M.RPI_AT[0], M.RPI_AT[1],
                 zc + A.RPI_STANDOFF + 1.6 + A.RPI_PARTS_H))
     out.append(('KA7_UNO CAN', M.CAN_AT[0], M.CAN_AT[1],
-                zc + A.CAN_STANDOFF + 1.6 + A.CAN_PARTS_H))
+                A.ka7_mock.top(zc + A.CAN_STANDOFF)))
     for nm, z in (('plate A', A.Z_A + A.T_A), ('plate B', zb),
                   ('plate C', zc), ('plate D', A.Z_D + A.T_D)):
         out.append((nm, 6.0, M.PH - 6.0, z))

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate every printable STL in the repo the way a print service's uploader does.
 
-(board_mock.stl and assembly.stl are skipped - they are multi-body previews,
+(board_mock.stl, assembly.stl and ka7_uno_rev1.stl are skipped - multi-body previews,
 not printable parts.)
 
     python3 check_stls.py
@@ -29,8 +29,8 @@ def check(path):
 
 
 def main():
-    # board_mock.stl and assembly.stl are multi-body previews, not parts
-    skip = ('mock', 'assembly')
+    # multi-body previews of real hardware, not parts anyone prints or cuts
+    skip = ('mock', 'assembly', 'ka7_uno')
     paths = [p for p in sorted(glob.glob('*/*.stl'))
              if not any(k in os.path.basename(p) for k in skip)]
     if not paths:
