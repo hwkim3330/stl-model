@@ -157,10 +157,9 @@ VENT_SLOT = (8.0, 60.0)           # kept for reference; no plate cuts these now
 RPI_BOARD = (85.0, 56.0)
 RPI_HOLES = [(3.5, 3.5), (61.5, 3.5), (3.5, 52.5), (61.5, 52.5)]
 RPI_HOLE_D = 2.9
-# On plate C under the display, so the DSI ribbon has the shortest possible run
-# up through plate D's cable slot. USB/Ethernet long edge still faces the front
-# rim; 28.5 mm clear of the corner column and 43.5 mm from the CAN board.
-RPI_AT = (85.0, 60.0)
+# Front-left of plate C with room around it, now that nothing has to line up with
+# a ribbon slot. USB/Ethernet long edge to the front rim.
+RPI_AT = (65.0, 55.0)
 
 # --------------------------------------------------------------------------
 # Raspberry Pi 7-inch Touch Display on plate D, from RP-008246-DS-1.
@@ -174,13 +173,27 @@ RPI_AT = (85.0, 60.0)
 #   M3 from the pan top    14.95     M2.5 from the pan top   20.80
 #   M3 from the glass top  21.58     pan inset at the top     6.63
 #
-# FITTED, on plate D. The module is 192.96 x 110.76 and the plate is 250 x 180,
-# so it sits centred with 28.5 mm of rim each side and 34.6 front and back -
-# comfortable. What is tight is not the footprint but the RIBBON: the Pi is under
-# plate D on plate C and the display is on top of plate D, so the DSI cable has to
-# cross a solid sheet. Hence LCD_CABLE below, and hence the Pi and the CAN board
-# moved to open a lane for it.
-LCD_ON = True
+# OFF. It went on plate D, above the Pi, and the DSI ribbon then had to cross a
+# solid sheet - which is not a thing to design around, so it came out again.
+#
+# The numbers stay, because they cost a 400 dpi read of the drawing and four
+# cross-checks, and because the arithmetic for putting it anywhere else is worth
+# keeping written down:
+#
+#   flat on plate C beside the Pi and the CAN board - NO. The lens is 192.96 of
+#   the plate's 250 mm width, leaving 57.04 mm, and the CAN board is 70 wide. The
+#   bands above and below a centred lens are 34.62 mm, and the Pi is 56 deep.
+#
+#   overhanging the back edge of plate C - up to 13 mm, no further. The far M3
+#   hole row is 89.18 mm up the lens, so past a 21.58 mm overhang it leaves the
+#   plate entirely and the panel hangs on two screws; 13 mm keeps 8 mm of acrylic
+#   round that row. That leaves a 70 mm band in front for the Pi and a CAN board
+#   turned 90 degrees, which fits - just.
+#
+#   standing it at a plate edge in its case - costs about 15 mm of plate depth
+#   instead of 97, needs the CASE's bracket dimensions, and is how a 7-inch screen
+#   on a bench actually gets read.
+LCD_ON = False
 # 4 x M3.0 threaded in the pan, so the acrylic gets Ø3.4 clearance and the screw
 # goes UP from under plate D into the display.
 LCD_LENS = (192.96, 110.76)
@@ -220,10 +233,9 @@ LCD_ACTIVE_AT = (19.04, 13.83)    # within the lens outline
 CAN_BOARD = (70.0, 90.0)
 CAN_HOLES = [(3.5, 3.5), (66.5, 3.5), (3.5, 86.5), (66.5, 86.5)]
 CAN_HOLE_D = 3.4
-CAN_AT = (206.0, 100.0)           # pushed to the right-hand side of plate C, to
-                                  # leave the middle clear for the Pi and the
-                                  # ribbon lane. 9 mm to the rim, 21 mm to the
-                                  # nearest corner column, 43.5 mm to the Pi.
+CAN_AT = (180.0, 95.0)            # right of the Pi on plate C, 37.5 mm between
+                                  # them, 35 mm to the rim, 21 mm to the nearest
+                                  # corner column.
 
 # Engraving. Empty: the KETI mark is not approved for use here, so nothing is
 # engraved and the ENGRAVE layer is not emitted at all - which also takes the

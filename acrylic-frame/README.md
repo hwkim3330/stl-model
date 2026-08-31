@@ -57,7 +57,7 @@ nothing else in the design changes.
 |---|---|---|---|
 | A — bottom | 3 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
 | B — middle | 3 mm clear acrylic | 250 × 180 mm | 40 mm fan and four boards, all on top |
-| C — top | 3 mm clear | 250 × 180 mm | Raspberry Pi 4B under the display, KA7_UNO CAN board beside it |
+| C — top | 3 mm clear | 250 × 180 mm | Raspberry Pi 4B and the KA7_UNO CAN board |
 | D — upper | 3 mm clear | 250 × 180 mm | Raspberry Pi 7-inch Touch Display, centred |
 
 All four boards bolt **straight to plate B**, cut with each board's own pattern:

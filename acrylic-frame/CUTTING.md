@@ -69,8 +69,8 @@ Three standoffs per corner, four corners, twelve in all.
 
 ## The fourth tier, plate D
 
-Plate D carries the **7-inch display** — four column holes, the display's four
-mount holes and the ribbon slot. The CAN board is on plate C, beside the Pi.
+Plate D is a **plain guard** over the Pi and the CAN board — four column holes and
+an outline, 4 cuts, the simplest plate in the set.
 
 ### Plate C carries the Raspberry Pi and the CAN board
 
@@ -81,7 +81,7 @@ From `RP-008343-DS-1`, the Pi 4 Model B official mechanical drawing:
 | Board | 85 × 56 mm, corner radius 3.0 |
 | Holes | 3.5 mm in from the left and top edges → **58.0 × 49.0 pitch** |
 | Cut as | Ø2.9 round, M2.5 |
-| Placed | centre (85, 60) — under the display's ribbon slot, USB/Ethernet edge still to the front rim, 28.5 mm clear of the corner column |
+| Placed | centre (65, 55) — front-left with room around it, USB/Ethernet edge to the front rim, 15.5 mm clear of the corner column |
 | Tallest part | **16.0 mm**, the USB stacks (RJ45 is 13.5, GPIO header 8.5) |
 
 On 8 mm standoffs the Pi tops out at 134.6 mm with **24.4 mm clear under plate
@@ -99,7 +99,7 @@ Out of its fabrication set, with two files agreeing:
 | Outline | **70.000 × 90.000 mm** — the `BOARD_OUTLINE` layer of `TOP.dxf` |
 | Holes | 4 × Ø3.5, 3.5 mm in from each edge → **63 × 83 pitch** — in `ThruHoleNonPlated.ncd` and again on `MOUNTING_HOLES_LAYER_TOP` |
 | Cut as | Ø3.4 round, M3 |
-| Placed | centre (206, 100) — hard right, to leave the middle for the Pi and the ribbon lane. 9 mm to the rim, 21 mm to the nearest column, 43.5 mm to the Pi |
+| Placed | centre (180, 95) — right of the Pi, 37.5 mm between them, 35 mm to the rim, 33.4 mm to the nearest column |
 
 Its other drilled holes — Ø3.25 at (49.535, 82.7) and (60.965, 82.7), Ø0.75 at
 y 13.75, Ø0.65 at x 64.21 — are connector and bracket features, **not** mounting
@@ -109,106 +109,29 @@ Its component heights are not in the fabrication set, so the 3D model assumes
 15 mm. There is 24.4 mm of clearance under plate D, so it would take a 24 mm
 connector to be a problem.
 
-### The 7-inch display, when you want it
+### The 7-inch display, and where it can actually go
 
-From `RP-008246-DS-1`, the official mechanical drawing:
+**Not fitted.** It was on plate D above the Pi, and the DSI ribbon then had to
+cross a solid sheet — which is not something to design around, so it came out.
+`LCD_ON = True` in `make_plates.py` puts it back on plate D with a ribbon slot if
+that turns out to be acceptable after all.
+
+The arithmetic for the alternatives, so it does not have to be redone:
+
+| where | verdict |
+|---|---|
+| flat on plate C beside the Pi and the CAN board | **no.** The lens is 192.96 of the plate's 250 mm width, leaving 57.04 mm — the CAN board is 70 wide. The bands above and below a centred lens are 34.62 mm; the Pi is 56 deep. |
+| flat on plate C, **overhanging the back** | up to **13 mm**, no further. Its far M3 hole row is 89.18 mm up the lens, so past a **21.58 mm** overhang that row leaves the plate and the panel hangs on two screws. 13 mm keeps 8 mm of acrylic round it, and leaves a 70 mm band in front for the Pi plus a CAN board turned 90° — which fits, just. |
+| standing at a plate edge, in its case | costs about **15 mm** of plate depth instead of 97, and is how a 7-inch screen on a bench actually gets read. Needs the **case's** bracket dimensions, which are not in the panel drawing. |
+
+From `RP-008246-DS-1`, the official mechanical drawing, in case it is wanted:
 
 | | |
 |---|---|
-| Module outline | 192.96 × 110.76 mm — fits plate D with 28 mm to spare each way |
+| Module outline | 192.96 × 110.76 mm |
 | Active area | 154.08 × 85.92 mm |
 | Thickness | ≈ 5.96 mm plus the FPC tails |
 | Mounting | **two** patterns on the back: 4 × M2.5 and 4 × M3.0, at 58.0 × 49.0 and 126.2 × 65.85 |
-
-**Fitted, centred on plate D**, with 28.5 mm of rim each side and 34.6 front and
-back. The footprint was never the tight part — this is:
-
-> The Pi is **under** plate D on plate C, the display is **on top** of plate D, and
-> plate D is a solid sheet. The DSI ribbon has to cross it.
-
-So plate D also gets a **60 × 12 mm cable slot** at (105, 60), and the Pi and the
-CAN board moved to open a lane for it:
-
-| | |
-|---|---|
-| cable slot | x 75…135, y 54…66 — **over the Pi**, **inside the lens footprint**, 44.6 mm from the nearest display mount hole |
-| Raspberry Pi | centre (85, 60) on plate C, directly under the slot |
-| KA7_UNO CAN | pushed right to centre (206, 100) — 9 mm to the rim, 43.5 mm from the Pi |
-
-Inside the lens footprint is deliberate: the ribbon surfaces into the 12 mm gap
-between plate D and the display's back pan and turns there, rather than coming up
-outside the display and having to fold back under it. And 60 × 12 is generous on
-purpose — it is right wherever the Pi's DSI socket and the display's connectors
-actually sit, which is the one thing here no drawing pinned down.
-
-`LCD_ON = False` in `make_plates.py` takes the display, its holes and the slot
-back out in one line.
-
-The datum took reading the drawing at 400 dpi to find:
-everything in that view is dimensioned from the **metal back pan, 166.2 × 100.6**,
-not from the glass, which is why the pattern would not resolve against the
-192.96 × 110.76 lens outline. The pan sits inside the lens at (11.89, 3.53).
-
-| from the pan's lower-left | x | y |
-|---|---|---|
-| 4 × M3.0 — the display's own mounting | 20.0, 146.2 | 20.0, 85.65 |
-| 4 × M2.5 — where a Pi bolts on | 48.45, 106.45 | 30.8, 79.8 |
-
-Four independent checks against the Raspberry Pi forum thread on this drawing,
-all exact: M3 14.95 from the pan top, M2.5 20.80 from the pan top, M3 21.58 from
-the glass top, pan inset 6.63 at the top.
-
-So relative to the **lens outline** corner the M3 holes are at (31.89, 23.53),
-(158.09, 23.53), (31.89, 89.18), (158.09, 89.18). The lens is centred on plate D,
-which puts them at (60.41, 58.15), (186.61, 58.15), (60.41, 123.80) and
-(186.61, 123.80). Cut **Ø3.4** — the display's holes are threaded M3 in the pan,
-so the screw goes **up from under plate D** into the display.
-
-Mount it on the **12 mm standoffs** in the BOM, not flat: the back pan carries the
-DSI and power connectors and the Pi's own bosses, and that gap is where the
-ribbon turns.
-
-**No vents anywhere.** They were cut when the fan hung *under* plate B and drew
-down through the bore, which put plate C in the intake path. The fan now sits on
-**top** of plate B, like every other board on that plate, and blows down through
-the bore onto the switch — same airflow, but it draws from the B–C gap, which is
-50 mm and open on all four sides. Slots in plate C or D would be drawing from the
-same air.
-
-Putting the fan on top also gives the LAN9692 back the space it was eating:
-clearance from the board's tallest part to plate B goes from 13.5 mm to
-**24.5 mm**, and every fastener on plate B is now reached from above.
-
-```
-3 + 50 + 3 + 50 + 3 + 50 + 3 = 162 mm
-```
-
-Exactly 180 is **not reachable at 3 mm**: 12 mm of plate needs the gaps to sum to
-168 and standoffs come in 5 mm steps. The near misses are 177 (50 + 55 + 60) and
-182 (55 + 55 + 60). 162 keeps one standoff length for the whole column.
-
-### Plate A and sag
-
-3 mm on a 250 × 180 plate carried at four corners is thin for the plate holding
-the board. Day one, across the 250 mm span:
-
-| | 400 g board | |
-|---|---|---|
-| 3 mm | ≈ 1.0 mm | acrylic also creeps under a standing load |
-| 5 mm | ≈ 0.2 mm | |
-
-About a millimetre is liveable, and there is 13.5 mm of clearance under the fan
-to give away. If it does sag, **plate A alone can be re-cut in 5 mm with no
-hardware change at all** — nothing crosses plate A, it only takes a screw up into
-the first standoff. Plates B, C and D cannot: a stud passes through each of them.
-
-## Plates D and E are gone
-
-The two small sub-plates existed so a module could ride on its own carrier
-instead of bolting to plate B. Every board now bolts straight down, so the
-carriers and plate B's 35 × 45 deck pattern went with them — eight fewer holes in
-plate B and two fewer parts to order. `plate-d-upper-3T.dxf` is the new fourth
-tier and has nothing to do with the old sub-plate D.
 
 ## Plate B changed — revision 3
 
