@@ -59,6 +59,8 @@ FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on 
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
 RPI_STANDOFF = 8.0                     # M2.5 under the Raspberry Pi on plate C
 RPI_PARTS_H = 16.0                     # the USB stacks, from RP-008343-DS-1
+LCD_STANDOFF = 12.0                    # under the display, to clear its back pan
+LCD_THICK = 6.0                        # module thickness, RP-008246-DS-1
 
 # 20 mm under the injection modules only - their RJ45 and MATEnet jacks are
 # through-hole and want the room underneath. The TC397 and the T-ETH-Elite go
@@ -313,6 +315,14 @@ def build(upto='D'):
         add(cyl(3.0, Z_C, Z_C + MF_STUD, x, y, sections=16), METAL)
     JOINTS.append(('M/F stud through plate C', MF_STUD, T_C, H_CD))
     add(plate('D', Z_D, T_D), ACRYLIC)
+    # the 7-inch display, screen up, on standoffs that clear its own back pan
+    lx = P.LCD_AT[0] - P.LCD_LENS[0] / 2
+    ly = P.LCD_AT[1] - P.LCD_LENS[1] / 2
+    for hx, hy in P.LCD_HOLES:
+        add(cyl(5.5, Z_D + T_D, Z_D + T_D + LCD_STANDOFF, lx + hx, ly + hy), METAL)
+    zl = Z_D + T_D + LCD_STANDOFF
+    add(bx(lx, lx + P.LCD_LENS[0], ly, ly + P.LCD_LENS[1], zl, zl + LCD_THICK),
+        (0.10, 0.10, 0.12))
     # The top standoff's stud comes through plate D and takes a nut - the one
     # fastener in the column that is not a screw or a standoff.
     for x, y in corner_points():

@@ -2,15 +2,16 @@ supplier,group,item,spec,qty,part number,note
 laser shop,acrylic,Plate A - bottom,"clear acrylic 3 mm, 250 x 180",1,plate-a-bottom-3T.dxf,carries the LAN9692
 laser shop,acrylic,Plate B - middle,"clear acrylic 3 mm, 250 x 180",1,plate-b-middle-3T.dxf,"fan under, modules on top"
 laser shop,acrylic,Plate C - top,"clear acrylic 3 mm, 250 x 180",1,plate-c-top-3T.dxf,"guard, and the Raspberry Pi deck"
-laser shop,acrylic,Plate D - upper,"clear acrylic 3 mm, 250 x 180",1,plate-d-upper-3T.dxf,"fourth tier, for the CAN board or the 7-inch display. Column holes only - neither one's hole pattern is settled yet"
+laser shop,acrylic,Plate D - upper,"clear acrylic 3 mm, 250 x 180",1,plate-d-upper-3T.dxf,"fourth tier: the Raspberry Pi 7-inch Touch Display, centred. The CAN board's holes still have to be added when its dimensions turn up"
 RS Korea,hardware,Hex standoff F/F,"M3 x 10 mm, stainless",8,RS 224-0443 (checked: F/F),"LAN9692 on plate A. The board drill is Ø3.048, so an M3 screw is a very tight fit through it - try one by hand first, and use M2.5 here if it binds; the Ø3.4 acrylic hole takes either"
 RS Korea,hardware,Hex standoff M/F,"M3 x 50 mm, male stud 6 mm",12,"디바이스마트 PCB서포트 금속 F-50mm (already bought, 10 of them)","The whole column: 4 per gap, three gaps, all fitted male end UP. Each one's stud crosses the plate above it and threads 3 mm into the standoff beyond, so every plate needs only ONE hole per corner. This is why the plates are 3 mm - through 5 mm the same stud would leave 1 mm. 10 came in the parts order, so 2 more are needed"
 RS Korea,hardware,Nut,M3,4,RS 521-917 or plain,"on the four studs that come through plate D, the top of the stack"
 RS Korea,hardware,Hex standoff F/F,"M3 x 8 mm, brass",4,Wurth 970080324 / RS 184-2873,TC397 on plate B
 RS Korea,hardware,Hex standoff F/F,"M2.5 x 8 mm, brass",8,Wurth 970080144 / RS 205-2905,"4 for the T-ETH-Elite on plate B, 4 for the Raspberry Pi on plate C"
+RS Korea,hardware,Hex standoff M/F or F/F,M3 x 10-15 mm,4,-,"under the 7-inch display on plate D. The display's back pan is not flat - the DSI and power connectors and the Pi bosses stand off it - so it needs lifting clear, and the ribbon then has room to leave sideways"
 RS Korea,hardware,Hex standoff F/F,"M2.5 x 20 mm, brass",8,-,4 for each injection module. 20 mm and not 8 because their RJ45 and MATEnet jacks are through-hole and want the room underneath
 RS Korea,hardware,"Screw, pan head",M3 x 6 mm,12,RS 190-428,"LAN9692 down onto its 8 standoffs, TC397 down onto its 4"
-RS Korea,hardware,"Screw, pan head",M3 x 8 mm,16,RS 797-6193,"8 up through plate A into the LAN9692 standoffs, 4 up through plate A into the first column standoff, 4 up through plate B into the TC397 standoffs. At 3 mm of plate an M3 x 8 engages 5 mm everywhere, so the M3 x 10 line is gone"
+RS Korea,hardware,"Screw, pan head",M3 x 8 mm,20,RS 797-6193,"8 up through plate A into the LAN9692 standoffs, 4 up through plate A into the first column standoff, 4 up through plate B into the TC397 standoffs. At 3 mm of plate an M3 x 8 engages 5 mm everywhere, so the M3 x 10 line is gone"
 RS Korea,hardware,"Screw, pan head",M3 x 20 mm,4,-,"fan: down through the fan and plate B, nyloc nut underneath. The fan sits ON TOP of plate B now, so 10 mm fan + 3 mm plate + washer + a 4 mm nyloc is 17.5 mm. The M3 x 25 already bought also works, just 7.5 mm proud. The screws in the fan's own box are fatter and want Ø4.5 holes"
 RS Korea,hardware,"Screw, pan head",M2.5 x 6 mm,16,RS 528-716,"T-ETH-Elite, both injection modules and the Raspberry Pi, down onto their standoffs"
 RS Korea,hardware,"Screw, pan head",M2.5 x 8 mm,16,RS 797-6190,up through plate B and plate C into those standoffs

@@ -162,6 +162,28 @@ RPI_HOLE_D = 2.9
 # power/HDMI short edge to the left rim, clear of the corner column by 9.5 mm.
 RPI_AT = (66.0, 44.0)
 
+# --------------------------------------------------------------------------
+# Raspberry Pi 7-inch Touch Display on plate D, from RP-008246-DS-1.
+#
+# The drawing dimensions everything from the METAL BACK PAN, 166.2 x 100.6 mm,
+# not from the glass - which is why the pattern would not resolve against the
+# 192.96 x 110.76 lens outline until the page was read at 400 dpi. The pan sits
+# inside the lens at (11.89, 3.53).
+#
+# Four checks against the Raspberry Pi forum thread on this drawing, all exact:
+#   M3 from the pan top    14.95     M2.5 from the pan top   20.80
+#   M3 from the glass top  21.58     pan inset at the top     6.63
+#
+# 4 x M3.0 threaded in the pan, so the acrylic gets Ø3.4 clearance and the screw
+# goes UP from under plate D into the display.
+LCD_LENS = (192.96, 110.76)
+LCD_PAN = (166.2, 100.6)
+LCD_PAN_AT = (11.89, 3.53)        # pan origin inside the lens outline
+LCD_HOLES = [(LCD_PAN_AT[0] + hx, LCD_PAN_AT[1] + hy)
+             for hx in (20.0, 146.2) for hy in (20.0, 85.65)]
+LCD_HOLE_D = 3.4
+LCD_AT = (PW / 2, PH / 2)         # lens centred on plate D
+
 # Engraving. Empty: the KETI mark is not approved for use here, so nothing is
 # engraved and the ENGRAVE layer is not emitted at all - which also takes the
 # second operation, and its charge, off the order. The machinery stays because
@@ -426,15 +448,15 @@ def plate_upper():
     3 mm to thread into the F/F standoff below. That is the one place in this
     frame where M/F works: on the 5 mm plates it would leave 1 mm.
 
-    No vents. Plate D is not in the fan's intake path: the fan hangs under plate
-    B and draws from the B-C gap, which is open on all four sides, and the C-D
-    gap above it is another 50 mm open on all four sides. Slots in the top sheet
-    would add nothing, and it is the plate whose real cutting waits on the CAN
-    board anyway.
+    No vents - plate D is not in the fan's intake path. The fan sits on top of
+    plate B and draws from the B-C gap, which is open on all four sides.
     """
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
     corner_holes(d)
+    ox, oy = LCD_AT[0] - LCD_LENS[0] / 2, LCD_AT[1] - LCD_LENS[1] / 2
+    for hx, hy in LCD_HOLES:
+        d.circle(ox + hx, oy + hy, LCD_HOLE_D / 2)
     return d
 
 

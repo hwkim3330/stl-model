@@ -102,20 +102,30 @@ From `RP-008246-DS-1`, the official mechanical drawing:
 | Thickness | ≈ 5.96 mm plus the FPC tails |
 | Mounting | **two** patterns on the back: 4 × M2.5 and 4 × M3.0, at 58.0 × 49.0 and 126.2 × 65.85 |
 
-58.0 × 49.0 is the Pi 4's own pattern — now confirmed against `RP-008343-DS-1` —
-so that is where a Pi bolts to the display's back, on the M2.5 thread, and
-126.2 × 65.85 is the display's own M3 mounting.
+**Plate D is cut for it.** The datum took reading the drawing at 400 dpi to find:
+everything in that view is dimensioned from the **metal back pan, 166.2 × 100.6**,
+not from the glass, which is why the pattern would not resolve against the
+192.96 × 110.76 lens outline. The pan sits inside the lens at (11.89, 3.53).
 
-**No display holes are cut yet, and the reason is the datum, not the pitch.** The
-drawing gives 126.2 × 65.85 but its right-hand view dimensions (166.2, 164.9,
-11.89, 12.54, 20.0, 48.45) do not resolve against the 192.96 × 110.76 lens
-outline on the left-hand view — the two views are measuring different things, the
-lens and the metal frame. Where that rectangle sits inside the outline is what a
-plate needs, and guessing it scraps the plate.
+| from the pan's lower-left | x | y |
+|---|---|---|
+| 4 × M3.0 — the display's own mounting | 20.0, 146.2 | 20.0, 85.65 |
+| 4 × M2.5 — where a Pi bolts on | 48.45, 106.45 | 30.8, 79.8 |
 
-Two ways to settle it, both cheap: measure from one corner of the real display to
-two adjacent holes, or find the display's DXF/STEP. Plate D is four cuts — the
-cheapest plate here to re-cut once the number is known.
+Four independent checks against the Raspberry Pi forum thread on this drawing,
+all exact: M3 14.95 from the pan top, M2.5 20.80 from the pan top, M3 21.58 from
+the glass top, pan inset 6.63 at the top.
+
+So relative to the **lens outline** corner the M3 holes are at (31.89, 23.53),
+(158.09, 23.53), (31.89, 89.18), (158.09, 89.18). The lens is centred on plate D,
+which puts them at (60.41, 58.15), (186.61, 58.15), (60.41, 123.80) and
+(186.61, 123.80). Cut **Ø3.4** — the display's holes are threaded M3 in the pan,
+so the screw goes **up from under plate D** into the display.
+
+Mount it on **10–15 mm standoffs**, not flat: the back pan carries the DSI and
+power connectors and the Pi's own bosses, so it needs lifting clear, and the
+ribbon then has room to leave sideways. Plate D has 28 mm of margin each side of
+the lens for that.
 
 **No vents anywhere.** They were cut when the fan hung *under* plate B and drew
 down through the bore, which put plate C in the intake path. The fan now sits on
