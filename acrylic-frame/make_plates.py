@@ -748,11 +748,20 @@ def main():
     root = os.path.dirname(out)
     bom.write_csv(os.path.join(root, 'BOM.csv'))
     zpath = os.path.join(root, 'acrylic-frame-dxf.zip')
+    # A fixed timestamp on every member, so the zip is byte-for-byte reproducible.
+    # zipfile stamps the local mtime by default, which made this file differ on
+    # every single run - the tracked deliverable showed as modified after any
+    # regeneration, whether or not a single byte of DXF had changed.
+    stamp = (2026, 1, 1, 0, 0, 0)
     with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
-        for p in made:
-            z.write(p, os.path.join('acrylic-frame', os.path.basename(p)))
-        for extra in ('CUTTING.md', 'BOM.csv'):
-            z.write(os.path.join(root, extra), 'acrylic-frame/' + extra)
+        members = ([(p, 'acrylic-frame/' + os.path.basename(p)) for p in made]
+                   + [(os.path.join(root, e), 'acrylic-frame/' + e)
+                      for e in ('CUTTING.md', 'BOM.csv')])
+        for src, name in members:
+            info = zipfile.ZipInfo(name, date_time=stamp)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o644 << 16
+            z.writestr(info, open(src, 'rb').read())
     print(f"\n  {os.path.basename(zpath)}  ({os.path.getsize(zpath)} bytes)")
     print(f"  board centred at offset ({BOARD_OFF[0]:.2f}, {BOARD_OFF[1]:.2f})")
     print(f"  fan centre ({FAN_C[0]:.2f}, {FAN_C[1]:.2f}) = U1 + offset")
