@@ -157,9 +157,10 @@ VENT_SLOT = (8.0, 60.0)           # kept for reference; no plate cuts these now
 RPI_BOARD = (85.0, 56.0)
 RPI_HOLES = [(3.5, 3.5), (61.5, 3.5), (3.5, 52.5), (61.5, 52.5)]
 RPI_HOLE_D = 2.9
-# Front-left of plate C, USB/Ethernet long edge to the front rim and the
-# power/HDMI short edge to the left rim, clear of the corner column by 9.5 mm.
-RPI_AT = (66.0, 44.0)
+# On plate C under the display, so the DSI ribbon has the shortest possible run
+# up through plate D's cable slot. USB/Ethernet long edge still faces the front
+# rim; 28.5 mm clear of the corner column and 43.5 mm from the CAN board.
+RPI_AT = (85.0, 60.0)
 
 # --------------------------------------------------------------------------
 # Raspberry Pi 7-inch Touch Display on plate D, from RP-008246-DS-1.
@@ -173,11 +174,13 @@ RPI_AT = (66.0, 44.0)
 #   M3 from the pan top    14.95     M2.5 from the pan top   20.80
 #   M3 from the glass top  21.58     pan inset at the top     6.63
 #
-# NOT FITTED. The 7-inch module is 192.96 x 110.76 - it covers most of plate D
-# and dominates the whole rig, so it gets its own bought case instead. The
-# numbers stay because they cost a 400 dpi read of the drawing to establish and
-# four cross-checks to trust; LCD_ON = True puts the holes back.
-LCD_ON = False
+# FITTED, on plate D. The module is 192.96 x 110.76 and the plate is 250 x 180,
+# so it sits centred with 28.5 mm of rim each side and 34.6 front and back -
+# comfortable. What is tight is not the footprint but the RIBBON: the Pi is under
+# plate D on plate C and the display is on top of plate D, so the DSI cable has to
+# cross a solid sheet. Hence LCD_CABLE below, and hence the Pi and the CAN board
+# moved to open a lane for it.
+LCD_ON = True
 # 4 x M3.0 threaded in the pan, so the acrylic gets Ø3.4 clearance and the screw
 # goes UP from under plate D into the display.
 LCD_LENS = (192.96, 110.76)
@@ -187,6 +190,11 @@ LCD_HOLES = [(LCD_PAN_AT[0] + hx, LCD_PAN_AT[1] + hy)
              for hx in (20.0, 146.2) for hy in (20.0, 85.65)]
 LCD_HOLE_D = 3.4
 LCD_AT = (PW / 2, PH / 2)         # lens centred on plate D
+# Slot for the DSI ribbon and the display's power leads. Sized and placed to be
+# right whatever the exact connector positions are: it sits over the Pi, inside
+# the lens footprint so the ribbon surfaces into the 12 mm gap under the display
+# rather than outside it, and clear of the display's own four mount holes.
+LCD_CABLE = (105.0, 60.0, 60.0, 12.0)     # x, y, length, width
 # For the preview only, so the top tier reads as a screen instead of a slab.
 # From the left-hand view of the same drawing: 154.08 x 85.92 active area, inset
 # 19.04 from one long edge and 11.01 / 13.83 top and bottom. Nothing is cut from
@@ -212,7 +220,10 @@ LCD_ACTIVE_AT = (19.04, 13.83)    # within the lens outline
 CAN_BOARD = (70.0, 90.0)
 CAN_HOLES = [(3.5, 3.5), (66.5, 3.5), (3.5, 86.5), (66.5, 86.5)]
 CAN_HOLE_D = 3.4
-CAN_AT = (170.0, 100.0)           # right of the Pi on plate C, 26.5 mm clear
+CAN_AT = (206.0, 100.0)           # pushed to the right-hand side of plate C, to
+                                  # leave the middle clear for the Pi and the
+                                  # ribbon lane. 9 mm to the rim, 21 mm to the
+                                  # nearest corner column, 43.5 mm to the Pi.
 
 # Engraving. Empty: the KETI mark is not approved for use here, so nothing is
 # engraved and the ENGRAVE layer is not emitted at all - which also takes the
@@ -490,6 +501,8 @@ def plate_upper():
         ox, oy = LCD_AT[0] - LCD_LENS[0] / 2, LCD_AT[1] - LCD_LENS[1] / 2
         for hx, hy in LCD_HOLES:
             d.circle(ox + hx, oy + hy, LCD_HOLE_D / 2)
+        cx, cy, cl, cw = LCD_CABLE
+        d.slot(cx, cy, cl, cw, horizontal=True)
     return d
 
 

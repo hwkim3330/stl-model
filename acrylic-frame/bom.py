@@ -25,8 +25,8 @@ BOM = [
      'plate-c-top-3T.dxf', 'laser shop', 'Raspberry Pi and the KA7_UNO CAN board'),
     ('acrylic', 'Plate D - upper', 'clear acrylic 3 mm, 250 x 180', 1,
      'plate-d-upper-3T.dxf', 'laser shop',
-     'fourth tier, a plain guard over the Pi and the CAN board. The 7-inch '
-     'display is not fitted - it is 192.96 x 110.76 and gets a bought case'),
+     'fourth tier: the Raspberry Pi 7-inch Touch Display, centred, plus a '
+     'cable slot for its ribbon down to the Pi on plate C'),
 
     ('hardware', 'Hex standoff F/F', 'M3 x 10 mm, stainless', 8,
      'RS 224-0443 (checked: F/F)', 'RS Korea',
@@ -50,6 +50,10 @@ BOM = [
     ('hardware', 'Hex standoff F/F', 'M3 x 8 mm, brass', 4,
      'Wurth 970080324 / RS 184-2873', 'RS Korea',
      'KA7_UNO CAN board on plate C - its holes are Ø3.5, so M3 here'),
+    ('hardware', 'Hex standoff F/F', 'M3 x 12 mm', 4, '-', 'RS Korea',
+     "under the 7-inch display on plate D. Not flat: the display's back pan "
+     'carries its DSI and power connectors and the Pi mounting bosses, and the '
+     'ribbon needs the 12 mm to turn in after it comes up through the cable slot'),
     ('hardware', 'Hex standoff F/F', 'M2.5 x 20 mm, brass', 8,
      '-', 'RS Korea',
      '4 for each injection module. 20 mm and not 8 because their RJ45 and '
@@ -58,7 +62,7 @@ BOM = [
     ('hardware', 'Screw, pan head', 'M3 x 6 mm', 16, 'RS 190-428', 'RS Korea',
      'LAN9692 down onto its 8 standoffs, TC397 onto its 4, the CAN board onto '
      'its 4'),
-    ('hardware', 'Screw, pan head', 'M3 x 8 mm', 20, 'RS 797-6193', 'RS Korea',
+    ('hardware', 'Screw, pan head', 'M3 x 8 mm', 24, 'RS 797-6193', 'RS Korea',
      '8 up through plate A into the LAN9692 standoffs, 4 up through plate A '
      'into the first column standoff, 4 up through plate B into the TC397 '
      'standoffs. At 3 mm of plate an M3 x 8 engages 5 mm everywhere, so the '

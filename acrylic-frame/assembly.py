@@ -66,7 +66,8 @@ CAN_PARTS_H = 13.0                     # over the PCB. Its 206-component model i
                                        # every other board, because a board that
                                        # is ten times as detailed as its
                                        # neighbours just looks wrong
-LCD_STANDOFF = 12.0                    # under the display, to clear its back pan
+LCD_STANDOFF = 12.0                    # under the display: clears its back pan,
+                                       # and the ribbon turns in the same gap
 LCD_THICK = 6.0                        # module thickness, RP-008246-DS-1
 LCD_PAN_T = 2.0                        # back pan, for the preview
 SCREEN = (0.06, 0.10, 0.16)            # the active area, so it reads as a screen
@@ -342,6 +343,7 @@ def build(upto='D'):
     tag[0] = 'plate D'
     add(plate('D', Z_D, T_D), ACRYLIC)
     if P.LCD_ON:
+        tag[0] = '7-inch display'
         for m, c in display_on_plate_d(Z_D + T_D):
             add(m, c)
     JOINTS.append(('M/F stud through plate D, nut on top', MF_STUD, T_D, MF_STUD))

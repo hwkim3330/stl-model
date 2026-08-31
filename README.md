@@ -20,8 +20,8 @@ Raspberry Pi and the CAN board are on the third; the top plate is a plain guard.
 |---|---|---|---|
 | A bottom | 3 mm | 250 × 180 | LAN9692 on 8 standoffs |
 | B middle | 3 mm | 250 × 180 | fan under; TC397, T-ETH-Elite and two fault injection modules on top |
-| C top | 3 mm | 250 × 180 | Raspberry Pi 4B and the KA7_UNO CAN board |
-| D upper | 3 mm | 250 × 180 | plain guard over them |
+| C top | 3 mm | 250 × 180 | Raspberry Pi 4B under the display, KA7_UNO CAN beside it |
+| D upper | 3 mm | 250 × 180 | Raspberry Pi 7-inch Touch Display + a ribbon slot |
 
 Order it as **DXF**, never as STL — laser cutting wants 2D paths and a stated
 thickness, not a mesh. `acrylic-frame/dxf/combined-order.dxf` is the single file

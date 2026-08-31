@@ -69,9 +69,8 @@ Three standoffs per corner, four corners, twelve in all.
 
 ## The fourth tier, plate D
 
-Plate D is a **plain guard** over the Pi and the CAN board — four column holes and
-an outline, 4 cuts, the simplest plate in the set. The CAN board went to plate C
-and the 7-inch display is getting its own case.
+Plate D carries the **7-inch display** — four column holes, the display's four
+mount holes and the ribbon slot. The CAN board is on plate C, beside the Pi.
 
 ### Plate C carries the Raspberry Pi and the CAN board
 
@@ -82,7 +81,7 @@ From `RP-008343-DS-1`, the Pi 4 Model B official mechanical drawing:
 | Board | 85 × 56 mm, corner radius 3.0 |
 | Holes | 3.5 mm in from the left and top edges → **58.0 × 49.0 pitch** |
 | Cut as | Ø2.9 round, M2.5 |
-| Placed | centre (66, 44) — USB/Ethernet edge to the front rim, power/HDMI edge to the left, 9.5 mm clear of the corner column |
+| Placed | centre (85, 60) — under the display's ribbon slot, USB/Ethernet edge still to the front rim, 28.5 mm clear of the corner column |
 | Tallest part | **16.0 mm**, the USB stacks (RJ45 is 13.5, GPIO header 8.5) |
 
 On 8 mm standoffs the Pi tops out at 134.6 mm with **24.4 mm clear under plate
@@ -100,7 +99,7 @@ Out of its fabrication set, with two files agreeing:
 | Outline | **70.000 × 90.000 mm** — the `BOARD_OUTLINE` layer of `TOP.dxf` |
 | Holes | 4 × Ø3.5, 3.5 mm in from each edge → **63 × 83 pitch** — in `ThruHoleNonPlated.ncd` and again on `MOUNTING_HOLES_LAYER_TOP` |
 | Cut as | Ø3.4 round, M3 |
-| Placed | centre (170, 100) — right of the Pi, 26.5 mm between them, 37.4 mm to the nearest column |
+| Placed | centre (206, 100) — hard right, to leave the middle for the Pi and the ribbon lane. 9 mm to the rim, 21 mm to the nearest column, 43.5 mm to the Pi |
 
 Its other drilled holes — Ø3.25 at (49.535, 82.7) and (60.965, 82.7), Ø0.75 at
 y 13.75, Ø0.65 at x 64.21 — are connector and bracket features, **not** mounting
@@ -121,10 +120,29 @@ From `RP-008246-DS-1`, the official mechanical drawing:
 | Thickness | ≈ 5.96 mm plus the FPC tails |
 | Mounting | **two** patterns on the back: 4 × M2.5 and 4 × M3.0, at 58.0 × 49.0 and 126.2 × 65.85 |
 
-**Not fitted.** The module is 192.96 × 110.76 — it covers most of plate D and
-dominates the whole rig, so it gets a bought case of its own instead.
-`LCD_ON = True` in `make_plates.py` puts the four holes back; the numbers below
-stay because they cost a 400 dpi read and four cross-checks to establish.
+**Fitted, centred on plate D**, with 28.5 mm of rim each side and 34.6 front and
+back. The footprint was never the tight part — this is:
+
+> The Pi is **under** plate D on plate C, the display is **on top** of plate D, and
+> plate D is a solid sheet. The DSI ribbon has to cross it.
+
+So plate D also gets a **60 × 12 mm cable slot** at (105, 60), and the Pi and the
+CAN board moved to open a lane for it:
+
+| | |
+|---|---|
+| cable slot | x 75…135, y 54…66 — **over the Pi**, **inside the lens footprint**, 44.6 mm from the nearest display mount hole |
+| Raspberry Pi | centre (85, 60) on plate C, directly under the slot |
+| KA7_UNO CAN | pushed right to centre (206, 100) — 9 mm to the rim, 43.5 mm from the Pi |
+
+Inside the lens footprint is deliberate: the ribbon surfaces into the 12 mm gap
+between plate D and the display's back pan and turns there, rather than coming up
+outside the display and having to fold back under it. And 60 × 12 is generous on
+purpose — it is right wherever the Pi's DSI socket and the display's connectors
+actually sit, which is the one thing here no drawing pinned down.
+
+`LCD_ON = False` in `make_plates.py` takes the display, its holes and the slot
+back out in one line.
 
 The datum took reading the drawing at 400 dpi to find:
 everything in that view is dimensioned from the **metal back pan, 166.2 × 100.6**,
@@ -146,8 +164,9 @@ which puts them at (60.41, 58.15), (186.61, 58.15), (60.41, 123.80) and
 (186.61, 123.80). Cut **Ø3.4** — the display's holes are threaded M3 in the pan,
 so the screw goes **up from under plate D** into the display.
 
-If it is ever fitted, mount it on **10–15 mm standoffs**, not flat: the back pan
-carries the DSI and power connectors and the Pi's own bosses.
+Mount it on the **12 mm standoffs** in the BOM, not flat: the back pan carries the
+DSI and power connectors and the Pi's own bosses, and that gap is where the
+ribbon turns.
 
 **No vents anywhere.** They were cut when the fan hung *under* plate B and drew
 down through the bore, which put plate C in the intake path. The fan now sits on

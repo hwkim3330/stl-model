@@ -176,6 +176,8 @@ def expected_features():
         ly = M.LCD_AT[1] - M.LCD_LENS[1] / 2
         for hx, hy in M.LCD_HOLES:
             exp[D].append(('circle', lx + hx, ly + hy, M.LCD_HOLE_D, 0))
+        cx, cy, cl, cw = M.LCD_CABLE
+        exp[D].append(('slot', cx, cy, cl, cw))
     return exp
 
 
