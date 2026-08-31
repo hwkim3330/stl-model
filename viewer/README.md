@@ -1,13 +1,18 @@
 # Offline viewer
 
 ```bash
-python3 make_viewer.py     # -> index.html
-xdg-open index.html        # or just double-click it
+python3 make_viewer.py           # -> ../docs/index.html
+xdg-open ../docs/index.html      # or just double-click it
 ```
 
+Served at **<https://hwkim3330.github.io/stl-model/>** — `docs/` is what GitHub
+Pages publishes, so the page is a file in this repository, versioned alongside the
+models it shows and not dependent on anything outside it.
+
 **One file, no server, no network.** Geometry and renderer are both inlined, so it
-opens on a machine that has never seen the internet — and it will still open in
-five years, when whatever CDN a Three.js page pointed at has moved.
+also opens straight off disk on a machine that has never seen the internet — and
+it will still open in five years, when whatever CDN a Three.js page pointed at has
+moved.
 
 | | |
 |---|---|

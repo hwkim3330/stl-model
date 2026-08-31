@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Build a single self-contained HTML viewer for the models in this repo.
 
-    python3 make_viewer.py        # -> index.html, then just open it
+    python3 make_viewer.py        # -> ../docs/index.html
+
+Output lands in docs/ because that is what GitHub Pages serves, so the page is
+just a file in this repository - versioned with the models it shows, and not
+dependent on anything outside it.
 
 One file, no server, no network. Everything is inlined: the geometry as
 base64 and the renderer as about a hundred lines of WebGL2. Nothing is fetched,
@@ -495,10 +499,11 @@ load(Object.keys(MODELS)[0]);
 
 if __name__ == '__main__':
     data = models()
-    out = os.path.join(HERE, 'index.html')
+    out = os.path.join(HERE, '..', 'docs', 'index.html')
+    os.makedirs(os.path.dirname(out), exist_ok=True)
     open(out, 'w').write(HTML.replace('__DATA__', json.dumps(data)))
     kb = os.path.getsize(out) / 1024
-    print(f"wrote {os.path.basename(out)}  ({kb:.0f} kB, self-contained)")
+    print(f"wrote docs/index.html  ({kb:.0f} kB, self-contained)")
     for k, m in data.items():
         print(f"  {k:9s} {m['faces']:7d} faces  "
               f"{m['span'][0]:6.1f} x {m['span'][1]:6.1f} x {m['span'][2]:6.1f} mm  "
