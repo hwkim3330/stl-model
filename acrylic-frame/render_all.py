@@ -192,11 +192,16 @@ def project(mesh, elev, azim, pts):
 
 
 def labelled(elev, azim, out, explode=False):
-    """Render, then hang a name off each part's own visible pixels.
+    """Render, then number the parts and put a key beside the picture.
 
-    The names come from build() itself - assembly.NAMES, one per part - so
-    nothing here reconstructs build()'s ordering, which is the mistake that put
-    "plate B" over plate C's surface.
+    Third attempt at this, and the first one whose shape is right. Names in edge
+    columns meant twelve leader lines crossing each other. Names next to their
+    own dots read locally but sat on top of the geometry they were pointing at -
+    the thing you opened the picture to look at. Numbered callouts with a key off
+    to the side is what an assembly drawing does: nothing crosses, nothing covers
+    the model, and it does not get worse as parts are added.
+
+    Numbers run in build() order, which is bottom of the stack upward.
     """
     parts, cols = A.build()
     names = list(A.NAMES)
@@ -211,58 +216,60 @@ def labelled(elev, azim, out, explode=False):
     gid = np.concatenate([np.full(len(p.faces),
                                   order.index(n) if n in order else -1, np.int32)
                           for p, n in zip(parts, names)])
-    groups = [(n, None) for n in order]
     mesh, fc = scene(parts, cols)
     im = render(mesh, elev, azim, face_colors=fc).convert('RGB')
     ids = visible_ids(mesh, gid, elev, azim)
 
-    d = ImageDraw.Draw(im)
+    KEY = 300
+    sheet = Image.new('RGB', (W + KEY, H), (255, 255, 255))
+    sheet.paste(im, (0, 0))
+    d = ImageDraw.Draw(sheet)
     try:
-        f = ImageFont.truetype(FONT, 21)
+        f = ImageFont.truetype(FONT, 19)
+        fnum = ImageFont.truetype(FONT, 15)
     except OSError:
-        f = ImageFont.load_default()
+        f = fnum = ImageFont.load_default()
 
-    anchors = []
-    for g, (name, _) in enumerate(groups):
-        ys, xs = np.nonzero(ids == g)
-        if len(xs) < 60:                      # hidden, or a sliver - no label
+    R = 13
+    shown = []
+    for i, name in enumerate(order, 1):
+        ys, xs = np.nonzero(ids == i - 1)
+        if len(xs) < 60:                    # hidden behind something: no callout
             continue
-        anchors.append([name, float(np.median(xs)), float(np.median(ys)), len(xs)])
+        # the visible centroid can fall in a gap for an L-shaped sliver, so take
+        # the densest row of that part's pixels and sit on it
+        row = int(np.median(ys))
+        near = xs[np.abs(ys - row) < 6]
+        cx, cy = float(np.median(near)), float(row)
+        shown.append((i, name, cx, cy))
 
-    # Put each name NEXT TO its own dot with a short leader, not out in an edge
-    # column. Edge columns were technically correct and unreadable: with twelve
-    # labels on a spread-out object the leaders crossed each other, so telling
-    # which name belonged to which dot took tracing a line across the picture.
-    boxes = []
-    for r in sorted(anchors, key=lambda r: -r[3]):      # biggest part placed first
-        name, ax, ay = r[0], r[1], r[2]
-        tw = d.textlength(name, font=f)
-        out_left = ax < W / 2
-        best = None
-        for ddx, ddy in ((0, -34), (0, 30), (0, -58), (0, 54), (0, -82), (0, 78),
-                         (0, -106), (0, 102)):
-            lx = ax - tw - 26 if out_left else ax + 26
-            ly = ay + ddy
-            if lx < 4 or lx + tw + 12 > W - 4 or ly < 16 or ly > H - 16:
-                continue
-            box = (lx - 6, ly - 14, lx + tw + 6, ly + 12)
-            if any(box[0] < o[2] and box[2] > o[0]
-                   and box[1] < o[3] and box[3] > o[1] for o in boxes):
-                continue
-            best = (lx, ly, box)
-            break
-        if best is None:
-            continue
-        lx, ly, box = best
-        boxes.append(box)
-        d.line([(ax, ay), (lx + (tw + 10 if out_left else -10), ly)],
-               fill=(120, 128, 140), width=2)
-        d.ellipse([ax - 4, ay - 4, ax + 4, ay + 4], fill=(230, 90, 70))
-        d.rectangle(box, fill=(255, 255, 255), outline=(200, 205, 212))
-        d.text((lx, ly - 12), name, font=f, fill=(30, 34, 40))
-    im.save(out)
-    print(f"  {os.path.relpath(out, HERE)}  ({len(anchors)} of {len(groups)} "
-          f"parts visible enough to label)")
+    for i, name, cx, cy in shown:
+        d.ellipse([cx - R, cy - R, cx + R, cy + R],
+                  fill=(232, 96, 72), outline=(255, 255, 255), width=2)
+        d.text((cx, cy), str(i), font=fnum, fill=(255, 255, 255), anchor='mm')
+
+    d.line([(W, 0), (W, H)], fill=(214, 219, 226), width=1)
+    y = 34
+    d.text((W + 26, y), 'PARTS', font=fnum, fill=(120, 128, 140))
+    y += 34
+    for i, name, _, _ in shown:
+        d.ellipse([W + 26 - R, y - R, W + 26 + R, y + R],
+                  fill=(232, 96, 72), outline=(255, 255, 255), width=2)
+        d.text((W + 26, y), str(i), font=fnum, fill=(255, 255, 255), anchor='mm')
+        d.text((W + 26 + R + 12, y), name, font=f, fill=(30, 34, 40), anchor='lm')
+        y += 33
+    missing = [n for j, n in enumerate(order, 1)
+               if j not in [s[0] for s in shown]]
+    if missing:
+        y += 10
+        d.text((W + 26, y), 'hidden in this view:', font=fnum,
+               fill=(140, 148, 158), anchor='lm')
+        for n in missing:
+            y += 26
+            d.text((W + 26, y), n, font=fnum, fill=(140, 148, 158), anchor='lm')
+    sheet.save(out)
+    print(f"  {os.path.relpath(out, HERE)}  ({len(shown)} of {len(order)} parts "
+          f"numbered)")
 
 
 def hole_check():
