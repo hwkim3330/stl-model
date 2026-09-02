@@ -34,6 +34,21 @@ import sys
 
 CLUSTER_GAP = 0.9
 PAD_LAYERS = {'PART_PADS_SMD_TOP', 'PART_PADS_LAYER_TOP', 'PART_HOLES_LAYER_TOP'}
+# A cluster containing a THROUGH-HOLE pad is a through-hole part, which on this
+# board means a connector, a terminal block or a header. That one bit sorts them
+# far better than size and edge-proximity did: on the first pass only 2 of 206
+# clusters came out as connectors, while the silkscreen names CAN0, CAN1, LIN0,
+# LIN1, both T1S pairs, POWER IN and two NodeID selectors.
+# Only the HOLES layer. PART_PADS_LAYER_TOP is pads, not holes - including it
+# made 78 of 206 clusters look through-hole, which is most of the board.
+TH_LAYERS = {'PART_HOLES_LAYER_TOP'}
+# Through-hole pads get their own, wider clustering gap. A 2.54 mm header pitch
+# with 1.5 mm pads leaves 1.04 mm between pins, and terminal-block rows sit
+# 5.08 mm apart - so at the SMD gap of 0.9 every pin came out as its own
+# "component", 78 of them. 4.5 gathers both a header's pins and a screw
+# terminal's two rows into one body, and the next-nearest through-hole part on
+# this board is far enough away not to be swept in with them.
+TH_GAP = 4.5
 MOUNT_D = 3.5
 
 
@@ -87,23 +102,31 @@ def parse(path):
     return ents
 
 
-def boxes(ents, layers):
+def boxes(ents, layers, mark=None):
+    """Pad bounding boxes. With `mark`, each carries a flag: is it on one of
+    those layers - i.e. is it a through-hole pad rather than an SMD one."""
     out = []
     for k, b in ents:
-        if b.get('8', [''])[0] not in layers:
+        lay = b.get('8', [''])[0]
+        if lay not in layers:
             continue
         if k == 'CIRCLE':
             x, y, r = float(b['10'][0]), float(b['20'][0]), float(b['40'][0])
-            out.append((x - r, x + r, y - r, y + r))
+            bb = (x - r, x + r, y - r, y + r)
         elif k == 'LWPOLYLINE':
             xs = [float(v) for v in b.get('10', [])]
             ys = [float(v) for v in b.get('20', [])]
-            if xs and ys:
-                out.append((min(xs), max(xs), min(ys), max(ys)))
+            if not (xs and ys):
+                continue
+            bb = (min(xs), max(xs), min(ys), max(ys))
+        else:
+            continue
+        out.append(bb + ((lay in mark,) if mark else ()))
     return out
 
 
 def cluster(pads, gap):
+    """-> (x0, x1, y0, y1, pad count, any pad through-hole) per component."""
     parent = list(range(len(pads)))
 
     def find(a):
@@ -124,20 +147,25 @@ def cluster(pads, gap):
     for i in range(len(pads)):
         groups.setdefault(find(i), []).append(pads[i])
     return [(min(p[0] for p in g), max(p[1] for p in g),
-             min(p[2] for p in g), max(p[3] for p in g), len(g))
+             min(p[2] for p in g), max(p[3] for p in g), len(g),
+             any(len(p) > 4 and p[4] for p in g))
             for g in groups.values()]
 
 
-def classify(x0, x1, y0, y1, npads, bw, bh):
+def classify(x0, x1, y0, y1, npads, th, bw, bh):
     """Height above the PCB. GUESSED - there is no height data in a Gerber set.
 
-    An edge part with real area is a connector and gets 11 mm; everything else is
-    scaled off its own footprint, which is what separates an 0402 from a QFN.
+    `th` - does the cluster contain a through-hole pad - does most of the work.
+    A through-hole part on this board is a connector, a terminal block or a
+    header, and those are the tall things. Size then separates the three.
     """
     w, h, area = x1 - x0, y1 - y0, (x1 - x0) * (y1 - y0)
-    edge = min(x0, y0, bw - x1, bh - y1) < 3.0
-    if edge and area > 15.0:
-        return 11.0, 'connector'
+    if th:
+        if area >= 60.0:
+            return 11.0, 'connector'          # RJ45-class, terminal blocks
+        if max(w, h) > 3 * max(min(w, h), 0.1):
+            return 8.5, 'header'              # a pin row
+        return 6.0, 'header'
     if area >= 40.0:
         return 3.0, 'large'
     if npads >= 8:
@@ -183,13 +211,18 @@ def main(top, bot=None):
             if (x1 - x0) ** 2 + (y1 - y0) ** 2 > 0.04:      # skip 0.2 mm stubs
                 silk.append([round(x0, 3), round(y0, 3), round(x1, 3), round(y1, 3)])
 
+    # two passes, because the two kinds of pad want different gaps
+    th_pads = [b for b in boxes(e, PAD_LAYERS, mark=TH_LAYERS) if b[4]]
+    smd_pads = [b for b in boxes(e, PAD_LAYERS, mark=TH_LAYERS) if not b[4]]
+    clusters = cluster(th_pads, TH_GAP) + cluster(smd_pads, CLUSTER_GAP)
+
     comps = []
-    for x0, x1, y0, y1, n in sorted(cluster(boxes(e, PAD_LAYERS), CLUSTER_GAP),
-                                    key=lambda c: -(c[1] - c[0]) * (c[3] - c[2])):
-        z, kind = classify(x0, x1, y0, y1, n, bw, bh)
+    for x0, x1, y0, y1, n, th in sorted(clusters,
+                                        key=lambda c: -(c[1] - c[0]) * (c[3] - c[2])):
+        z, kind = classify(x0, x1, y0, y1, n, th, bw, bh)
         comps.append(dict(x=round((x0 + x1) / 2, 3), y=round((y0 + y1) / 2, 3),
                           w=round(x1 - x0, 3), h=round(y1 - y0, 3),
-                          pads=n, z=z, kind=kind))
+                          pads=n, th=th, z=z, kind=kind))
 
     data = dict(
         name='KETI KA7_UNO REV1',

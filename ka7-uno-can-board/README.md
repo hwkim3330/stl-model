@@ -34,7 +34,7 @@ are along the **top edge**. That is why the board sits where it does on plate C.
 | 4 × Ø3.5 mount holes, 3.5 mm in from each edge | `ThruHoleNonPlated.ncd` **and** `MOUNTING_HOLES_LAYER_TOP` — two files agreeing | exact |
 | 928 pads | `PART_PADS_SMD_TOP`, `PART_PADS_LAYER_TOP`, `PART_HOLES_LAYER_TOP` | exact |
 | 1436 silkscreen segments | `SILKSCREEN_OUTLINES_TOP` | exact |
-| 206 component positions | clustered from the pads | positions exact |
+| 219 component positions | clustered from the pads | positions exact |
 | 77 silkscreen labels | the `TEXT` entities | exact |
 | Component **heights** | — | **guessed** |
 
@@ -52,12 +52,29 @@ measured 73.8 × 93.7 instead of 70 × 90.
 
 There is no pick-and-place file in the Gerber set and no height data anywhere in
 a Gerber set, so a component is recovered as a cluster of pads and its height is
-inferred from its own footprint: an edge part with real area is a connector at
-11 mm, otherwise 0.6–3.0 mm by area and pad count. `extract_ka7.py` documents the
-thresholds. 0.9 mm is the clustering gap — 0.5 splits an 0402's two pads into two
-"components", 1.3 starts fusing neighbouring ICs.
+inferred. What does most of that work is one bit: **does the cluster contain a
+through-hole pad**. A through-hole part on this board is a connector, a terminal
+block or a header, and those are the tall things — SMD passives and ICs have no
+holes at all. Everything else falls back to area and pad count, which is what
+separates an 0402 from a QFN.
 
-The tallest part therefore comes out at **12.6 mm** over the plate, and
+Judging by size and edge-proximity instead, as the first version did, found
+**2 connectors out of 206** while the silkscreen was naming CAN0, CAN1, LIN0,
+LIN1, both T1S pairs, POWER IN and two NodeID selectors. They came out 1.2 mm
+tall and the same colour as the ICs, and vanished into the board.
+
+The two kinds of pad also want different clustering gaps:
+
+| | gap | why |
+|---|---|---|
+| SMD | 0.9 mm | 0.5 splits an 0402's two pads into two "components"; 1.3 starts fusing neighbouring ICs |
+| through-hole | 4.5 mm | a 2.54 mm header pitch with 1.5 mm pads leaves 1.04 mm between pins, and a screw terminal's two rows sit 5.08 mm apart. At 0.9 every single pin was its own component — 78 of them |
+
+That yields **13 through-hole parts**, and they line up with the silkscreen: the
+38.8 × 14.1 mm T1S terminal bank across the top, the CAN and LIN terminal blocks
+down the left edge, the CAN termination jumper block, and the NodeID selectors.
+
+The tallest part therefore comes out at **12.7 mm** over the plate, and
 `../acrylic-frame/assembly.py` checks that against plate D rather than assuming
 it: there is 24.4 mm of room, so the guess would have to be out by nearly double
 to matter.
@@ -70,7 +87,7 @@ python3 ka7_mock.py              # -> ka7_uno_rev1.stl + four renders (JSON only
 ```
 
 `build(detail=False)` drops the copper and the silkscreen and leaves the slab and
-the component bodies — 38,748 faces down to about 2,900. That is what a preview
+the component bodies — 38,904 faces down to about 3,000. That is what a preview
 of the whole frame wants, where a board at ten times the fidelity of its
 neighbours reads as a mistake rather than as detail.
 

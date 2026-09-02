@@ -37,8 +37,14 @@ SILK_W = 0.16
 SOLDERMASK = (0.055, 0.30, 0.16)
 COPPER = (0.83, 0.68, 0.32)
 SILK = (0.94, 0.95, 0.94)
-BODY = {'connector': (0.11, 0.12, 0.14), 'large': (0.14, 0.15, 0.17),
-        'ic': (0.09, 0.09, 0.10), 'small': (0.24, 0.25, 0.28),
+# Connectors and headers get their own hues rather than another near-black,
+# because on the first pass they were the same colour as the ICs and the same
+# height as the passives, and disappeared into the board.
+BODY = {'connector': (0.16, 0.20, 0.30),      # terminal blocks, the T1S bank
+        'header': (0.42, 0.40, 0.20),         # pin rows and jumper blocks
+        'large': (0.14, 0.15, 0.17),
+        'ic': (0.07, 0.07, 0.08),
+        'small': (0.24, 0.25, 0.28),
         'passive': (0.34, 0.31, 0.28)}
 
 BOARD = tuple(DATA['board'])
