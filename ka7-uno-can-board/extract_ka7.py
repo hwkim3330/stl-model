@@ -10,12 +10,17 @@ here uses, so the model builds with no vendor files present.
 What comes out is exact where the DXF is exact and stated as a guess where it is
 not:
 
-  outline        BOARD_OUTLINE layer            exact
-  mount holes    MOUNTING_HOLES_LAYER_TOP       exact, the Ø3.5 ones
-  labels         the silkscreen TEXT entities   exact - and they turn out to be
-                 function names (CAN0, LIN1, ETH0, POWER IN) rather than
+  outline        BOARD_OUTLINE, vertices and bulges   exact - and it is NOT a
+                 plain rectangle: there is a 0.75 x 5.6 mm notch in the right
+                 edge with two 90 degree rounded corners
+  holes          every drilled hole, by diameter      exact
+  pads           PART_PADS_* and PART_HOLES_*         exact
+  silkscreen     SILKSCREEN_OUTLINES_TOP segments     exact
+  labels         the silkscreen TEXT entities         exact - and they turn out
+                 to be function names (CAN0, LIN1, ETH0, POWER IN) rather than
                  reference designators, which is more use for reading the board
-  components     clustered from the pads        positions exact, HEIGHTS GUESSED
+  components     clustered from the pads              positions exact,
+                                                      HEIGHTS GUESSED
 
 There is no pick-and-place file in the Gerber set, so a component is recovered as
 a cluster of pads: every pad and hole on the top side, joined where two of them
@@ -30,6 +35,40 @@ import sys
 CLUSTER_GAP = 0.9
 PAD_LAYERS = {'PART_PADS_SMD_TOP', 'PART_PADS_LAYER_TOP', 'PART_HOLES_LAYER_TOP'}
 MOUNT_D = 3.5
+
+
+def polylines(path, layer):
+    """LWPOLYLINEs on a layer, as [(x, y, bulge), ...] per polyline.
+
+    Bulge is a per-vertex group 42 that applies to the segment leaving that
+    vertex, so it has to be read positionally - a flat findall loses which
+    vertex owns which bulge, and the board outline has exactly two of them.
+    """
+    t = [l.strip() for l in open(path, errors='ignore')]
+    out, i = [], 0
+    while i < len(t) - 1:
+        if t[i] == '0' and t[i + 1] == 'LWPOLYLINE':
+            j, pairs = i + 2, []
+            while j < len(t) - 1 and t[j] != '0':
+                pairs.append((t[j], t[j + 1]))
+                j += 2
+            lay = [v for k, v in pairs if k == '8']
+            if lay and lay[0] == layer:
+                verts, cur = [], None
+                for k, v in pairs:
+                    if k == '10':
+                        cur = [float(v), 0.0, 0.0]
+                        verts.append(cur)
+                    elif k == '20' and cur:
+                        cur[1] = float(v)
+                    elif k == '42' and cur:
+                        cur[2] = float(v)
+                if verts:
+                    out.append([tuple(v) for v in verts])
+            i = j
+        else:
+            i += 1
+    return out
 
 
 def parse(path):
@@ -124,6 +163,26 @@ def main(top, bot=None):
                      for k, b in e if k == 'TEXT' and '1' in b),
                     key=lambda t: (-t[2], t[1]))
 
+    # every drilled hole, and the pads and silkscreen that make it look like a
+    # board rather than a slab
+    holes = []
+    for k, b in e:
+        if k != 'CIRCLE':
+            continue
+        lay = b.get('8', [''])[0]
+        if not (lay.startswith('MOUNTING_HOLES') or lay.startswith('PART_HOLES')):
+            continue
+        holes.append([round(float(b['10'][0]), 3), round(float(b['20'][0]), 3),
+                      round(float(b['40'][0]) * 2, 3)])
+    holes = [list(h) for h in sorted({tuple(h) for h in holes})]
+
+    pads = [[round(v, 3) for v in bb] for bb in boxes(e, PAD_LAYERS)]
+    silk = []
+    for pl in polylines(top, 'SILKSCREEN_OUTLINES_TOP'):
+        for (x0, y0, _), (x1, y1, _) in zip(pl, pl[1:]):
+            if (x1 - x0) ** 2 + (y1 - y0) ** 2 > 0.04:      # skip 0.2 mm stubs
+                silk.append([round(x0, 3), round(y0, 3), round(x1, 3), round(y1, 3)])
+
     comps = []
     for x0, x1, y0, y1, n in sorted(cluster(boxes(e, PAD_LAYERS), CLUSTER_GAP),
                                     key=lambda c: -(c[1] - c[0]) * (c[3] - c[2])):
@@ -134,6 +193,11 @@ def main(top, bot=None):
 
     data = dict(
         name='KETI KA7_UNO REV1',
+        outline=[[round(v, 4) for v in p] for p in
+                 polylines(top, 'BOARD_OUTLINE')[0]],
+        holes=holes,
+        pads=pads,
+        silk=silk,
         source='260827_KA7_UNO_REV1_{GBR,DXF}.zip, fabrication set',
         board=[round(bw, 3), round(bh, 3)],
         mount_holes=[list(m) for m in mounts],
@@ -147,6 +211,10 @@ def main(top, bot=None):
     json.dump(data, open(out, 'w'), indent=1)
     print(f"wrote {os.path.basename(out)}")
     print(f"  board {bw:.3f} x {bh:.3f} mm, {len(mounts)} Ø{MOUNT_D} mount holes")
+    print(f"  outline {len(data['outline'])} vertices, "
+          f"{sum(1 for v in data['outline'] if v[2])} of them arcs")
+    print(f"  {len(holes)} drilled holes, {len(pads)} pads, "
+          f"{len(silk)} silkscreen segments")
     print(f"  {len(comps)} components clustered at {CLUSTER_GAP} mm, "
           f"{len(labels)} silkscreen labels")
     import collections

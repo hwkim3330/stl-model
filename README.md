@@ -59,9 +59,12 @@ GitHub will also render any STL here in 3D if you click it, e.g.
 ## Board models
 
 [`ka7-uno-can-board/`](ka7-uno-can-board/) is not an enclosure — it is the KETI
-KA7_UNO REV1 CAN board rebuilt from its own fabrication set, so the acrylic frame
-can show the real board and take its hole pattern from fab data. Six layers,
-70 × 90 mm, 2 × CAN FD, 2 × 10BASE-T1S, Ethernet and 2 × LIN.
+KA7_UNO REV1 CAN board rebuilt from its own fabrication set: the real outline
+(notch and arcs included), all 88 drilled holes cut through, 928 pads, 1436
+silkscreen segments and 206 components. Six layers, 70 × 90 mm, 2 × CAN FD,
+2 × 10BASE-T1S, Ethernet and 2 × LIN.
+
+![KA7_UNO](ka7-uno-can-board/ka7_uno_rev1_iso.png)
 
 The ESP32-S31 case is **for a different board than the one on this bench** — it
 was drawn before the ESP32 board was identified as the LilyGo T-ETH-Elite. The
