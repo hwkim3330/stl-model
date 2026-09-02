@@ -9,6 +9,8 @@ data rather than a ruler.
 
 ![top](ka7_uno_rev1_top.png)
 
+![bottom](ka7_uno_rev1_bottom.png)
+
 ## What the board is
 
 Six layers, **70.000 × 90.000 mm**, dated 2026-08-27 on its own silkscreen. From
@@ -32,11 +34,23 @@ are along the **top edge**. That is why the board sits where it does on plate C.
 | Outline, **10 vertices including 2 arcs** | `BOARD_OUTLINE`, bulges read positionally | exact |
 | 88 drilled holes, cut through at their real Ø | every `CIRCLE` on the hole layers | exact |
 | 4 × Ø3.5 mount holes, 3.5 mm in from each edge | `ThruHoleNonPlated.ncd` **and** `MOUNTING_HOLES_LAYER_TOP` — two files agreeing | exact |
-| 928 pads | `PART_PADS_SMD_TOP`, `PART_PADS_LAYER_TOP`, `PART_HOLES_LAYER_TOP` | exact |
-| 1436 silkscreen segments | `SILKSCREEN_OUTLINES_TOP` | exact |
-| 219 component positions | clustered from the pads | positions exact |
+| 928 pads on top, **824 underneath** | the `PART_PADS_*` and `PART_HOLES_*` layers of both sheets | exact |
+| 1436 silkscreen segments on top, **593 underneath** | `SILKSCREEN_OUTLINES_TOP` and `_BTM` | exact |
+| 219 components on top, **138 underneath** | clustered from the pads | positions exact |
 | 77 silkscreen labels | the `TEXT` entities | exact |
 | Component **heights** | — | **guessed** |
+
+**It is populated on both sides**, 824 pads and 138 components down there against
+928 and 219 up here, so the model carries both. A board with a bare green back is
+an incomplete model whichever face you happen to be looking at. Through-hole parts
+are counted once, on top: their pads appear on both faces but the body sits on
+one.
+
+**Which face is which** is settled by the fab set rather than assumed. The
+through-hole coordinates in `TOP.dxf` and `BOT.dxf` are **identical**, not
+mirrored about x = 35, so both sheets are drawn in the same frame — as seen from
+the top — and `L1-COMP` is the component side. The silkscreen `TEXT` entities
+carry no group-71 mirror flag either.
 
 **It is not a rectangle.** The outline carries a 0.75 × 5.6 mm notch in the right
 edge at y 11.0…16.6, with a 90° rounded corner at each end of it. A DXF bulge is
@@ -74,7 +88,8 @@ That yields **13 through-hole parts**, and they line up with the silkscreen: the
 38.8 × 14.1 mm T1S terminal bank across the top, the CAN and LIN terminal blocks
 down the left edge, the CAN termination jumper block, and the NodeID selectors.
 
-The tallest part therefore comes out at **12.7 mm** over the plate, and
+The tallest part therefore comes out at **12.7 mm** over the board, with 3.0 mm
+hanging below it, and
 `../acrylic-frame/assembly.py` checks that against plate D rather than assuming
 it: there is 24.4 mm of room, so the guess would have to be out by nearly double
 to matter.
@@ -87,7 +102,7 @@ python3 ka7_mock.py              # -> ka7_uno_rev1.stl + four renders (JSON only
 ```
 
 `build(detail=False)` drops the copper and the silkscreen and leaves the slab and
-the component bodies — 38,904 faces down to about 3,000. That is what a preview
+the component bodies — 57,564 faces down to about 4,500. That is what a preview
 of the whole frame wants, where a board at ten times the fidelity of its
 neighbours reads as a mistake rather than as detail.
 

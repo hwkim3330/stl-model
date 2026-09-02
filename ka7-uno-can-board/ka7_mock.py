@@ -9,9 +9,11 @@ Everything geometric here is the board's own fabrication data:
                 rectangle, there is a 0.75 x 5.6 mm notch in the right edge with
                 two 90 degree rounded corners
   holes         all 88 drilled holes, cut through the slab at their real Ø
-  pads          928 of them, laid on the copper faces
-  silkscreen    1436 segments, on the top face
-  components    206, positions exact
+  pads          928 on top, 824 underneath
+  silkscreen    1436 segments on top, 593 underneath
+  components    219 on top, 138 underneath - the board is populated on BOTH
+                sides, and a model with a bare green back is an incomplete one
+                whichever face you happen to be looking at
 
 The only guessed number is component HEIGHT, because no PCB format carries it -
 see extract_ka7.py for how each one is inferred and from what.
@@ -151,6 +153,36 @@ def build(z0=0.0, colors=False, detail=True):
             parts.append(trimesh.util.concatenate(group))
             cols.append(BODY[kind])
 
+    under = DATA.get('bottom')
+    if under:
+        # Through-hole parts were dropped from the bottom set at extraction: their
+        # pads show on both faces but the body sits on one, and it is already up
+        # there. Everything here hangs below the slab.
+        if detail:
+            poly = poly if detail else outline_polygon()
+            pads = [bx(x0, x1, y0, y1, z0 - PAD_T, z0)
+                    for x0, x1, y0, y1 in under['pads']
+                    if poly.contains(geometry.Point((x0 + x1) / 2, (y0 + y1) / 2))]
+            if pads:
+                parts.append(trimesh.util.concatenate(pads))
+                cols.append(COPPER)
+            silk = [bar(x0, y0, x1, y1, SILK_W, z0 - PAD_T - SILK_T, z0 - PAD_T)
+                    for x0, y0, x1, y1 in under['silk']
+                    if poly.contains(geometry.Point(x0, y0))
+                    and poly.contains(geometry.Point(x1, y1))]
+            if silk:
+                parts.append(trimesh.util.concatenate(silk))
+                cols.append(SILK)
+        base = z0 - PAD_T
+        for kind in BODY:
+            group = [bx(c['x'] - c['w'] / 2, c['x'] + c['w'] / 2,
+                        c['y'] - c['h'] / 2, c['y'] + c['h'] / 2,
+                        base - c['z'], base)
+                     for c in under['components'] if c['kind'] == kind]
+            if group:
+                parts.append(trimesh.util.concatenate(group))
+                cols.append(BODY[kind])
+
     if not colors:
         return trimesh.util.concatenate(parts)
     return parts, cols
@@ -158,6 +190,12 @@ def build(z0=0.0, colors=False, detail=True):
 
 def top(z0=0.0):
     return z0 + PCB_T + PAD_T + max(c['z'] for c in DATA['components'])
+
+
+def under(z0=0.0):
+    """How far the bottom-side parts hang below the PCB."""
+    b = DATA.get('bottom')
+    return PAD_T + max((c['z'] for c in b['components']), default=0.0) if b else 0.0
 
 
 if __name__ == '__main__':
@@ -174,15 +212,18 @@ if __name__ == '__main__':
     print(f"  outline {len(DATA['outline'])} vertices "
           f"({sum(1 for v in DATA['outline'] if v[2])} arcs), "
           f"{len(DATA['holes'])} holes cut through")
-    print(f"  {len(DATA['pads'])} pads, {len(DATA['silk'])} silkscreen segments, "
+    b = DATA.get('bottom') or {'pads': [], 'silk': [], 'components': []}
+    print(f"  top    {len(DATA['pads'])} pads, {len(DATA['silk'])} silk, "
           f"{len(DATA['components'])} components")
-    print(f"  tallest part {top():.1f} mm over the plate it sits on")
+    print(f"  bottom {len(b['pads'])} pads, {len(b['silk'])} silk, "
+          f"{len(b['components'])} components")
+    print(f"  {top():.1f} mm above the board, {under():.1f} mm below it")
 
     parts, cols = build(colors=True)
     fc = np.vstack([np.tile(c, (len(p.faces), 1)) for p, c in zip(parts, cols)])
     mesh = trimesh.util.concatenate(parts)
     for name, elev, azim in (('iso', 34, -40), ('top', 89, 0),
-                             ('front', 8, 0), ('detail', 22, -70)):
+                             ('bottom', -89, 0), ('front', 8, 0)):
         f = os.path.join(HERE, f'ka7_uno_rev1_{name}.png')
         render(mesh, elev, azim, face_colors=fc).save(f)
         print(f"  {os.path.basename(f)}")

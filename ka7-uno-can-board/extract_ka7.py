@@ -175,6 +175,28 @@ def classify(x0, x1, y0, y1, npads, th, bw, bh):
     return 1.0, 'small'
 
 
+def side(path, pad_layers, hole_pref, silk_layer, bw, bh, gap, th_gap):
+    """Pads, silkscreen and clustered components for one face of the board."""
+    e = parse(path)
+    pads = [[round(v, 3) for v in bb] for bb in boxes(e, pad_layers)]
+    silk = []
+    for pl in polylines(path, silk_layer):
+        for (x0, y0, _), (x1, y1, _) in zip(pl, pl[1:]):
+            if (x1 - x0) ** 2 + (y1 - y0) ** 2 > 0.04:
+                silk.append([round(x0, 3), round(y0, 3), round(x1, 3), round(y1, 3)])
+    marked = boxes(e, pad_layers, mark={l for l in pad_layers if 'HOLES' in l})
+    clusters = (cluster([b for b in marked if b[4]], th_gap)
+                + cluster([b for b in marked if not b[4]], gap))
+    comps = []
+    for x0, x1, y0, y1, n, th in sorted(clusters,
+                                        key=lambda c: -(c[1] - c[0]) * (c[3] - c[2])):
+        z, kind = classify(x0, x1, y0, y1, n, th, bw, bh)
+        comps.append(dict(x=round((x0 + x1) / 2, 3), y=round((y0 + y1) / 2, 3),
+                          w=round(x1 - x0, 3), h=round(y1 - y0, 3),
+                          pads=n, th=th, z=z, kind=kind))
+    return pads, silk, comps
+
+
 def main(top, bot=None):
     e = parse(top)
     poly = [(k, b) for k, b in e if b.get('8', [''])[0] == 'BOARD_OUTLINE']
@@ -224,8 +246,24 @@ def main(top, bot=None):
                           w=round(x1 - x0, 3), h=round(y1 - y0, 3),
                           pads=n, th=th, z=z, kind=kind))
 
+    bottom = None
+    if bot and os.path.exists(bot):
+        # The board is populated on BOTH sides - 662 SMD pads down there against
+        # 708 up here - and a model with a bare green underside is simply an
+        # incomplete model, whichever face you happen to be looking at.
+        bp, bs, bc = side(bot, {'PART_PADS_SMD_BTM', 'PART_PADS_LAYER_BOTTOM',
+                                'PART_HOLES_LAYER_BOTTOM'},
+                          'PART_HOLES_LAYER_BOTTOM', 'SILKSCREEN_OUTLINES_BTM',
+                          bw, bh, CLUSTER_GAP, TH_GAP)
+        # a through-hole part belongs to the side its body sits on, and its pads
+        # appear on both - so drop the bottom's through-hole clusters, which are
+        # the same connectors already counted on top
+        bc = [c for c in bc if not c['th']]
+        bottom = dict(pads=bp, silk=bs, components=bc)
+
     data = dict(
         name='KETI KA7_UNO REV1',
+        bottom=bottom,
         outline=[[round(v, 4) for v in p] for p in
                  polylines(top, 'BOARD_OUTLINE')[0]],
         holes=holes,
@@ -248,6 +286,10 @@ def main(top, bot=None):
           f"{sum(1 for v in data['outline'] if v[2])} of them arcs")
     print(f"  {len(holes)} drilled holes, {len(pads)} pads, "
           f"{len(silk)} silkscreen segments")
+    if bottom:
+        print(f"  bottom side: {len(bottom['pads'])} pads, "
+              f"{len(bottom['silk'])} silkscreen segments, "
+              f"{len(bottom['components'])} components")
     print(f"  {len(comps)} components clustered at {CLUSTER_GAP} mm, "
           f"{len(labels)} silkscreen labels")
     import collections
