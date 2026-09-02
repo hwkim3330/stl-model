@@ -101,6 +101,17 @@ Out of its fabrication set, with two files agreeing:
 | Cut as | Ø3.4 round, M3 |
 | Placed | centre (180, 95) — right of the Pi, 37.5 mm between them, 35 mm to the rim, 33.4 mm to the nearest column |
 
+**Fit it with the terminal edge to the RIGHT rim.** Its CAN, LIN and POWER
+terminals are all on one long edge and the T1S bank on one short edge, and fitted
+the other way round those terminals point straight at the Raspberry Pi, 37.5 mm
+away, instead of out of the frame. Turned as described, the terminals have 35 mm
+to the right rim and the T1S bank 50 mm to the front.
+
+The plate does not care: **the mount pattern is symmetric under a 180° turn** —
+(3.5, 3.5) (3.5, 86.5) (66.5, 3.5) (66.5, 86.5) maps onto itself — so the board
+bolts down either way and only one of them is right. That is exactly why it is
+written here rather than left to the holes to enforce.
+
 Its other drilled holes — Ø3.25 at (49.535, 82.7) and (60.965, 82.7), Ø0.75 at
 y 13.75, Ø0.65 at x 64.21 — are connector and bracket features, **not** mounting
 points. No acrylic is cut for them.
