@@ -57,9 +57,7 @@ TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
 FIM_STANDOFF = 20.0                    # M2.5 under either injection module
 FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on it
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
-RPI_STANDOFF = 8.0                     # M2.5 under the Raspberry Pi on plate C
-RPI_PARTS_H = 16.0                     # the USB stacks, from RP-008343-DS-1
-CAN_STANDOFF = 8.0                     # M3 under the KA7_UNO CAN board
+CAN_STANDOFF = 8.0                     # M3 under each KA7_UNO CAN board
 CAN_PARTS_H = 13.0                     # over the PCB. Its 206-component model in
                                        # ../ka7-uno-can-board/ tops out at 12.6;
                                        # the frame preview draws one block like
@@ -321,12 +319,10 @@ def build(upto='D'):
 
     tag[0] = 'plate C'
     add(plate('C', Z_C, T_C), ACRYLIC)
-    tag[0] = 'Raspberry Pi 4B'
-    for m, c in pi_on_plate_c(Z_C + T_C):
-        add(m, c)
-    tag[0] = 'KA7_UNO CAN'
-    for m, c in can_on_plate_c(Z_C + T_C):
-        add(m, c)
+    for i, (cx, cy, rot) in enumerate(P.CAN_AT, 1):
+        tag[0] = f'KA7_UNO CAN #{i}'
+        for m, c in can_on_plate_c(Z_C + T_C, cx, cy):
+            add(m, c)
     if upto == 'C':
         for x, y in corner_points():
             add(cyl(3.0, Z_C, Z_C + MF_STUD, x, y, sections=16), METAL)
@@ -446,31 +442,16 @@ def modules(z_top, named=False):
     return out
 
 
-def pi_on_plate_c(z_top):
-    """The Raspberry Pi 4B, on its own standoffs on plate C."""
-    out = []
-    bw, bh = P.RPI_BOARD
-    bx0, by0 = P.RPI_AT[0] - bw / 2, P.RPI_AT[1] - bh / 2
-    for hx, hy in P.RPI_HOLES:
-        out.append((cyl(5.0, z_top, z_top + RPI_STANDOFF,
-                        bx0 + hx, by0 + hy), METAL))
-    z = z_top + RPI_STANDOFF
-    out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
-    out.append((bx(bx0 + 3, bx0 + bw - 3, by0 + 3, by0 + bh - 3,
-                   z + 1.6, z + 1.6 + RPI_PARTS_H), (0.13, 0.14, 0.16)))
-    return out
-
-
-def can_on_plate_c(z_top):
-    """The KETI KA7_UNO CAN board, beside the Pi on plate C.
+def can_on_plate_c(z_top, cx, cy):
+    """One KETI KA7_UNO CAN board on plate C, centred at (cx, cy).
 
     Outline and holes are its own fab data; the parts are one block, same as
     every other board on the frame. ../ka7-uno-can-board/ has the detailed
-    206-component model if you want to look at the board itself.
+    two-sided model if you want to look at the board itself.
     """
     out = []
     bw, bh = P.CAN_BOARD
-    bx0, by0 = P.CAN_AT[0] - bw / 2, P.CAN_AT[1] - bh / 2
+    bx0, by0 = cx - bw / 2, cy - bh / 2
     for hx, hy in P.CAN_HOLES:
         out.append((cyl(5.5, z_top, z_top + CAN_STANDOFF,
                         bx0 + hx, by0 + hy), METAL))
@@ -500,9 +481,10 @@ def display_on_plate_d(z_top):
     return out
 
 
-def pi_top(z_top):
+def plate_c_top(z_top):
     return max(float(m.bounds[1][2])
-               for m, _ in pi_on_plate_c(z_top) + can_on_plate_c(z_top))
+               for cx, cy, _ in P.CAN_AT
+               for m, _ in can_on_plate_c(z_top, cx, cy))
 
 
 def module_top(z_top):
@@ -571,7 +553,7 @@ def checks():
     print(f"  tallest module top {e_top:6.1f}   clearance to plate C "
           f"{Z_C - e_top:5.1f} mm   (layout '{P.LAYOUT}')")
     print(f"  plate C            {Z_C:6.1f} .. {Z_C + T_C:6.1f}")
-    p_top = pi_top(Z_C + T_C)
+    p_top = plate_c_top(Z_C + T_C)
     print(f"  plate C boards top {p_top:6.1f}   clearance to plate D "
           f"{Z_D - p_top:5.1f} mm")
     if Z_D - p_top < 3:

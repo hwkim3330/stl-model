@@ -91,7 +91,7 @@ down the left edge, the CAN termination jumper block, and the NodeID selectors.
 The tallest part therefore comes out at **12.7 mm** over the board, with 3.0 mm
 hanging below it, and
 `../acrylic-frame/assembly.py` checks that against plate D rather than assuming
-it: there is 24.4 mm of room, so the guess would have to be out by nearly double
+it: there is 27.4 mm of room, so the guess would have to be out by more than double
 to matter.
 
 ## Files

@@ -57,8 +57,8 @@ nothing else in the design changes.
 |---|---|---|---|
 | A — bottom | 3 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
 | B — middle | 3 mm clear acrylic | 250 × 180 mm | 40 mm fan and four boards, all on top |
-| C — top | 3 mm clear | 250 × 180 mm | Raspberry Pi 4B and the KA7_UNO CAN board |
-| D — upper | 3 mm clear | 250 × 180 mm | Raspberry Pi 7-inch Touch Display, centred |
+| C — top | 3 mm clear | 250 × 180 mm | two KA7_UNO CAN boards, side by side |
+| D — upper | 3 mm clear | 250 × 180 mm | plain guard over them |
 
 All four boards bolt **straight to plate B**, cut with each board's own pattern:
 the TC397's four holes, the T-ETH-Elite's four asymmetric ones, and four each for
@@ -85,7 +85,7 @@ Stack = 3 + 50 + 3 + 50 + 3 + 50 + 3 = **162 mm**.
 |---|---|
 | A | LAN9692 EVB on 8 × M3 standoffs |
 | B | 40 mm fan on top over the bore; TC397, T-ETH-Elite, and the RJ45 and MATEnet fault injection modules |
-| C | Raspberry Pi 4B, and the KETI KA7_UNO CAN board |
+| C | two KETI KA7_UNO CAN boards, terminals facing out to either rim |
 | D | plain guard |
 
 Plate B was solved as a whole rather than filled in board by board, so every board
@@ -137,8 +137,8 @@ photo:
   standard 40 mm fan.
 * **Plate B** — each board's own mount pattern, round: the TC397, the
   T-ETH-Elite and both fault injection modules.
-* **Plate C** — the Raspberry Pi 4B at 58 × 49, and the KA7_UNO CAN board at
-  63 × 83.
+* **Plate C** — two KA7_UNO CAN boards at 63 × 83 each, fitted mirror-image so
+  both boards' terminals face out to a rim.
 * **Plate D** — four column holes and nothing else.
 
 ## Fan power

@@ -13,14 +13,14 @@ Nothing in that build is 3D printed.
 
 Four clear acrylic plates, all 250 × 180 × 3 mm, on M/F standoffs. The LAN9692
 lies on the bottom plate; a 40 mm fan sits on **top** of the middle plate and
-blows down through a bore onto the switch die, with four boards beside it; the
-Raspberry Pi and the CAN board are on the third; the top plate is a plain guard.
+blows down through a bore onto the switch die, with four boards beside it; two
+CAN boards sit on the third; the top plate is a plain guard.
 
 | Plate | Thickness | Size | Carries |
 |---|---|---|---|
 | A bottom | 3 mm | 250 × 180 | LAN9692 on 8 standoffs |
 | B middle | 3 mm | 250 × 180 | fan under; TC397, T-ETH-Elite and two fault injection modules on top |
-| C top | 3 mm | 250 × 180 | Raspberry Pi 4B and the KA7_UNO CAN board |
+| C top | 3 mm | 250 × 180 | two KA7_UNO CAN boards |
 | D upper | 3 mm | 250 × 180 | plain guard over them |
 
 Order it as **DXF**, never as STL — laser cutting wants 2D paths and a stated

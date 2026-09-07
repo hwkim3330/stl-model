@@ -150,18 +150,6 @@ def orient(board, holes, rot):
 VENT_SLOT = (8.0, 60.0)           # kept for reference; no plate cuts these now
 
 # --------------------------------------------------------------------------
-# Raspberry Pi 4 / 5 on plate C. 85 x 56 board, four Ø2.7 holes 3.5 mm in from
-# each edge, so a 58.0 x 49.0 pitch - the same 58.0 x 49.0 that appears on the
-# Raspberry Pi 7-inch display's own mechanical drawing for the Pi it carries.
-# Opened to Ø2.9 for M2.5, like the other Ø2.5-class boards here.
-RPI_BOARD = (85.0, 56.0)
-RPI_HOLES = [(3.5, 3.5), (61.5, 3.5), (3.5, 52.5), (61.5, 52.5)]
-RPI_HOLE_D = 2.9
-# Front-left of plate C with room around it, now that nothing has to line up with
-# a ribbon slot. USB/Ethernet long edge to the front rim.
-RPI_AT = (65.0, 55.0)
-
-# --------------------------------------------------------------------------
 # Raspberry Pi 7-inch Touch Display on plate D, from RP-008246-DS-1.
 #
 # The drawing dimensions everything from the METAL BACK PAN, 166.2 x 100.6 mm,
@@ -233,9 +221,17 @@ LCD_ACTIVE_AT = (19.04, 13.83)    # within the lens outline
 CAN_BOARD = (70.0, 90.0)
 CAN_HOLES = [(3.5, 3.5), (66.5, 3.5), (3.5, 86.5), (66.5, 86.5)]
 CAN_HOLE_D = 3.4
-CAN_AT = (180.0, 95.0)            # right of the Pi on plate C, 37.5 mm between
-                                  # them, 35 mm to the rim, 21 mm to the nearest
-                                  # corner column.
+# TWO of them on plate C, side by side, and nothing else up there. Centred on the
+# plate: 40 mm to each side rim, 45 mm front and back, 30 mm between the boards.
+#
+# The third value is which way round to FIT the board, and only that - the mount
+# pattern is symmetric under a 180 degree turn, so the four holes are identical
+# either way and the plate cannot enforce it. Its CAN, LIN and POWER terminals
+# all sit on one long edge: rot 0 puts that edge to the left rim, rot 180 to the
+# right rim, so both boards' terminals face OUT and nothing points at the other
+# board. The T1S bank on the short edge then faces the back on one and the
+# front on the other.
+CAN_AT = [(75.0, 90.0, 0), (175.0, 90.0, 180)]
 
 # Engraving. Empty: the KETI mark is not approved for use here, so nothing is
 # engraved and the ENGRAVE layer is not emitted at all - which also takes the
@@ -519,7 +515,7 @@ def plate_upper():
 
 
 def plate_top():
-    """3 mm. Guard, and the Raspberry Pi deck.
+    """3 mm. Two KA7_UNO CAN boards, side by side.
 
     No vents any more. They were cut when the fan hung UNDER plate B and drew
     down through the bore, so plate C sat in the intake path. The fan now sits on
@@ -529,12 +525,10 @@ def plate_top():
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
     corner_holes(d)
-    ox, oy = RPI_AT[0] - RPI_BOARD[0] / 2, RPI_AT[1] - RPI_BOARD[1] / 2
-    for hx, hy in RPI_HOLES:
-        d.circle(ox + hx, oy + hy, RPI_HOLE_D / 2)
-    cx, cy = CAN_AT[0] - CAN_BOARD[0] / 2, CAN_AT[1] - CAN_BOARD[1] / 2
-    for hx, hy in CAN_HOLES:
-        d.circle(cx + hx, cy + hy, CAN_HOLE_D / 2)
+    for cx, cy, _rot in CAN_AT:          # rotation changes nothing here - see CAN_AT
+        ox, oy = cx - CAN_BOARD[0] / 2, cy - CAN_BOARD[1] / 2
+        for hx, hy in CAN_HOLES:
+            d.circle(ox + hx, oy + hy, CAN_HOLE_D / 2)
     for x, y, h, txt in ENGRAVE:
         d.stroke_text(x, y, h, txt)
     return d

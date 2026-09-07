@@ -65,7 +65,7 @@ def models():
                         facts=[['plates', '4 x 250 x 180 x 3 mm clear'],
                                ['stack', '3+50+3+50+3+50+3 = 162 mm'],
                                ['column', '12 x M/F standoff, 4 corners'],
-                               ['boards', '6'],
+                               ['boards', '7'],
                                ['thinnest web', '3.36 mm']])
 
     ex = A.exploded(list(zip(parts, cols)))
@@ -73,7 +73,7 @@ def models():
                            **pack([p for p, _ in ex], [c for _, c in ex]),
                            facts=[['plate A', 'LAN9692 EVB'],
                                   ['plate B', 'fan, TC397, T-ETH-Elite, 2 x injection'],
-                                  ['plate C', 'Raspberry Pi 4B, KA7_UNO CAN'],
+                                  ['plate C', '2 x KA7_UNO CAN'],
                                   ['plate D', 'guard']])
 
     import ka7_mock

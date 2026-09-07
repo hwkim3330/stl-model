@@ -69,60 +69,46 @@ Three standoffs per corner, four corners, twelve in all.
 
 ## The fourth tier, plate D
 
-Plate D is a **plain guard** over the Pi and the CAN board — four column holes and
-an outline, 4 cuts, the simplest plate in the set.
+Plate D is a **plain guard** over the two CAN boards — four column holes and an
+outline, 4 cuts, the simplest plate in the set.
 
-### Plate C carries the Raspberry Pi and the CAN board
+### Plate C carries two KA7_UNO CAN boards
 
-From `RP-008343-DS-1`, the Pi 4 Model B official mechanical drawing:
-
-| | |
-|---|---|
-| Board | 85 × 56 mm, corner radius 3.0 |
-| Holes | 3.5 mm in from the left and top edges → **58.0 × 49.0 pitch** |
-| Cut as | Ø2.9 round, M2.5 |
-| Placed | centre (65, 55) — front-left with room around it, USB/Ethernet edge to the front rim, 15.5 mm clear of the corner column |
-| Tallest part | **16.0 mm**, the USB stacks (RJ45 is 13.5, GPIO header 8.5) |
-
-On 8 mm standoffs the Pi tops out at 134.6 mm with **24.4 mm clear under plate
-D** — room for the display's ribbon to turn.
-
-The same 58.0 × 49.0 appears on the 7-inch display's own drawing, for the Pi it
-carries, so the two sources agree.
-
-**KETI KA7_UNO REV1**, the CAN board — TCAN1044V and TJA1410A transceivers with
-LAN8671C (10BASE-T1S), LAN8830 and LAN8870 automotive Ethernet PHYs, six layers.
-Out of its fabrication set, with two files agreeing:
+**KETI KA7_UNO REV1** — TCAN1044V and TJA1410A transceivers with LAN8671C
+(10BASE-T1S), LAN8830 and LAN8870 automotive Ethernet PHYs, six layers. Out of its
+fabrication set, with two files agreeing:
 
 | | |
 |---|---|
 | Outline | **70.000 × 90.000 mm** — the `BOARD_OUTLINE` layer of `TOP.dxf` |
 | Holes | 4 × Ø3.5, 3.5 mm in from each edge → **63 × 83 pitch** — in `ThruHoleNonPlated.ncd` and again on `MOUNTING_HOLES_LAYER_TOP` |
-| Cut as | Ø3.4 round, M3 |
-| Placed | centre (180, 95) — right of the Pi, 37.5 mm between them, 35 mm to the rim, 33.4 mm to the nearest column |
+| Cut as | Ø3.4 round, M3, **two patterns** |
+| Placed | centres (75, 90) and (175, 90) — 40 mm to each side rim, 45 mm front and back, **30 mm between the boards**, 26.6 mm to the nearest column |
 
-**Fit it with the terminal edge to the RIGHT rim.** Its CAN, LIN and POWER
-terminals are all on one long edge and the T1S bank on one short edge, and fitted
-the other way round those terminals point straight at the Raspberry Pi, 37.5 mm
-away, instead of out of the frame. Turned as described, the terminals have 35 mm
-to the right rim and the T1S bank 50 mm to the front.
+**Fit them mirror-image: left board terminals to the LEFT rim, right board
+terminals to the RIGHT rim.** Each board's CAN, LIN and POWER terminals sit on one
+long edge and its T1S bank on one short edge. Fitted that way both boards'
+terminals face out of the frame with 40 mm of rim in front of them, the two T1S
+banks face the back on one and the front on the other, and the edges that face
+each other across the 30 mm gap carry only the NodeID jumpers.
 
 The plate does not care: **the mount pattern is symmetric under a 180° turn** —
-(3.5, 3.5) (3.5, 86.5) (66.5, 3.5) (66.5, 86.5) maps onto itself — so the board
-bolts down either way and only one of them is right. That is exactly why it is
-written here rather than left to the holes to enforce.
+(3.5, 3.5) (3.5, 86.5) (66.5, 3.5) (66.5, 86.5) maps onto itself — so either board
+bolts down either way and the holes cannot catch it the wrong way round. That is
+exactly why it is written here rather than left to the plate to enforce.
 
-Its other drilled holes — Ø3.25 at (49.535, 82.7) and (60.965, 82.7), Ø0.75 at
+Their other drilled holes — Ø3.25 at (49.535, 82.7) and (60.965, 82.7), Ø0.75 at
 y 13.75, Ø0.65 at x 64.21 — are connector and bracket features, **not** mounting
 points. No acrylic is cut for them.
 
-Its component heights are not in the fabrication set, so the 3D model assumes
-15 mm. There is 24.4 mm of clearance under plate D, so it would take a 24 mm
+Component heights are not in the fabrication set, so the 3D model assumes 13 mm;
+the detailed model in [`../ka7-uno-can-board/`](../ka7-uno-can-board/) tops out at
+12.7. There is **27.4 mm** of clearance under plate D, so it would take a 27 mm
 connector to be a problem.
 
 ### The 7-inch display, and where it can actually go
 
-**Not fitted.** It was on plate D above the Pi, and the DSI ribbon then had to
+**Not fitted.** It was on plate D above a Raspberry Pi, and the DSI ribbon then had to
 cross a solid sheet — which is not something to design around, so it came out.
 `LCD_ON = True` in `make_plates.py` puts it back on plate D with a ribbon slot if
 that turns out to be acceptable after all.
@@ -131,7 +117,7 @@ The arithmetic for the alternatives, so it does not have to be redone:
 
 | where | verdict |
 |---|---|
-| flat on plate C beside the Pi and the CAN board | **no.** The lens is 192.96 of the plate's 250 mm width, leaving 57.04 mm — the CAN board is 70 wide. The bands above and below a centred lens are 34.62 mm; the Pi is 56 deep. |
+| flat on plate C beside the CAN boards | **no.** The lens is 192.96 of the plate's 250 mm width, leaving 57.04 mm — the CAN board is 70 wide. The bands above and below a centred lens are 34.62 mm; the Pi is 56 deep. |
 | flat on plate C, **overhanging the back** | up to **13 mm**, no further. Its far M3 hole row is 89.18 mm up the lens, so past a **21.58 mm** overhang that row leaves the plate and the panel hangs on two screws. 13 mm keeps 8 mm of acrylic round it, and leaves a 70 mm band in front for the Pi plus a CAN board turned 90° — which fits, just. |
 | standing at a plate edge, in its case | costs about **15 mm** of plate depth instead of 97, and is how a 7-inch screen on a bench actually gets read. Needs the **case's** bracket dimensions, which are not in the panel drawing. |
 
