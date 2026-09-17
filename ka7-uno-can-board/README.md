@@ -121,8 +121,10 @@ face, so mounted this way the FPGA points **down, away from the carrier**, with
 nothing over it. That is the only open face in the whole stack, and it is where
 any cooling has to go.
 
-It is also why the frame's plate C now uses **M3 × 20** standoffs. At the 8 mm
-it used to have, the FPGA package sat 0.78 mm off the acrylic.
+It is also why the frame's plate C now uses **M3 × 10** standoffs. At the 8 mm
+it used to have, the FPGA package sat 0.78 mm off the acrylic; 10 mm leaves
+2.78 mm. A stick-on heatsink wants 20 mm, and `assembly.py` prints which of the
+two the current build has.
 
 ## The printed case
 

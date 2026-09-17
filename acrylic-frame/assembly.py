@@ -57,12 +57,16 @@ TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
 FIM_STANDOFF = 20.0                    # M2.5 under either injection module
 FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on it
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
-CAN_STANDOFF = 20.0                    # M3 under each KA7_UNO CAN board. It was
+CAN_STANDOFF = 10.0                    # M3 under each KA7_UNO CAN board. It was
                                        # 8 until the carrier's Gerber was read
                                        # properly: the four 80-pin board-to-board
                                        # strips are on its SOLDER side, so the
-                                       # ALINX AC7200 SoM hangs UNDERNEATH it and
-                                       # 8 mm left 0.78 mm to the acrylic
+                                       # ALINX AC7200 SoM hangs UNDERNEATH it,
+                                       # and 8 mm left 0.78 mm to the acrylic.
+                                       # 10 gives 2.78 mm, which is clearance but
+                                       # not heatsink room - 20 is what a
+                                       # stick-on sink wants, and the printout
+                                       # below says which you have
 CAN_SOM = (45.0, 55.0)                 # the SoM itself
 CAN_SOM_DROP = 3.0 + 1.6 + 2.62        # mated height + SoM PCB + FGG484 package,
                                        # from the AXK580137YG datasheet and the
@@ -568,9 +572,12 @@ def checks():
     som = Z_C + T_C + CAN_STANDOFF - CAN_SOM_DROP
     print(f"  AC7200 SoM face    {som:6.1f}   clearance to plate C "
           f"{som - (Z_C + T_C):5.1f} mm   (it hangs under the carrier)")
-    if som - (Z_C + T_C) < 8:
+    if som - (Z_C + T_C) < 1.0:
         ok = False
-        print("  !! raise CAN_STANDOFF - no room for a heatsink under the FPGA")
+        print("  !! raise CAN_STANDOFF - the FPGA package is on the acrylic")
+    elif som - (Z_C + T_C) < 8.0:
+        print("     clearance only, no room for a heatsink - 20 mm standoffs "
+              "would give 12.8")
     p_top = plate_c_top(Z_C + T_C)
     print(f"  plate C boards top {p_top:6.1f}   clearance to plate D "
           f"{Z_D - p_top:5.1f} mm")

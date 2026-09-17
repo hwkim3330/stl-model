@@ -20,7 +20,7 @@ CAN boards sit on the third; the top plate is a plain guard.
 |---|---|---|---|
 | A bottom | 3 mm | 250 × 180 | LAN9692 on 8 standoffs |
 | B middle | 3 mm | 250 × 180 | fan under; TC397, T-ETH-Elite and two fault injection modules on top |
-| C top | 3 mm | 250 × 180 | two KA7_UNO CAN boards, on M3 × 20 standoffs |
+| C top | 3 mm | 250 × 180 | two KA7_UNO CAN boards, on M3 × 10 standoffs |
 | D upper | 3 mm | 250 × 180 | plain guard over them |
 
 Order it as **DXF**, never as STL — laser cutting wants 2D paths and a stated
@@ -77,7 +77,7 @@ four 80-pin board-to-board strips are on the **solder** side, so it is a
 **carrier** and the ALINX AC7200 Artix-7 module plugs in **underneath**, hanging
 7.22 mm down with the FPGA facing away from the board. That is what the printed
 case in that folder is built around, and why plate C's standoffs went from 8 mm
-to 20 mm.
+to 10 mm.
 
 The ESP32-S31 case is **for a different board than the one on this bench** — it
 was drawn before the ESP32 board was identified as the LilyGo T-ETH-Elite. The

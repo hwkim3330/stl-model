@@ -47,15 +47,16 @@ BOM = [
      'Wurth 970080324 / RS 184-2873', 'RS Korea', 'TC397 on plate B'),
     ('hardware', 'Hex standoff F/F', 'M2.5 x 8 mm, brass', 4,
      'Wurth 970080144 / RS 205-2905', 'RS Korea', 'T-ETH-Elite on plate B'),
-    ('hardware', 'Hex standoff F/F', 'M3 x 20 mm, brass', 8,
+    ('hardware', 'Hex standoff M/F', 'M3 x 10 mm, male stud 6 mm', 8,
      '-', 'RS Korea',
      'the two KA7_UNO CAN boards on plate C - their holes are Ø3.5, so M3. '
-     '20 mm and not 8: the carrier carries its four 80-pin board-to-board '
+     '10 mm and not 8: the carrier carries its four 80-pin board-to-board '
      'strips on its SOLDER side, so the ALINX AC7200 FPGA module plugs in '
      'underneath and hangs 7.22 mm down (3.0 mated + 1.6 module PCB + 2.62 '
-     'FGG484 package) with the FPGA facing the acrylic. On 8 mm standoffs that '
-     'face sat 0.78 mm off plate C; on 20 mm there is 12.8 mm, which is also '
-     'the room a stick-on heatsink wants'),
+     'FGG484 package) with the FPGA facing the acrylic. 8 mm left 0.78 mm, '
+     '10 mm leaves 2.78. Go to 20 mm if a stick-on heatsink goes on the FPGA. '
+     'M/F so the stud carries on into the standoff above when the acrylic top '
+     'plate from ../ka7-uno-can-board/ is fitted'),
     ('hardware', 'Hex standoff F/F', 'M2.5 x 20 mm, brass', 8,
      '-', 'RS Korea',
      '4 for each injection module. 20 mm and not 8 because their RJ45 and '
