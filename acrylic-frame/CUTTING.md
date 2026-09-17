@@ -92,6 +92,16 @@ terminals face out of the frame with 40 mm of rim in front of them, the two T1S
 banks face the back on one and the front on the other, and the edges that face
 each other across the 30 mm gap carry only the NodeID jumpers.
 
+**Stand them on M3 × 20 F/F standoffs, not M3 × 8.** The KA7-UNO is a carrier,
+not a finished board: its four 80-pin Panasonic board-to-board strips are on the
+**solder side**, so the ALINX AC7200 FPGA module plugs in **underneath** it and
+hangs 7.22 mm down — 3.0 mm mated height, 1.6 mm of module PCB, and a 2.62 mm
+FGG484 package with the FPGA facing the acrylic. On 8 mm standoffs that face sat
+0.78 mm off plate C. On 20 mm there is 12.8 mm, which is also the room a stick-on
+heatsink wants. The carrier's own Ø3.0 holes at (16.56, 4.00), (56.44, 4.00),
+(16.56, 53.93) and (56.44, 53.91) are the module's four corner supports — they
+are 2.5 mm in from each corner of a 45 × 55 module and take the same 3.0 mm gap.
+
 The plate does not care: **the mount pattern is symmetric under a 180° turn** —
 (3.5, 3.5) (3.5, 86.5) (66.5, 3.5) (66.5, 86.5) maps onto itself — so either board
 bolts down either way and the holes cannot catch it the wrong way round. That is
@@ -243,6 +253,7 @@ supply and the barrel socket; a domestic shop for the fan and the Y splitter.
 | **Hex standoff M/F** | **M3 × 50 mm, 6 mm stud** | **12** | 디바이스마트 PCB서포트 금속 F-50mm | the whole column, 4 per gap — 10 already bought, 2 more needed |
 | Hex standoff F/F | **M3 × 20 mm** | 4 | — | TC397 |
 | Hex standoff F/F | **M2.5 × 20 mm** | 12 | — | T-ETH-Elite and both modules |
+| Hex standoff F/F | **M3 × 20 mm** | 8 | — | the two CAN boards — the AC7200 module hangs under each one |
 | Screw, pan head | M3 × 6 / 8 mm | 12 / 16 | RS 190-428 / 797-6193 | at 3 mm of plate an M3 × 8 reaches everywhere a 10 used to |
 | Screw, pan head | **M3 × 25 mm** | 4 | RS 914-1490 | fan only — see below |
 | Screw, pan head | M2.5 × 6 / 8 mm | 12 / 12 | RS 528-716 / 797-6190 | T-ETH-Elite and both modules |

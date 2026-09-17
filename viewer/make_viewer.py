@@ -86,6 +86,18 @@ def models():
                              ['layers', '6'],
                              ['source', 'fabrication DXF + drill']])
 
+    import case as ka7_case
+    cp = [(ka7_case.base(), (0.82, 0.84, 0.88))] + ka7_case.contents() \
+        + [(ka7_case.lid(), (0.72, 0.74, 0.80))]
+    out['ka7case'] = dict(label='KA7_UNO case',
+                          **pack([q for q, _ in cp], [c for _, c in cp]),
+                          facts=[['print', 'base + lid, 88.4 x 108.4 x 38.3 mm'],
+                                 ['under the carrier',
+                                  'AC7200 SoM, 7.22 mm to the FPGA face'],
+                                 ['cooling', 'floor vents + 6 mm heatsink room'],
+                                 ['ports', 'RJ45, 2 x T1S, CAN, LIN, power'],
+                                 ['pillars', '4 x M3, 80.4 x 100.4']])
+
     import board_mock
     m, fc = board_mock.build(0.0, colors=True)
     # board_mock hands back per-face colours; group them into runs

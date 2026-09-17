@@ -25,6 +25,7 @@ run acrylic-frame            make_plates.py          # BOM.csv rides in the zip
 run acrylic-frame            adapter_lilygo.py
 run acrylic-frame            render_all.py
 run ka7-uno-can-board        ka7_mock.py
+run ka7-uno-can-board        case.py
 run lan9692-evb-case         lan9692_case.py
 run lan9692-evb-case         lan9692_box.py
 run lan9692-evb-case         lan9692_box.py --solid

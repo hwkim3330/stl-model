@@ -57,7 +57,7 @@ nothing else in the design changes.
 |---|---|---|---|
 | A — bottom | 3 mm clear acrylic | 250 × 180 mm | LAN9692 on 8 × M3 standoffs |
 | B — middle | 3 mm clear acrylic | 250 × 180 mm | 40 mm fan and four boards, all on top |
-| C — top | 3 mm clear | 250 × 180 mm | two KA7_UNO CAN boards, side by side |
+| C — top | 3 mm clear | 250 × 180 mm | two KA7_UNO CAN boards on M3 × 20 standoffs |
 | D — upper | 3 mm clear | 250 × 180 mm | plain guard over them |
 
 All four boards bolt **straight to plate B**, cut with each board's own pattern:
@@ -85,7 +85,7 @@ Stack = 3 + 50 + 3 + 50 + 3 + 50 + 3 = **162 mm**.
 |---|---|
 | A | LAN9692 EVB on 8 × M3 standoffs |
 | B | 40 mm fan on top over the bore; TC397, T-ETH-Elite, and the RJ45 and MATEnet fault injection modules |
-| C | two KETI KA7_UNO CAN boards, terminals facing out to either rim |
+| C | two KETI KA7_UNO CAN boards, terminals facing out to either rim. **M3 × 20 standoffs**, not 8: each carrier has an ALINX AC7200 FPGA module plugged into its underside, hanging 7.22 mm down |
 | D | plain guard |
 
 Plate B was solved as a whole rather than filled in board by board, so every board
@@ -138,7 +138,9 @@ photo:
 * **Plate B** — each board's own mount pattern, round: the TC397, the
   T-ETH-Elite and both fault injection modules.
 * **Plate C** — two KA7_UNO CAN boards at 63 × 83 each, fitted mirror-image so
-  both boards' terminals face out to a rim.
+  both boards' terminals face out to a rim. They stand on **M3 × 20** standoffs
+  because the AC7200 FPGA module plugs into the carrier's underside — the
+  board-to-board pads are on the solder side, which the Gerber settles.
 * **Plate D** — four column holes and nothing else.
 
 ## Fan power

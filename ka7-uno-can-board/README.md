@@ -88,11 +88,103 @@ That yields **13 through-hole parts**, and they line up with the silkscreen: the
 38.8 × 14.1 mm T1S terminal bank across the top, the CAN and LIN terminal blocks
 down the left edge, the CAN termination jumper block, and the NodeID selectors.
 
-The tallest part therefore comes out at **12.7 mm** over the board, with 3.0 mm
-hanging below it, and
+The tallest part therefore comes out at **12.7 mm** over the board, and
 `../acrylic-frame/assembly.py` checks that against plate D rather than assuming
-it: there is 27.4 mm of room, so the guess would have to be out by more than double
-to matter.
+it: there is 15.4 mm of room, so the guess would have to be out by a fifth to
+matter.
+
+What hangs below is **not** the 3.0 mm of bottom-side SMD this model sees. See
+below.
+
+## It is a carrier, and the FPGA module hangs underneath
+
+The Gerber has four pad strips of 2.30 × 0.25 mm on 0.5 mm pitch, 80 pads each,
+320 in all — and they are in `S-PASTE.gdo`, the **solder side**. They are the
+Panasonic AXK5-series sockets that the **ALINX AC7200** Artix-7 module plugs
+into. So the module does not sit on the board, it hangs under it, and the
+carrier's top surface is ports only.
+
+All four strips sit 3.70 mm in from their nearest module edge, which is what
+fixes the module's position without guessing:
+
+| | |
+|---|---|
+| AC7200 | XC7A200T-2FGG484I, 1 GB DDR3, **45.0 × 55.0 × 1.6 mm** |
+| where | carrier x 14.08…59.08, y 1.48…56.48 |
+| gap | **3.0 mm** — the mated height of AXK580137YG / AXK680137YG |
+| below the carrier | 3.0 + 1.6 module PCB + 2.62 FGG484 package = **7.22 mm** |
+| its supports | the carrier's four Ø3.0 plated holes, 2.5 mm in from each module corner |
+
+The FGG484 package height is out of ALINX's own `AC7200.3.0.stp`, which also
+settles the orientation: the FPGA and the DDR3 are on the module's **other**
+face, so mounted this way the FPGA points **down, away from the carrier**, with
+nothing over it. That is the only open face in the whole stack, and it is where
+any cooling has to go.
+
+It is also why the frame's plate C now uses **M3 × 20** standoffs. At the 8 mm
+it used to have, the FPGA package sat 0.78 mm off the acrylic.
+
+## The printed case
+
+```bash
+python3 case.py     # -> ka7_case_base.stl, ka7_case_lid.stl, renders, fit checks
+```
+
+![case](ka7_case_iso.png)
+
+![ports](ka7_case_open.png)
+
+![section](ka7_case_section.png)
+
+Base and lid, **88.4 × 108.4 × 38.3 mm**, 47.5 + 23.2 cm³. The section is cut at
+y = 30 through the CAN terminal block: floor vents at the bottom, then the
+module, then the carrier, then the port band.
+
+Every opening is placed from the **C-ASSY** assembly layer — the component-side
+body outlines the fab drawing already carries — not from pad extents, which stop
+short of a connector's shell:
+
+| Port | Edge | Body, board-local | Height |
+|---|---|---|---|
+| `ETH0` RJ45 | back | x 47.10…63.40, 21.5 deep, 3.9 mm proud of the edge | 13.5 mm |
+| `CN1` T1S0 | back | x 25.70…33.60 | assumed |
+| `CN2` T1S1 | back | x 37.10…44.80 | assumed |
+| `J7` LIN0 / LIN1 | left | y 41.00…59.20, 2.6 mm proud | assumed |
+| `J3` CAN0 / CAN1 | left | y 21.70…39.90, 2.6 mm proud | assumed |
+| `J1` POWER IN | left | y 11.50…20.30, 3.4 mm proud | assumed |
+| right edge | right | y 8.00…41.00, over the outline notch | assumed |
+
+The RJ45 is the one height that is not a guess: its two Ø3.25 board locks at
+(49.535, 82.7) and (60.965, 82.7) are 11.43 mm apart and its body is 16.3 × 21.5,
+which is a standard 1 × 1 magjack, 13.5 mm tall. **Every other height is
+assumed** — a Gerber set contains no height data at all — and they are all one
+column of the `PORTS` table at the top of `case.py`, one edit each. The printout
+flags every assumed one on every run.
+
+Three of the left-edge connectors are about a millimetre apart, so a wall rib
+between them would be thinner than a printed wall can be. `windows()` merges any
+opening whose rib would fall under 2 mm, which turns seven connectors into four
+openings and says so in the printout.
+
+`case.py` will not write an STL it has not checked. It probes the finished mesh
+at 25 points, plus a 60-sample sweep across the floor vents — inside each opening and in the wall right under it, in the module
+cavity, in the floor vents, in a post bore and beside it, in a pillar bore and
+beside it, in the lid lip and in the rebate it drops into — and refuses to
+export if any of them comes back the wrong way round. `check_stls.py` caught the
+first version: 3 bodies, because differencing a concatenated cutter left two
+inverted shells inside the walls. Boolean per-solid fixed it.
+
+### How it bolts up
+
+Four M3 run the full height of the case through the corner pillars: lid, pillar,
+then either an M3 nut in the hex pocket under the pillar, or straight into an
+F/F standoff on plate C. The board itself sits on four posts inside, on its own
+63 × 83 pattern, with M3 into the post bores.
+
+The pillars are on an **80.4 × 100.4** pattern, which is *not* plate C's 63 × 83
+— a case that wraps the board cannot bolt through the board's own holes. Plate C
+as cut today mounts the bare boards; using the case means four new holes per
+board in plate C. Nothing in this folder changes that file.
 
 ## Files
 
