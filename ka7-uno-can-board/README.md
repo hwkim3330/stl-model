@@ -174,6 +174,47 @@ export if any of them comes back the wrong way round. `check_stls.py` caught the
 first version: 3 bodies, because differencing a concatenated cutter left two
 inverted shells inside the walls. Boolean per-solid fixed it.
 
+### Or two acrylic plates instead
+
+```bash
+python3 acrylic_case.py    # -> dxf/*.dxf + the 2-up order sheet + web check
+```
+
+![plates](ka7_acrylic_plates.png)
+
+Two plates, **78 × 98 × 3 mm**, the same clear 3 mm sheet the frame is cut from,
+so they can ride along on the same laser order as two more pieces. The whole
+point is the hole pattern: a case that wraps the board cannot bolt through the
+board's own holes, but plates can, and the board's holes **are** plate C's
+63 × 83 pattern. So this version needs no change to any cut file.
+
+| | |
+|---|---|
+| Bottom plate | a 37 × 47 window under the FPGA, 9.5 mm of acrylic to the nearest edge |
+| Top plate | 12 slots, two banks of six with a 6 mm rib so it does not go floppy |
+| Both | 4 × Ø3.4 at the board pattern, R5 corners |
+
+Standing it up on M/F standoffs, the same trick the frame's column uses — one
+screw at the bottom, a stud through each plate into the standoff above, a nut on
+top:
+
+```
+bottom plate    0.0 ..  3.0     FPGA face to the bottom plate   2.78 mm
+M3 x 10 M/F     3.0 .. 13.0
+carrier        13.0 .. 14.6
+M3 x 20 M/F    14.6 .. 34.6     RJ45 to the top plate           6.50 mm
+top plate      34.6 .. 37.6
+```
+
+**On the frame, leave the bottom plate off** — plate C already is it. That comes
+to 34.6 mm over plate C against 47.0 mm of headroom, so two boards need two
+extra 78 × 98 pieces in the order and nothing else changes.
+
+Against the printed case: 37.6 mm tall instead of 38.3, clear so the board stays
+visible, one material and one supplier for the whole bench, and no new holes in
+plate C. What it gives up is enclosed sides — the plates are open all round,
+which for a bench board is mostly a feature.
+
 ### How it bolts up
 
 Four M3 run the full height of the case through the corner pillars: lid, pillar,

@@ -46,6 +46,11 @@ They are not part of the acrylic order.
 | [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 20.7 cm³ |
 | [`ka7-uno-can-board/`](ka7-uno-can-board/) | KETI KA7_UNO carrier **+ ALINX AC7200 FPGA module** | vented base + lid | 70.7 cm³ |
 
+That last one also has an **acrylic** alternative — two 78 × 98 × 3 mm plates on
+standoffs, cut from the same sheet as the frame and bolting through the board's
+own holes, which are already plate C's pattern. See
+[`ka7-uno-can-board/`](ka7-uno-can-board/).
+
 ## Looking at it
 
 **<https://hwkim3330.github.io/stl-model/>** — the frame, the exploded stack, the
