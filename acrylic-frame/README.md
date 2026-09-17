@@ -185,7 +185,8 @@ for cable ties and a switch.
 ## Layout study
 
 ```bash
-python3 variants.py        # -> img/variant_*.png + a clearance table
+python3 variants.py         # -> img/variant_*.png + a clearance table
+python3 render_variants.py  # -> dxf-<variant>/ + a labelled 3D render of each
 ```
 
 Nothing in this file cuts anything. `make_plates.py` still generates the frame
@@ -229,3 +230,37 @@ which is exactly what "face each other on the side with no ports" asks for. Four
 70 × 90 boards pinwheel into a 165 × 165 square with a 5 mm gap, leaving 42.5 mm
 of rim on the long sides and 7.5 mm on the short ones, and **all eight port
 edges end up on an outside rim**. It is the only arrangement of four that does.
+
+### Looking at them in 3D
+
+Each candidate is a whole frame, generated end to end from its own constants and
+cut from its own DXF set. `FRAME_VARIANT` picks one:
+
+```bash
+FRAME_VARIANT=B2+C2 python3 make_plates.py    # -> dxf-B2+C2/
+FRAME_VARIANT=B2+C2 python3 assembly.py       # the same fit report, for that frame
+python3 render_variants.py                    # all of them, in one go
+```
+
+**Only `v1` writes `dxf/` and the order zip.** A variant writes `dxf-<name>/` and
+nothing else, so an alternative cannot end up being the file that goes to a shop.
+
+| Variant | Plate B | Plate C |
+|---|---|---|
+| `v1` | as cut | two CAN boards |
+| `B1+C2` | as cut | four, pinwheel |
+| `B2+C2` | TC397 turned, ESP32-S31 | four, pinwheel |
+| `B3+C2` | TC397 quarter-turned, ESP32-S31 | four, pinwheel |
+
+![B2+C2](img/variant_B2C2_iso.png)
+
+All four are in the [web viewer](https://hwkim3330.github.io/stl-model/), so they
+can be turned over and compared before one of them becomes the cut file.
+
+Making plate C carry four boards turned up a real bug: `plate_top()` and
+`can_on_plate_c()` both ignored the per-board rotation, on the grounds that the
+KA7-UNO's mount pattern is symmetric under a 180° turn — which is true, and
+which stops being enough the moment a board is turned 90°. The first pinwheel
+came out with two boards drilled 70 × 90 where the board was lying 90 × 70, and
+the assembly's own bounds check found it hanging 2.5 mm off the plate. `v1`'s
+plate C is unchanged as a set of holes; only the order they are written in moved.

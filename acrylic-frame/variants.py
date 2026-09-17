@@ -19,9 +19,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # --------------------------------------------------------------------------
 # ESP32-S31-Function-CoreBoard-1, from Espressif's dimension PDF - the same
 # numbers ../esp32-s31-coreboard-case/ is built on.
-S31_BOARD = (65.0, 55.0)
-S31_HOLES = [(3.5, 3.5), (61.5, 3.5), (3.5, 51.5), (61.5, 51.5)]
-S31_HOLE_D = 3.4
 # ports: y=0 two USB-C, x=65 RJ45 + USB-A host, x=0 speaker header.
 # Only the y=55 edge (the 2x20 header) is free of connectors.
 S31_PORTS = {'-y', '+x', '-x'}
@@ -35,15 +32,8 @@ PORTS = {
     'FIM-MATEnet': {'-x', '+x'},
     'KA7-UNO': {'-x', '+y'},
 }
-BOARDS = {
-    'TC397': (P.TC_BOARD, P.TC_HOLES, P.TC_HOLE_D),
-    'T-ETH-Elite': (P.ETH_BOARD, P.ETH_HOLES, P.ETH_HOLE_D),
-    'ESP32-S31': (S31_BOARD, S31_HOLES, S31_HOLE_D),
-    'FIM-RJ45': (P.FIM['FIM-RJ45']['board'], P.FIM['FIM-RJ45']['holes'], P.FIM_HOLE_D),
-    'FIM-MATEnet': (P.FIM['FIM-MATEnet']['board'], P.FIM['FIM-MATEnet']['holes'],
-                    P.FIM_HOLE_D),
-    'KA7-UNO': (P.CAN_BOARD, P.CAN_HOLES, P.CAN_HOLE_D),
-}
+BOARDS = {k: v[:3] for k, v in P.BOARD_TABLE.items()}
+BOARDS['KA7-UNO'] = (P.CAN_BOARD, P.CAN_HOLES, P.CAN_HOLE_D)
 ROT_PORT = {
     0: {e: e for e in ('-x', '+x', '-y', '+y')},
     90: {'-x': '-y', '+y': '-x', '+x': '+y', '-y': '+x'},
@@ -53,56 +43,17 @@ ROT_PORT = {
 
 # --------------------------------------------------------------------------
 # Plate B candidates. (name, cx, cy, rot)
+# The candidates themselves live in make_plates.LAYOUTS / CAN_ARRANGE, so this
+# study and the generator can never disagree about where a board goes.
 PLATE_B = {
-    'B1 as cut': [
-        ('TC397', 72.0, 120.0, 0),
-        ('T-ETH-Elite', 180.0, 146.0, 180),
-        ('FIM-RJ45', 55.0, 33.0, 0),
-        ('FIM-MATEnet', 196.0, 30.0, 0),
-    ],
-    # TC397 turned end for end so its connector row leaves by the FRONT rim,
-    # the S31 in the front-right corner, both modules along the back.
-    'B2 TC397 turned, S31, modules across the back': [
-        ('TC397', 64.0, 64.0, 180),
-        ('ESP32-S31', 205.0, 43.0, 0),
-        ('FIM-RJ45', 60.0, 150.0, 0),
-        ('FIM-MATEnet', 185.0, 150.0, 0),
-    ],
-    # TC397 quarter-turned so its connector row leaves by the LEFT rim, the S31
-    # in the back-right corner turned 180 so its two USB-C face the back.
-    'B3 TC397 ports left, S31 back-right': [
-        ('TC397', 60.0, 110.0, 90),
-        ('ESP32-S31', 200.0, 145.0, 180),
-        ('FIM-RJ45', 55.0, 33.0, 0),
-        ('FIM-MATEnet', 185.0, 30.0, 0),
-    ],
+    'B1 as cut': P.LAYOUTS['tc397+eth-elite'],
+    'B2 TC397 turned, S31, modules across the back': P.LAYOUTS['tc397-turned+s31'],
+    'B3 TC397 ports left, S31 back-right': P.LAYOUTS['tc397-left+s31'],
 }
-
-# --------------------------------------------------------------------------
-# Plate C candidates.
-#
-# The KA7-UNO carries its connectors on two ADJACENT edges - CAN, LIN and POWER
-# down the long left edge, the two T1S pairs and ETH0 across the short top edge.
-# So its port-free corner is the lower right, and four boards can be laid out as
-# a PINWHEEL: each board turned one quarter more than the last, all four
-# port-free corners meeting in the middle, all eight port edges on an outside
-# rim. Four 70 x 90 boards pinwheel into a 160 x 160 square with a 20 x 20 hole
-# at its centre, which is where the four corners meet.
-PIN_GAP = 5.0
-_S = 70.0 + 90.0 + PIN_GAP                    # the pinwheel square, 165 mm
-_OX, _OY = (P.PW - _S) / 2, (P.PH - _S) / 2
 PLATE_C = {
-    'C1 as cut, two boards': [
-        ('KA7-UNO', 75.0, 90.0, 0),
-        ('KA7-UNO', 175.0, 90.0, 180),
-    ],
-    'C2 four boards, pinwheel': [
-        ('KA7-UNO', _OX + 45.0, _OY + 35.0, 90),
-        ('KA7-UNO', _OX + 90.0 + PIN_GAP + 35.0, _OY + 45.0, 180),
-        ('KA7-UNO', _OX + 70.0 + PIN_GAP + 45.0,
-         _OY + 90.0 + PIN_GAP + 35.0, 270),
-        ('KA7-UNO', _OX + 35.0, _OY + 70.0 + PIN_GAP + 45.0, 0),
-    ],
+    'C1 as cut, two boards': [('KA7-UNO',) + t for t in P.CAN_ARRANGE['two']],
+    'C2 four boards, pinwheel':
+        [('KA7-UNO',) + t for t in P.CAN_ARRANGE['four-pinwheel']],
 }
 
 

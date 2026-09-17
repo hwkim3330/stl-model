@@ -57,21 +57,64 @@ DECK_X, DECK_Y = 35.0, 45.0       # optional sub-plate mounting, on plate B as
 DECK_PITCH = 45.0                 # legacy, only used by the printed trays
 # Where module trays bolt onto plate B. Both layouts use the same 45 mm deck
 # square, so any tray in this repo fits either. Checked in assembly.py.
+# A layout names every board on plate B and where it goes: (board, cx, cy, rot).
+# Positions put each board's PORT edge near a plate edge so cables leave the
+# frame instead of crossing it. variants.py checks each of these for overlap,
+# for the acrylic between mount holes, for the fan, and for whether every port
+# edge actually sees a rim.
 LAYOUTS = {
-    # Positions put each board's PORT edge near a plate edge so cables leave
-    # the frame instead of crossing it: the TC397's connector row ends up 14 mm
-    # from the back edge, the T-ETH-Elite's USB-C 10 mm from the front and its
-    # RJ45 17 mm from the right. Both clear the fan and the corner columns.
     # TC397 back-left with its connector row 10 mm off the back rim; the
     # T-ETH-Elite back-right, turned 180 so its USB-C faces the back rim too
     # instead of pointing into the middle of the plate. That clears the whole
     # front of the plate for the two injection modules.
     'tc397+eth-elite': [('TC397', 72.0, 120.0, 0),
-                        ('T-ETH-Elite', 180.0, 146.0, 180)],
-    # two 85 x 75 ESP32-S31 trays, 84 mm apart
-    'two-s31': [('module A', 60.0, 132.0, 0), ('module B', 60.0, 48.0, 0)],
+                        ('T-ETH-Elite', 180.0, 146.0, 180),
+                        ('FIM-RJ45', 55.0, 33.0, 0),
+                        ('FIM-MATEnet', 196.0, 30.0, 0)],
+    # TC397 turned end for end so its connector row leaves by the FRONT rim,
+    # the ESP32-S31 in the front-right corner, both modules along the back.
+    'tc397-turned+s31': [('TC397', 64.0, 64.0, 180),
+                         ('ESP32-S31', 205.0, 43.0, 0),
+                         ('FIM-RJ45', 60.0, 150.0, 0),
+                         ('FIM-MATEnet', 185.0, 150.0, 0)],
+    # TC397 quarter-turned so its connector row leaves by the LEFT rim, the
+    # ESP32-S31 back-right turned 180 so its two USB-C face the back rim.
+    'tc397-left+s31': [('TC397', 60.0, 110.0, 90),
+                       ('ESP32-S31', 200.0, 145.0, 180),
+                       ('FIM-RJ45', 55.0, 33.0, 0),
+                       ('FIM-MATEnet', 185.0, 30.0, 0)],
 }
-LAYOUT = 'tc397+eth-elite'
+
+# Plate C. The KA7-UNO's connectors are on two ADJACENT edges, so its port-free
+# corner is the lower right; turning each of four boards one quarter further
+# than the last puts all four of those corners in the middle and every port edge
+# on an outside rim. See variants.py and the README.
+PIN_GAP = 5.0
+_PIN = 70.0 + 90.0 + PIN_GAP
+_POX, _POY = (PW - _PIN) / 2, (PH - _PIN) / 2
+CAN_ARRANGE = {
+    'two': [(75.0, 90.0, 0), (175.0, 90.0, 180)],
+    'four-pinwheel': [(_POX + 45.0, _POY + 35.0, 90),
+                      (_POX + 90.0 + PIN_GAP + 35.0, _POY + 45.0, 180),
+                      (_POX + 70.0 + PIN_GAP + 45.0,
+                       _POY + 90.0 + PIN_GAP + 35.0, 270),
+                      (_POX + 35.0, _POY + 70.0 + PIN_GAP + 45.0, 0)],
+}
+
+# One switch picks a whole frame. FRAME_VARIANT in the environment overrides it,
+# which is how render_variants.py builds the alternatives without editing this
+# file. Only 'v1' writes dxf/ and the order zip; the others write dxf-<name>/,
+# so an alternative can be looked at without any chance of being sent to a shop.
+VARIANTS = {
+    'v1': ('tc397+eth-elite', 'two'),
+    'B1+C2': ('tc397+eth-elite', 'four-pinwheel'),
+    'B2+C2': ('tc397-turned+s31', 'four-pinwheel'),
+    'B3+C2': ('tc397-left+s31', 'four-pinwheel'),
+}
+VARIANT = os.environ.get('FRAME_VARIANT', 'v1')
+if VARIANT not in VARIANTS:
+    raise SystemExit(f"FRAME_VARIANT={VARIANT!r} is not one of {sorted(VARIANTS)}")
+LAYOUT, CAN_PLAN = VARIANTS[VARIANT]
 
 # True  = the boards bolt straight to plate B on its own holes, cut to each
 #         board's real pattern. Three plates, no sub-plates, 3 mm lower.
@@ -231,7 +274,10 @@ CAN_HOLE_D = 3.4
 # right rim, so both boards' terminals face OUT and nothing points at the other
 # board. The T1S bank on the short edge then faces the back on one and the
 # front on the other.
-CAN_AT = [(75.0, 90.0, 0), (175.0, 90.0, 180)]
+# 'two' puts both terminal edges on a rim; 'four-pinwheel' does the same for
+# four boards by turning each one a quarter further than the last, so that all
+# four port-free corners meet in the middle. Both are in CAN_ARRANGE above.
+CAN_AT = CAN_ARRANGE[CAN_PLAN]
 
 # Engraving. Empty: the KETI mark is not approved for use here, so nothing is
 # engraved and the ENGRAVE layer is not emitted at all - which also takes the
@@ -266,6 +312,14 @@ ETH_PLATE = (76.0, 60.0)
 # Cut all four. If the last two turn out to be something else you simply leave
 # those screws out and fall back on adhesive props; an unused hole costs
 # nothing, whereas two screws on one edge leaves the port edge cantilevered.
+# ESP32-S31-Function-CoreBoard-1, from Espressif's dimension PDF - the same
+# numbers ../esp32-s31-coreboard-case/ is built on. 65 x 55, R3.5 corners, four
+# holes on a dimensioned 58.00 x 48.00 rectangle. Connectors on THREE edges:
+# two USB-C at y=0, RJ45 and USB-A host at x=65, the speaker header at x=0.
+S31_BOARD = (65.0, 55.0)
+S31_HOLES = [(3.5, 3.5), (61.5, 3.5), (3.5, 51.5), (61.5, 51.5)]
+S31_HOLE_D = 3.4
+
 TC_BOARD = (100.0, 100.0)
 TC_HOLES = [(11.0, 4.0), (89.0, 4.0), (96.99, 59.0), (16.0, 82.0)]
 # Anything you find on the real board that the drawing does not dimension goes
@@ -274,6 +328,16 @@ TC_HOLES = [(11.0, 4.0), (89.0, 4.0), (96.99, 59.0), (16.0, 82.0)]
 TC_EXTRA_HOLES = []
 TC_HOLE_D = 3.4
 TC_PLATE = (110.0, 110.0)
+
+# Everything plate B can carry, by name. A layout is just names and places.
+BOARD_TABLE = {
+    'TC397': (TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
+    'T-ETH-Elite': (ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED),
+    'ESP32-S31': (S31_BOARD, S31_HOLES, S31_HOLE_D, ()),
+    'FIM-RJ45': (FIM['FIM-RJ45']['board'], FIM['FIM-RJ45']['holes'], FIM_HOLE_D, ()),
+    'FIM-MATEnet': (FIM['FIM-MATEnet']['board'], FIM['FIM-MATEnet']['holes'],
+                    FIM_HOLE_D, ()),
+}
 
 BOARD_OFF = ((PW - BW) / 2, (PH - BH) / 2)     # board centred on the plate
 FAN_C = (BOARD_OFF[0] + U1[0], BOARD_OFF[1] + U1[1])
@@ -473,14 +537,10 @@ def engrave_segments():
 def board_mounts():
     """(zone, board size, holes, hole Ø, slotted indices) for plate B."""
     out = []
-    for (name, cx, cy, rot), board, holes, hd, slotted in (
-            (ZONES[0], TC_BOARD, TC_HOLES + TC_EXTRA_HOLES, TC_HOLE_D, TC_SLOTTED),
-            (ZONES[1], ETH_BOARD, ETH_HOLES, ETH_HOLE_D, ETH_SLOTTED)):
+    for name, cx, cy, rot in ZONES:
+        board, holes, hd, slotted = BOARD_TABLE[name]
         b, h = orient(board, holes, rot)
         out.append(((name, cx, cy), b, h, hd, slotted))
-    for name, f in FIM.items():
-        b, h = orient(f['board'], f['holes'], f['rot'])
-        out.append(((name, f['at'][0], f['at'][1]), b, h, FIM_HOLE_D, ()))
     return out
 
 
@@ -525,9 +585,10 @@ def plate_top():
     d = Dxf()
     d.rounded_rect(0, 0, PW, PH, PLATE_R)
     corner_holes(d)
-    for cx, cy, _rot in CAN_AT:          # rotation changes nothing here - see CAN_AT
-        ox, oy = cx - CAN_BOARD[0] / 2, cy - CAN_BOARD[1] / 2
-        for hx, hy in CAN_HOLES:
+    for cx, cy, rot in CAN_AT:
+        b, h = orient(CAN_BOARD, CAN_HOLES, rot)
+        ox, oy = cx - b[0] / 2, cy - b[1] / 2
+        for hx, hy in h:
             d.circle(ox + hx, oy + hy, CAN_HOLE_D / 2)
     for x, y, h, txt in ENGRAVE:
         d.stroke_text(x, y, h, txt)
@@ -716,8 +777,11 @@ def nest(tag, spec, builders):
 
 
 def main():
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dxf')
+    root = os.path.dirname(os.path.abspath(__file__))
+    out = os.path.join(root, 'dxf' if VARIANT == 'v1' else f'dxf-{VARIANT}')
     os.makedirs(out, exist_ok=True)
+    print(f"variant {VARIANT}: plate B '{LAYOUT}', plate C '{CAN_PLAN}' "
+          f"-> {os.path.basename(out)}/")
     made = []
     for name, fn, thick in PLATES:
         path = os.path.join(out, name + '.dxf')
@@ -738,8 +802,10 @@ def main():
         made.append(path)
         print(f"  {'nested-' + tag + '.dxf':24s} {spec['sheet'][0]} x "
               f"{spec['sheet'][1]} mm sheet, {len(spec['place'])} plates, {n} entities")
+    if VARIANT != 'v1':
+        print("\n  alternative variant: no order zip, and dxf/ is untouched")
+        return
     import bom
-    root = os.path.dirname(out)
     bom.write_csv(os.path.join(root, 'BOM.csv'))
     zpath = os.path.join(root, 'acrylic-frame-dxf.zip')
     # A fixed timestamp on every member, so the zip is byte-for-byte reproducible.

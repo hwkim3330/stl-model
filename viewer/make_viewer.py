@@ -68,6 +68,27 @@ def models():
                                ['boards', '7'],
                                ['thinnest web', '3.36 mm']])
 
+    # the alternatives, each rebuilt from its own DXF set
+    import importlib
+    import make_plates as MP
+    for tag, (lay, can) in MP.VARIANTS.items():
+        if tag == 'v1':
+            continue
+        os.environ['FRAME_VARIANT'] = tag
+        importlib.reload(MP)
+        importlib.reload(A)
+        vp, vc = A.build()
+        out['frame' + tag.replace('+', '')] = dict(
+            label='Frame ' + tag, **pack(vp, vc),
+            facts=[['plate B', lay], ['plate C', can],
+                   ['boards', str(len(MP.ZONES) + len(MP.CAN_AT))],
+                   ['stack', '3+50+3+50+3+50+3 = 162 mm'],
+                   ['status', 'candidate, not the cut file']])
+    os.environ['FRAME_VARIANT'] = 'v1'
+    importlib.reload(MP)
+    importlib.reload(A)
+    parts, cols = A.build()
+
     ex = A.exploded(list(zip(parts, cols)))
     out['exploded'] = dict(label='Exploded',
                            **pack([p for p, _ in ex], [c for _, c in ex]),

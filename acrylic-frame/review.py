@@ -163,9 +163,10 @@ def expected_features():
                 exp[B].append(('circle', X, Y, hd, 0))
     # No vents on any plate now that the fan sits on top of plate B. Plate C
     # carries the Raspberry Pi instead.
-    for cx, cy, _rot in M.CAN_AT:
-        ox, oy = cx - M.CAN_BOARD[0] / 2, cy - M.CAN_BOARD[1] / 2
-        for hx, hy in M.CAN_HOLES:
+    for cx, cy, rot in M.CAN_AT:
+        b, h = M.orient(M.CAN_BOARD, M.CAN_HOLES, rot)
+        ox, oy = cx - b[0] / 2, cy - b[1] / 2
+        for hx, hy in h:
             exp[C].append(('circle', ox + hx, oy + hy, M.CAN_HOLE_D, 0))
     if M.LCD_ON:
         lx = M.LCD_AT[0] - M.LCD_LENS[0] / 2
@@ -322,7 +323,8 @@ def fastener_audit():
     }
     for (name, _, _), _, holes, _, _ in M.board_mounts():
         need[f'{name} to plate B'] = 2 * len(holes)
-    need['2 x CAN board to plate C'] = 2 * len(M.CAN_AT) * len(M.CAN_HOLES)
+    need[f'{len(M.CAN_AT)} x CAN board to plate C'] = (
+        2 * len(M.CAN_AT) * len(M.CAN_HOLES))
     if M.LCD_ON:
         need['7-inch display to plate D'] = len(M.LCD_HOLES)
     ordered = sum(b[3] for b in bom.BOM

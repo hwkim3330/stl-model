@@ -57,6 +57,11 @@ TC_PARTS_H = 20.0                      # over the PCB - assumed, no source
 FIM_STANDOFF = 20.0                    # M2.5 under either injection module
 FIM_PARTS_H = 13.5                     # the RJ45 magjacks, the tallest part on it
 FIM_MN_PARTS_H = 11.0                  # MATEnet jacks are lower than an RJ45
+S31_STANDOFF = 8.0                     # M3 under the ESP32-S31 core board
+S31_PARTS_H = 14.0                     # over the PCB - the RJ45 and the USB-A
+                                       # host stack are the tall ones. Assumed;
+                                       # Espressif dimensions the outline and
+                                       # the holes but not the heights
 CAN_STANDOFF = 10.0                    # M3 under each KA7_UNO CAN board. It was
                                        # 8 until the carrier's Gerber was read
                                        # properly: the four 80-pin board-to-board
@@ -94,6 +99,7 @@ BEZEL = (0.10, 0.10, 0.11)
 HEIGHTS = {'TC397': (TC_STANDOFF, TC_PARTS_H),
            'T-ETH-Elite': (ETH_STANDOFF, ETH_PARTS_H),
            'FIM-RJ45': (FIM_STANDOFF, FIM_PARTS_H),
+           'ESP32-S31': (S31_STANDOFF, S31_PARTS_H),
            'FIM-MATEnet': (FIM_STANDOFF, FIM_MN_PARTS_H)}
 
 Z_A = 0.0
@@ -151,6 +157,9 @@ def groove(x1, y1, x2, y2, z0, z1, w=None):
     return trimesh.boolean.union([m] + ends, engine='manifold')
 
 
+# Variants read their own DXF set, so a preview can never be cut from the wrong
+# plates - see make_plates.VARIANTS.
+DXF_DIR = 'dxf' if P.VARIANT == 'v1' else f'dxf-{P.VARIANT}'
 PLATE_DXF = {'A': 'plate-a-bottom-3T', 'B': 'plate-b-middle-3T',
              'C': 'plate-c-top-3T', 'D': 'plate-d-upper-3T'}
 
@@ -174,7 +183,7 @@ def dxf_features(stem, layer='CUT'):
     """
     import review
     ents = [(k, b) for k, b in
-            review.parse(os.path.join(HERE, 'dxf', stem + '.dxf'))
+            review.parse(os.path.join(HERE, DXF_DIR, stem + '.dxf'))
             if b.get('8') == layer]
     if not ents:
         raise ValueError(f"{stem}: nothing on layer {layer}")
@@ -334,7 +343,7 @@ def build(upto='D'):
     add(plate('C', Z_C, T_C), ACRYLIC)
     for i, (cx, cy, rot) in enumerate(P.CAN_AT, 1):
         tag[0] = f'KA7_UNO CAN #{i}'
-        for m, c in can_on_plate_c(Z_C + T_C, cx, cy):
+        for m, c in can_on_plate_c(Z_C + T_C, cx, cy, rot):
             add(m, c)
     if upto == 'C':
         for x, y in corner_points():
@@ -455,7 +464,7 @@ def modules(z_top, named=False):
     return out
 
 
-def can_on_plate_c(z_top, cx, cy):
+def can_on_plate_c(z_top, cx, cy, rot=0):
     """One KETI KA7_UNO CAN board on plate C, centred at (cx, cy).
 
     Outline and holes are its own fab data; the parts are one block, same as
@@ -463,16 +472,16 @@ def can_on_plate_c(z_top, cx, cy):
     two-sided model if you want to look at the board itself.
     """
     out = []
-    bw, bh = P.CAN_BOARD
+    (bw, bh), holes = P.orient(P.CAN_BOARD, P.CAN_HOLES, rot)
     bx0, by0 = cx - bw / 2, cy - bh / 2
-    for hx, hy in P.CAN_HOLES:
+    for hx, hy in holes:
         out.append((cyl(5.5, z_top, z_top + CAN_STANDOFF,
                         bx0 + hx, by0 + hy), METAL))
     z = z_top + CAN_STANDOFF
     out.append((bx(bx0, bx0 + bw, by0, by0 + bh, z, z + 1.6), (0.09, 0.36, 0.20)))
     out.append((bx(bx0 + 4, bx0 + bw - 4, by0 + 4, by0 + bh - 4,
                    z + 1.6, z + 1.6 + CAN_PARTS_H), (0.13, 0.14, 0.16)))
-    sw, sh = CAN_SOM
+    sw, sh = (CAN_SOM if rot in (0, 180) else CAN_SOM[::-1])
     out.append((bx(cx - sw / 2, cx + sw / 2, cy - sh / 2, cy + sh / 2,
                    z - CAN_SOM_DROP, z), (0.10, 0.22, 0.34)))
     return out
@@ -499,8 +508,8 @@ def display_on_plate_d(z_top):
 
 def plate_c_top(z_top):
     return max(float(m.bounds[1][2])
-               for cx, cy, _ in P.CAN_AT
-               for m, _ in can_on_plate_c(z_top, cx, cy))
+               for cx, cy, rot in P.CAN_AT
+               for m, _ in can_on_plate_c(z_top, cx, cy, rot))
 
 
 def module_top(z_top):
@@ -609,36 +618,39 @@ def exploded(parts, gap=28.0):
     return out
 
 
+SUFFIX = '' if P.VARIANT == 'v1' else '_' + P.VARIANT.replace('+', '')
+
+
 if __name__ == '__main__':
     parts, cols = build()
     FULL_JOINTS = list(JOINTS)      # build('A') later would truncate it
     fc = np.vstack([c if np.ndim(c) == 2 else np.tile(c, (len(m.faces), 1))
                     for m, c in zip(parts, cols)])
     scene = trimesh.util.concatenate(parts)
-    scene.export(os.path.join(HERE, 'assembly.stl'))
+    scene.export(os.path.join(HERE, f'assembly{SUFFIX}.stl'))
     e = scene.bounds[1] - scene.bounds[0]
     print(f"assembly.stl  {e[0]:.1f} x {e[1]:.1f} x {e[2]:.1f} mm, "
           f"{len(parts)} bodies  (a picture, not a printable part)\n")
     os.makedirs(os.path.join(HERE, 'img'), exist_ok=True)
-    render(scene, 22, -54, face_colors=fc).save(os.path.join(HERE, 'img/assembly.png'))
-    render(scene, 6, -2, face_colors=fc).save(os.path.join(HERE, 'img/assembly_front.png'))
-    render(scene, 89, 0, face_colors=fc).save(os.path.join(HERE, 'img/assembly_top.png'))
+    render(scene, 22, -54, face_colors=fc).save(os.path.join(HERE, f'img/assembly{SUFFIX}.png'))
+    render(scene, 6, -2, face_colors=fc).save(os.path.join(HERE, f'img/assembly_front{SUFFIX}.png'))
+    render(scene, 89, 0, face_colors=fc).save(os.path.join(HERE, f'img/assembly_top{SUFFIX}.png'))
 
     ex = exploded(list(zip(parts, cols)))
     exf = np.vstack([c if np.ndim(c) == 2 else np.tile(c, (len(m.faces), 1))
                      for m, c in ex])
     render(trimesh.util.concatenate([m for m, _ in ex]), 20, -56,
-           face_colors=exf).save(os.path.join(HERE, 'img/exploded.png'))
+           face_colors=exf).save(os.path.join(HERE, f'img/exploded{SUFFIX}.png'))
 
     # plate A + board only, straight down: the hole-alignment view
     aparts, acols = build(upto='A')
     afc = np.vstack([c if np.ndim(c) == 2 else np.tile(c, (len(m.faces), 1))
                      for m, c in zip(aparts, acols)])
     render(trimesh.util.concatenate(aparts), 89, 0,
-           face_colors=afc).save(os.path.join(HERE, 'img/plate_a_board.png'))
+           face_colors=afc).save(os.path.join(HERE, f'img/plate_a_board{SUFFIX}.png'))
     # and without the board, so the eight standoffs sit visibly in their holes
     render(trimesh.util.concatenate(aparts[:-1]), 89, 0,
            face_colors=np.vstack([np.tile(c, (len(m.faces), 1))
                                   for m, c in zip(aparts[:-1], acols[:-1])])
-           ).save(os.path.join(HERE, 'img/plate_a_holes.png'))
+           ).save(os.path.join(HERE, f'img/plate_a_holes{SUFFIX}.png'))
     print(checks() and "\nall checks pass" or "\nCHECK FAILED")
