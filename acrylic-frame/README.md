@@ -181,3 +181,51 @@ leaving 1.93 mm to its screw holes, and four screws missing from the BOM.
 Plate size, corner radius, fan size, slot pattern and zone positions are all
 constants at the top of the script. `PW, PH = 260, 190` if you want more room
 for cable ties and a switch.
+
+## Layout study
+
+```bash
+python3 variants.py        # -> img/variant_*.png + a clearance table
+```
+
+Nothing in this file cuts anything. `make_plates.py` still generates the frame
+as it stands; `variants.py` exists so a rearrangement can be argued about with
+numbers before one of them becomes the cut file. Each candidate is checked for
+overlap, for the gap between boards, for the acrylic between every pair of
+mount holes and to each corner column, for the fan, and — the one that decides
+a layout — for whether each board's **port edges** actually see a rim with
+nothing parked in front of them.
+
+| | Plate B | port edges reaching a rim | tightest thing |
+|---|---|---:|---|
+| B1 | as cut: TC397 back-left, T-ETH-Elite back-right | 5 / 7 | T-ETH-Elite 9.6 mm to the fan |
+| B2 | TC397 turned end for end (ports to the **front** rim), ESP32-S31 front-right, both modules across the back | 5 / 8 | S31 5.3 mm to the fan |
+| B3 | TC397 quarter-turned (ports to the **left** rim), ESP32-S31 back-right turned 180 | 5 / 8 | S31 5.7 mm to the fan |
+
+![B2](img/variant_b2.png)
+
+![B3](img/variant_b3.png)
+
+The **ESP32-S31-Function-CoreBoard-1** is 65 × 55 on a 58 × 48 hole pattern, from
+Espressif's dimension PDF — the same numbers
+[`../esp32-s31-coreboard-case/`](../esp32-s31-coreboard-case/) is built on. It
+puts connectors on **three** of its four edges (two USB-C on one, RJ45 and USB-A
+host on the next, the speaker header on the third), so one of them always faces
+inward whatever you do; the speaker header is the one to give up. Both B2 and B3
+send its USB-C and its RJ45 to a rim.
+
+| | Plate C | port edges reaching a rim | tightest thing |
+|---|---|---:|---|
+| C1 | as cut: two KA7-UNO, 30 mm apart | 4 / 4 | 33.6 mm between mount holes |
+| C2 | **four** KA7-UNO as a pinwheel | 8 / 8 | 8.6 mm between mount holes |
+
+![C2](img/variant_c2.png)
+
+The KA7-UNO carries its connectors on two **adjacent** edges — CAN, LIN and
+POWER down the long left edge, both T1S pairs and ETH0 across the short top
+edge — so its port-free corner is the lower right. Turn each of four boards one
+quarter further than the last and all four port-free corners meet in the middle,
+which is exactly what "face each other on the side with no ports" asks for. Four
+70 × 90 boards pinwheel into a 165 × 165 square with a 5 mm gap, leaving 42.5 mm
+of rim on the long sides and 7.5 mm on the short ones, and **all eight port
+edges end up on an outside rim**. It is the only arrangement of four that does.
