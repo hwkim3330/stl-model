@@ -3,7 +3,10 @@
 Enclosures for the boards on the KETI TSN bench: one laser-cut acrylic frame
 that is the actual build, and printable cases for the individual boards.
 
-**Building the bench → [`acrylic-frame/`](acrylic-frame/)**, and
+**Three-switch ring (v2) → [`bench-v2/`](bench-v2/)**: three stacks, each on its
+own LAN9692, with interchangeable upper plates (I/O, CAN, ECU).
+
+**Building the single-switch bench (v1) → [`acrylic-frame/`](acrylic-frame/)**, and
 [`acrylic-frame/CUTTING.md`](acrylic-frame/CUTTING.md) is what goes to the shop.
 Nothing in that build is 3D printed.
 

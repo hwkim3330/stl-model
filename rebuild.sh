@@ -35,6 +35,7 @@ run lan9692-evb-case         lan9692_box.py --solid
 run lilygo-t-eth-elite-case  fit_for_print.py
 run tc397-appkit-case        tc397_appkit_case.py
 run esp32-s31-coreboard-case esp32_s31_case.py
+run bench-v2                 make_v2.py
 run .                        stack_preview.py
 run viewer                   make_viewer.py          # last: embeds the models
 
