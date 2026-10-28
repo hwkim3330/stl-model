@@ -14,8 +14,13 @@ Three styles, same board data:
 | Ends | open, no cut-outs to get wrong | **matched port windows** | **matched port windows** |
 | Elsewhere | vent grid | vent grid in floor, walls, lid | **nothing but the ports** |
 | Outside | 236.4 × 172.9 × 39.5 | 233.8 × 155.7 × 39.5 | 233.8 × 155.7 × 39.5 mm |
-| Volume | 74.3 + 44.2 = **118.5 cm³** | 86.7 + 12.8 + 17.2 + 46.8 = **163.5 cm³** | 124.6 + 12.8 + 17.2 + 82.7 = **237.2 cm³** |
+| Volume | 72.3 + 44.2 = **116.5 cm³** | 84.7 + 12.8 + 17.2 + 53.5 = **168.2 cm³** | 122.5 + 12.8 + 17.2 + 80.7 = **233.2 cm³** |
 | Fasteners | 8 × M3 × 8, 4 × M3 × 10 | same | same |
+
+**Printing (Bambu A1, PLA, 0.2 mm, no supports).** The floor sits flat on the bed (the printed 2.5 mm
+feet are gone: they left the whole floor floating and needed supports under all of it); stick rubber feet
+on instead. Lay the end panels flat. Vented box, sliced: tray 3 h 04 m / 82 g, lid + both panels on one
+plate 2 h 52 m / 91 g, about 6 h / 173 g in all.
 
 ![box with the board in it](img/box_with_board.png)
 

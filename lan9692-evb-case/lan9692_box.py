@@ -55,7 +55,8 @@ SCREW_PILOT = 2.9
 SCREW_CLEAR = 3.4
 LID_BOSS_D = 9.0         # local outward thickening of the side wall
 LID_BOSS_L = 16.0
-FOOT_D, FOOT_H = 16.0, 2.5
+FOOT_D, FOOT_H = 16.0, 0.0   # floor flat on the bed; use stick-on rubber feet (printed 2.5 mm feet left the whole floor
+                          # floating, so it needed supports under all of it)
 VENTS = True             # False -> sealed box, port windows only. See README:
                          # the board budgets 12 V @ 4.1 A, so a sealed plastic
                          # box has no way to shed that.

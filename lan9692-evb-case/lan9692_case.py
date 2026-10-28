@@ -53,7 +53,8 @@ INNER_H = 26.0               # clearance above the PCB. Per the Figure 4-1/4-2
                              # expansion header, the red DC/DC modules and the
                              # SMA jacks - all comfortably under 20 mm.
 LID_T = 2.0
-FOOT_D, FOOT_H = 16.0, 2.5
+FOOT_D, FOOT_H = 16.0, 0.0   # floor flat on the bed; use stick-on rubber feet (printed 2.5 mm feet left the whole floor
+                          # floating, so it needed supports under all of it)
 
 POST_D = 10.0                # corner posts carrying the lid
 POST_OFF = 5.0               # post centre, outboard of the board corner

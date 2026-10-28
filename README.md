@@ -41,9 +41,9 @@ They are not part of the acrylic order.
 
 | Model | Board | Parts | Volume |
 |---|---|---|---|
-| [`lan9692-evb-case/`](lan9692-evb-case/) | EVB-LAN9692-LM (EV09P11A) | open tray + lid | 118.5 cm³ |
-| ″ | ″ — closed box, vented | tray + 2 panels + lid | 170.2 cm³ |
-| ″ | ″ — closed box, ports only | tray + 2 panels + lid | 235.2 cm³ |
+| [`lan9692-evb-case/`](lan9692-evb-case/) | EVB-LAN9692-LM (EV09P11A) | open tray + lid | 116.5 cm³ |
+| ″ | ″ — closed box, vented | tray + 2 panels + lid | 168.2 cm³ |
+| ″ | ″ — closed box, ports only | tray + 2 panels + lid | 233.2 cm³ |
 | [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite | bottom + top | 17.1 cm³ |
 | [`tc397-appkit-case/`](tc397-appkit-case/) | AURIX Application Kit TC3X7 | tray + vented lid | 82.9 cm³ |
 | [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 20.7 cm³ |
