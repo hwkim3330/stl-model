@@ -14,13 +14,46 @@ Three styles, same board data:
 | Ends | open, no cut-outs to get wrong | **matched port windows** | **matched port windows** |
 | Elsewhere | vent grid | vent grid in floor, walls, lid | **nothing but the ports** |
 | Outside | 236.4 × 172.9 × 39.5 | 233.8 × 155.7 × 39.5 | 233.8 × 155.7 × 39.5 mm |
-| Volume | 72.3 + 44.2 = **116.5 cm³** | 84.7 + 12.8 + 17.2 + 53.5 = **168.2 cm³** | 122.5 + 12.8 + 17.2 + 80.7 = **233.2 cm³** |
-| Fasteners | 8 × M3 × 8, 4 × M3 × 10 | same | same |
+| Volume | 72.3 + 44.2 = **116.5 cm³** | 87.7 + 12.8 + 17.2 + 54.7 = **172.3 cm³** | 123.3 + 12.8 + 17.2 + 81.8 = **235.1 cm³** |
+| Fasteners | 8 × M3 × 8, 4 × M3 × 10 | same, + fan and deck screws below | same |
 
-**Printing (Bambu A1, PLA, 0.2 mm, no supports).** The floor sits flat on the bed (the printed 2.5 mm
-feet are gone: they left the whole floor floating and needed supports under all of it); stick rubber feet
-on instead. Lay the end panels flat. Vented box, sliced: tray 3 h 04 m / 82 g, lid + both panels on one
-plate 2 h 52 m / 91 g, about 6 h / 173 g in all.
+**The vented box with the lid fan is the one to print.** The board budgets 12 V @ 4.1 A, ~50 W; see
+[On sealing it completely](#on-sealing-it-completely).
+
+**Printing (Bambu A1, PLA 220 °C, 0.2 mm, 3 walls, no brim, no supports).** Every part prints on a full
+flat face, and the STLs are exported in that pose:
+
+* **Tray** — floor down. No printed feet (they used to stand the floor 2.5 mm off the bed, ~8 cm² of contact
+  under a 186 cm² overhang); the four floor corners are left solid for Ø16 stick-on rubber feet instead. The
+  lid-screw bosses on the outside of the side walls now run down to the bed too, and the side-wall vents are
+  rhombi (roofs at 58°) instead of 16 mm square bridges.
+* **End panels** — exported lying flat, *inner* face on the bed, so the USB-C relief pocket on the rear
+  panel's outer face opens upwards.
+* **Lid** — flat face down, ribs and deck bosses up.
+
+Checked in code for every exported STL: watertight, one body, **0 mm² of downward face steeper than 45°
+off the bed**, inside 240 × 240 mm; and in assembly: board + parts against tray / panels / lid (0 mm³),
+every edge connector pushed 10 mm out through its panel window (0 mm³), panels vs tray channels and lid
+(0 mm³), a 40 × 40 × 10 fan on the lid, and both stacked trays on the deck.
+
+| A1 plate | Parts | Time | PLA |
+|---|---|---|---|
+| 1 | tray | 3 h 11 m | 86 g |
+| 2 | lid + front panel + rear panel | 2 h 55 m | 92 g |
+| | | **6 h 06 m** | **178 g** |
+
+Hardware: 8 × M3 × 8 (PCB → standoffs), 4 × M3 × 10 (lid → tray bosses), 4 × M3 × 16 + 4 nuts
+(40 × 10 mm fan on the lid), 4 × Ø16 rubber feet; for a stacked case, 4 × M3 × 8 (TC397) or M3 × 10
+(ESP32-S31, which sits on its feet). All screw holes are 2.9 mm pilots for thread-forming M3 — no
+snap-fits anywhere; the end panels are held by the side-wall channels and the lid.
+
+### Box or rack — not both
+
+This box and the printed rack in [lan9692-ring-rack](https://github.com/hwkim3330/lan9692-ring-rack)
+(`print_plates.py`, where the 9692 bolts to plate **A-base** on 10 mm standoffs) are **alternatives for
+the same board**: both bolt the bare board down by its own mounting holes, and the rack is the board's
+enclosure in that build. Per board, pick one — rack it bare in the stack, or box it on the bench. Neither
+repo needs anything from the other.
 
 ![box with the board in it](img/box_with_board.png)
 
@@ -35,7 +68,12 @@ that the windows line up:
 
 `FAN` in `lan9692_box.py` puts a **40 mm fan** on the lid, Ø38 bore with a 32 mm
 M3 screw pitch, centred on **U1 — the LAN9692 itself**, a BGA-356 at
-(167.31, 78.69) per the pick-and-place file. That is where the heat is: the
+(167.31, 78.69) per the pick-and-place file (the IPC-356 netlist's 356 U1 pads
+span 160.11…174.51 × 71.49…85.89, same centre; `board_mock.py` used to label the
+100-ball FBGA U4 next to it as the switch, now fixed). The fan sits **on top of**
+the lid blowing down — the lid ribs are broken around its 40 mm frame so it
+seats flat — rather than underneath, where it would come within ~2 mm of the
+DC-DC module U14. That is where the heat is: the
 0.9 V rail alone budgets 6.7 A into that package. The seven LAN8870 PHYs sit in
 a row at y = 36.85 and take 2.8 A off 1.1 V between them.
 
@@ -56,7 +94,12 @@ viable — sealed plus fan beats vented plus nothing.
 `DECK` puts four M3 bosses on a **45 mm square** at (62, 75) on the lid, clear
 of the fan. The ESP32-S31 and TC397 trays carry matching Ø3.4 holes through
 their floors, so either bolts straight on — the square is deliberate so they
-can go on rotated. Their feet are shorter than the 4 mm bosses and hang clear.
+can go on rotated. The bosses are **9 mm** tall: at the old 4 mm the 5 mm lid
+ribs stood higher than the bosses, so a stacked tray landed on the ribs and the
+bolts would have bowed the lid. Now the TC397 tray sits on the boss tops with its
+2.5 mm feet 1.5 mm above the ribs; the ESP32-S31 tray's Ø10 feet overlap the
+bosses, so it sits on its feet on them, 4 mm above the ribs. Both checked in
+code at 0° and 90°.
 
 This square is the *printed* system's pattern. The acrylic frame's plate B uses
 35 × 45, so a tray drilled for this lid does not fit that plate and vice versa;
@@ -107,7 +150,7 @@ on the outside face to thin the panel to 1.0 mm there and let a plug seat.
 
 | | |
 |---|---|
-| Open tray | 236.4 × 172.9 × 40 mm, 74.3 cm³ + lid 44.2 cm³ |
+| Open tray | 236.4 × 172.9 × 39.5 mm, 72.3 cm³ + lid 44.2 cm³ |
 | Assembled height | 39.5 mm |
 | Fasteners | 8 × M3 × 8 (PCB), 4 × M3 × 10 (lid) |
 
@@ -240,10 +283,9 @@ headless box with no GL stack.
 
 ## Printing
 
-FDM in ABS or PETG, both parts flat on the bed, no supports needed — every
-overhang is either a through-hole or the top of a post. 0.2 mm layers, ≥4
-perimeters on the tray so the standoffs and posts hold a thread. PLA works but
-creeps under a warm board.
+See the A1 table at the top. PLA is what it is printed in; it softens around
+55–60 °C, so keep the fan running if the board works hard — PETG or ABS print
+the same files with more heat margin. MJF/SLS needs no changes either.
 
 MJF PA12 also prints it as-is (min wall 1.0 mm, everything here is ≥2.0 mm) and
 gives much better threads, but at 122 cm³ for the pair it is the expensive

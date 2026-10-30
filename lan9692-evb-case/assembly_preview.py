@@ -50,8 +50,9 @@ def main():
 
     # closed box, lid off so the board and the port windows are both visible
     for prefix, tag in (('lan9692_box_', 'box'), ('lan9692_boxsolid_', 'boxsolid')):
-        parts = [load(prefix + 'tray.stl'), load(prefix + 'front.stl'),
-                 load(prefix + 'rear.stl')]
+        # panels are exported lying flat, so build them in assembly pose
+        parts = [load(prefix + 'tray.stl'), B.build_panel('front'),
+                 B.build_panel('rear')]
         cols = [CASE, PANEL, PANEL]
         bb, bc = board(B.Z_PCB)
         m, fc = scene(parts + [bb], cols + [bc])

@@ -42,8 +42,8 @@ They are not part of the acrylic order.
 | Model | Board | Parts | Volume |
 |---|---|---|---|
 | [`lan9692-evb-case/`](lan9692-evb-case/) | EVB-LAN9692-LM (EV09P11A) | open tray + lid | 116.5 cm³ |
-| ″ | ″ — closed box, vented | tray + 2 panels + lid | 168.2 cm³ |
-| ″ | ″ — closed box, ports only | tray + 2 panels + lid | 233.2 cm³ |
+| ″ | ″ — closed box, vented | tray + 2 panels + lid | 172.3 cm³ |
+| ″ | ″ — closed box, ports only | tray + 2 panels + lid | 235.1 cm³ |
 | [`lilygo-t-eth-elite-case/`](lilygo-t-eth-elite-case/) | LilyGo T-ETH-Elite | bottom + top | 17.1 cm³ |
 | [`tc397-appkit-case/`](tc397-appkit-case/) | AURIX Application Kit TC3X7 | tray + vented lid | 82.9 cm³ |
 | [`esp32-s31-coreboard-case/`](esp32-s31-coreboard-case/) | ESP32-S31-Function-CoreBoard-1 | tray + vented lid | 20.7 cm³ |
@@ -88,7 +88,7 @@ was drawn before the ESP32 board was identified as the LilyGo T-ETH-Elite. The
 design is sound and sourced from Espressif's own drawing; it just has no board
 here to hold.
 
-For the LAN9692 the printed options are 119–235 cm³, which is where the acrylic
+For the LAN9692 the printed options are 117–235 cm³, which is where the acrylic
 frame came from: cheaper, board visible, and the one unverified dimension
 (clearance above the board) becomes a standoff length instead of a reprint.
 

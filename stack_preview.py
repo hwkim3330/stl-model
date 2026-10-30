@@ -47,8 +47,9 @@ def deck_origin():
 
 def base_box(with_board=True):
     import board_mock
-    parts = [load(L9, 'lan9692_box_tray.stl'), load(L9, 'lan9692_box_front.stl'),
-             load(L9, 'lan9692_box_rear.stl'),
+    # the panel STLs are exported lying flat; build them in assembly pose
+    parts = [load(L9, 'lan9692_box_tray.stl'), B.build_panel('front'),
+             B.build_panel('rear'),
              load(L9, 'lan9692_box_lid.stl', (0, 0, B.Z_LID))]
     cols = [CASE, PANEL, PANEL, CASE]
     if with_board:

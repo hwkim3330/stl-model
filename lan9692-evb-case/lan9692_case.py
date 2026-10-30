@@ -3,8 +3,8 @@
 EVB-LAN9692-LM (EV09P11A) enclosure generator.
 
 Two printable parts:
-  lan9692_tray.stl  - base tray: perforated floor, side walls with PCB support
-                      rails, 8 screw standoffs, 4 corner posts, feet
+  lan9692_tray.stl  - base tray: perforated floor (flat on the bed), side walls
+                      with PCB support rails, 8 screw standoffs, 4 corner posts
   lan9692_lid.stl   - vented top plate that screws onto the corner posts
 
 Board thickness source: EVB-LAN9692-LM Hardware User's Guide DS50003848B
@@ -53,8 +53,10 @@ INNER_H = 26.0               # clearance above the PCB. Per the Figure 4-1/4-2
                              # expansion header, the red DC/DC modules and the
                              # SMA jacks - all comfortably under 20 mm.
 LID_T = 2.0
-FOOT_D, FOOT_H = 16.0, 0.0   # floor flat on the bed; use stick-on rubber feet (printed 2.5 mm feet left the whole floor
-                          # floating, so it needed supports under all of it)
+# No printed feet: the floor is the bed face. Solid (unvented) pads at the
+# corners take Ø16 stick-on rubber feet.
+FOOT_PADS = [(4, 4), (BW - 4, 4), (4, BH - 4), (BW - 4, BH - 4)]
+RUBBER_FOOT_D = 16.0
 
 POST_D = 10.0                # corner posts carrying the lid
 POST_OFF = 5.0               # post centre, outboard of the board corner
@@ -175,17 +177,12 @@ def build_tray():
     for px, py in POSTS:
         solids.append(cyl(POST_D, Z_FLOOR - 0.1, Z_FLOOR + POST_H, px, py))
 
-    # feet
-    for fx, fy in [(4, 4), (BW - 4, 4), (4, BH - 4), (BW - 4, BH - 4)]:
-        solids.append(cyl(FOOT_D, -FOOT_H, 0.5, fx, fy))
-
     tray = union(solids)
 
     keepouts = [(hx, hy, BOSS_D / 2 + 2.5) for hx, hy in HOLES]
     keepouts += [(px, py, POST_D / 2 + 3.0) for px, py in POSTS]
-    keepouts += [(fx, fy, FOOT_D / 2 + 2.0)
-                 for fx, fy in [(4, 4), (BW - 4, 4), (4, BH - 4), (BW - 4, BH - 4)]]
-    cuts = vent_cutters(-FOOT_H - 1, Z_FLOOR, keepouts)
+    keepouts += [(fx, fy, RUBBER_FOOT_D / 2 + 2.0) for fx, fy in FOOT_PADS]
+    cuts = vent_cutters(0.0, Z_FLOOR, keepouts)
 
     # pilot holes: PCB standoffs and lid posts
     for hx, hy in HOLES:

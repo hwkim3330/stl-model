@@ -55,22 +55,36 @@ SCREW_PILOT = 2.9
 SCREW_CLEAR = 3.4
 LID_BOSS_D = 9.0         # local outward thickening of the side wall
 LID_BOSS_L = 16.0
-FOOT_D, FOOT_H = 16.0, 0.0   # floor flat on the bed; use stick-on rubber feet (printed 2.5 mm feet left the whole floor
-                          # floating, so it needed supports under all of it)
+# No printed feet: the floor is the bed face, whole. Four solid (unvented) pads
+# under the corners take Ø16 stick-on rubber feet. Printed feet - even recessed
+# ones - put an overhang somewhere; these pads put none.
+FOOT_PADS = [(4, 4), (BW - 4, 4), (4, BH - 4), (BW - 4, BH - 4)]
+RUBBER_FOOT_D = 16.0
 VENTS = True             # False -> sealed box, port windows only. See README:
                          # the board budgets 12 V @ 4.1 A, so a sealed plastic
                          # box has no way to shed that.
 VENT_CELL, VENT_RIB, VENT_MARGIN = 16.0, 4.5, 3.5
+WALL_VENT_HALF_W, WALL_VENT_HALF_H = 7.5, 12.0
+                         # side-wall vents are rhombi, 15 wide x 24 tall: their
+                         # roofs lean 58 deg from horizontal, so they print
+                         # without bridging (a square hole is a 16 mm bridge),
+                         # and each still opens 70% of a 16 mm square
 RIB_W, RIB_H = 3.0, 5.0
 
 # Lid fan. Centred over U1, the LAN9692 itself (BGA-356 at 167.31, 78.69 in the
-# pick-and-place file) - the 0.9 V rail alone budgets 6.7 A there. None = no fan.
+# pick-and-place file; the IPC-356 netlist's U1 pads span 160.11..174.51 x
+# 71.49..85.89, same centre) - the 0.9 V rail alone budgets 6.7 A there.
+# Mounts on TOP of the lid, blowing down; the lid ribs stop short of its frame so
+# it sits flat. None = no fan.
 FAN = dict(size=40.0, bore=38.0, pitch=32.0, screw=3.4, x=167.31, y=78.69)
 
 # Deck for stacking a second box on the lid: 4 bosses on a square, on the half
 # of the lid the fan does not use. The ESP32-S31 and TC397 trays carry matching
-# ears. None = plain lid.
-DECK = dict(pitch=45.0, x=62.0, y=75.0, boss_d=9.0, boss_h=4.0, pilot=2.9)
+# holes. boss_h must clear the lid ribs (RIB_H) plus the stacked tray's own feet
+# (2.5 mm on the TC397), otherwise the upper tray sits on the ribs and the
+# bolts pull the lid up: 5 + 2.5 + 1.5 = 9. None = plain lid.
+DECK = dict(pitch=45.0, x=62.0, y=75.0, boss_d=9.0, boss_h=9.0, pilot=2.9,
+            pilot_depth=7.0)
 
 # --------------------------------------------------------------------------
 # Derived
@@ -140,6 +154,18 @@ def difference(a, cutters):
     return trimesh.boolean.difference([a] + cutters, engine='manifold')
 
 
+def rhombus_x(x0, x1, cy, cz, hw, hh):
+    """Prism along X with a rhombus cross-section (half-width hw in Y,
+    half-height hh in Z)."""
+    from shapely.geometry import Polygon
+    m = trimesh.creation.extrude_polygon(
+        Polygon([(cy - hw, cz), (cy, cz - hh), (cy + hw, cz), (cy, cz + hh)]),
+        x1 - x0)                                      # (y, z) extruded along +z
+    m.apply_transform(np.array([[0, 0, 1, x0], [1, 0, 0, 0],
+                                [0, 1, 0, 0], [0, 0, 0, 1]], float))
+    return m
+
+
 def vent_grid(x0, x1, u0, u1, keepouts, thick_lo, thick_hi, plane='xy'):
     """Square vent holes over a rectangle, skipping cells near `keepouts`."""
     cuts = []
@@ -164,8 +190,9 @@ def vent_grid(x0, x1, u0, u1, keepouts, thick_lo, thick_hi, plane='xy'):
                 continue
             if plane == 'xy':
                 cuts.append(bx(a0, a1, b0, b1, thick_lo, thick_hi))
-            else:  # yz, for the side walls: thickness runs along X
-                cuts.append(bx(thick_lo, thick_hi, a0, a1, b0, b1))
+            else:  # yz, side walls: thickness along X, a self-supporting rhombus
+                cuts.append(rhombus_x(thick_lo, thick_hi, ca, cb,
+                                      WALL_VENT_HALF_W, WALL_VENT_HALF_H))
     return cuts
 
 
@@ -178,11 +205,9 @@ def build_tray():
     for hx, hy in HOLES:                                                # standoffs
         solids.append(cyl(BOSS_D, Z_FLOOR - 0.1, Z_PCB, hx, hy))
     for x0, x1 in ((WX0 - (LID_BOSS_D - WALL), -FIT), (BW + FIT, WX1 + (LID_BOSS_D - WALL))):
-        for by in BOSS_Y:                                               # lid bosses
+        for by in BOSS_Y:                                               # lid bosses,
             solids.append(bx(x0, x1, by - LID_BOSS_L / 2, by + LID_BOSS_L / 2,
-                             Z_FLOOR, Z_LID))
-    for fx, fy in ((4, 4), (BW - 4, 4), (4, BH - 4), (BW - 4, BH - 4)):
-        solids.append(cyl(FOOT_D, -FOOT_H, 0.5, fx, fy))                # feet
+                             0, Z_LID))                     # down to the bed
     tray = union(solids)
 
     cuts = []
@@ -195,9 +220,8 @@ def build_tray():
     cuts.append(bx(PX0, PX1, RY0 - CHANNEL_SLOP, RY1 + 1, Z_PANEL0, Z_LID + 1))
 
     keep = [(hx, hy, BOSS_D / 2 + 2.5) for hx, hy in HOLES]
-    keep += [(fx, fy, FOOT_D / 2 + 2.0)
-             for fx, fy in ((4, 4), (BW - 4, 4), (4, BH - 4), (BW - 4, BH - 4))]
-    cuts += vent_grid(WX0, WX1, FY0, RY1, keep, -FOOT_H - 1, Z_FLOOR)
+    keep += [(fx, fy, RUBBER_FOOT_D / 2 + 2.0) for fx, fy in FOOT_PADS]
+    cuts += vent_grid(WX0, WX1, FY0, RY1, keep, -1, Z_FLOOR + 1)
     # vent the side walls too - they are the biggest flat areas in the box
     for x0, x1 in ((WX0 - 1, -FIT + 1), (BW + FIT - 1, WX1 + 1)):
         cuts += vent_grid(0, BH, Z_FLOOR + 4, Z_LID - 4,
@@ -233,10 +257,10 @@ def build_lid():
     lid = bx(WX0 - (LID_BOSS_D - WALL), WX1 + (LID_BOSS_D - WALL), LID_Y[0], LID_Y[1],
              0, LID_T)
     parts = [lid]
-    bands = lid_rib_rows()
-    for ry in bands:
-        parts.append(bx(WX0, WX1, ry - RIB_W / 2, ry + RIB_W / 2, LID_T - 0.1,
-                        LID_T + RIB_H))
+    for ry in lid_rib_rows():
+        for x0, x1 in rib_spans(ry):
+            parts.append(bx(x0, x1, ry - RIB_W / 2, ry + RIB_W / 2, LID_T - 0.1,
+                            LID_T + RIB_H))
     if DECK:
         for dx, dy in deck_points():
             parts.append(cyl(DECK['boss_d'], LID_T - 0.1, LID_T + DECK['boss_h'],
@@ -262,9 +286,19 @@ def build_lid():
                                 FAN['x'] + sx * h, FAN['y'] + sy * h, sections=32))
     if DECK:
         for dx, dy in deck_points():
-            cuts.append(cyl(DECK['pilot'], LID_T + DECK['boss_h'] - 6.0,
+            cuts.append(cyl(DECK['pilot'], LID_T + DECK['boss_h'] - DECK['pilot_depth'],
                             LID_T + DECK['boss_h'] + 1, dx, dy, sections=32))
     return difference(lid, cuts)
+
+
+def rib_spans(ry):
+    """X spans of one lid rib, broken where the fan frame sits on the lid."""
+    if not FAN:
+        return [(WX0, WX1)]
+    h = FAN['size'] / 2 + 1.0
+    if abs(ry - FAN['y']) > h + RIB_W / 2:
+        return [(WX0, WX1)]
+    return [(WX0, FAN['x'] - h), (FAN['x'] + h, WX1)]
 
 
 def deck_points():
@@ -281,6 +315,18 @@ def lid_rib_rows():
     bands = [oy + i * (VENT_CELL + VENT_RIB) + VENT_CELL + VENT_RIB / 2
              for i in range(ny - 1)]
     return [bands[0], bands[len(bands) // 2], bands[-1]]
+
+
+def lay_flat(panel, which):
+    """Print pose for an end panel: inner face down on the bed, so the big face
+    has full contact, the windows are plain vertical holes and the USB-C relief
+    pocket on the rear panel's outer face opens upwards. Assembly code should
+    call build_panel() rather than load these STLs."""
+    m = panel.copy()
+    ang = -np.pi / 2 if which == 'front' else np.pi / 2   # inner face -> -z
+    m.apply_transform(trimesh.transformations.rotation_matrix(ang, [1, 0, 0]))
+    m.apply_translation(-m.bounds[0])
+    return m
 
 
 def report(name, m):
@@ -305,8 +351,8 @@ if __name__ == '__main__':
                   f"       z {p['z']:5.1f}         [{p['src']}]")
     print()
     parts = {prefix + 'tray.stl': build_tray(),
-             prefix + 'front.stl': build_panel('front'),
-             prefix + 'rear.stl': build_panel('rear'),
+             prefix + 'front.stl': lay_flat(build_panel('front'), 'front'),
+             prefix + 'rear.stl': lay_flat(build_panel('rear'), 'rear'),
              prefix + 'lid.stl': build_lid()}
     total = 0
     for n, m in parts.items():
