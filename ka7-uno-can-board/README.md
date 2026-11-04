@@ -126,6 +126,16 @@ it used to have, the FPGA package sat 0.78 mm off the acrylic; 10 mm leaves
 2.78 mm. A stick-on heatsink wants 20 mm, and `assembly.py` prints which of the
 two the current build has.
 
+## Open tray (one piece) — `tray.py`
+
+![tray](ka7_tray.png)
+
+The board on four posts over a floor and a low wall, nothing above it, so every edge connector stays reachable
+(same design as prints/tc4d7/tray.py). 77.8 x 97.8 x 22 mm, board underside 22 mm above the desk: the SoM and a
+6 mm heatsink clear the floor by 4.8 mm, six rounded vent slots sit right under the SoM. Posts on the fab mounting
+holes, M3 x 25 from below (head in the floor, stepped bridges over the counterbores, nothing prints in mid air) and a
+nut on top. PLA, 3 walls, no supports, no brim: `ka7_tray.gcode.3mf`, 1 h 01 m / 34 g.
+
 ## The printed case
 
 ```bash
