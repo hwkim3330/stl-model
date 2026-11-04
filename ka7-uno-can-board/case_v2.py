@@ -6,9 +6,9 @@ What changed from case.py (v1):
 - the floor is open under the whole AC7200 SoM, so its heatsink passes through (up to 8 mm under the FPGA face) and
   breathes from below (stand the case on 4 rubber feet); the case stays 6 mm lower than v1; the lid is slotted over
   the hot half;
-- the port openings are generous (each connector span + 3 mm a side, merged into one window per side, from 1.5 mm
-  under the board up to the lid), so plugs, latches and fingers fit, and the board drops in from the top with its
-  connectors overhanging; the lid simply closes the top of each window;
+- the three sides with connectors (back: MATEnet T1S + RJ45, left: power/CAN/LIN, right) are open from corner block to
+  corner block, from 1.5 mm under the board up to the lid; only the front, which has no connector, is a closed wall.
+  Plugs, latches and fingers fit anywhere, and the board drops in from the top;
 - printable as drawn: base floor on the bed, lid top face on the bed, no supports, no brim; the lid's bed-side
   counterbores use stepped bridges, nothing prints in mid air.
 
@@ -68,7 +68,10 @@ def openings():
     K.PORT_SIDE_CLEAR, K.MIN_RIB = PORT_GROW, PORT_MERGE
     lim = {"back": (CX0 + PAD + CLEAR + 1, CX1 - PAD - CLEAR - 1), "left": (CY0 + PAD + CLEAR + 1, CY1 - PAD - CLEAR - 1),
            "right": (CY0 + PAD + CLEAR + 1, CY1 - PAD - CLEAR - 1)}
-    return [(s, max(a, lim[s][0]), min(b, lim[s][1]), h) for s, a, b, h, _ in K.windows()]
+    # every side with a connector is open from corner block to corner block (only the front, which has none, stays
+    # closed): one clean window per side, the same on all three
+    sides = {s for s, *_ in K.windows()}
+    return [(s, lim[s][0], lim[s][1], max(h for t, _, _, h, _ in K.windows() if t == s)) for s in ("back", "left", "right") if s in sides]
 
 
 def window(side, a, b, z0, z1, grow=0.0, through=1.0):
