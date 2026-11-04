@@ -2,7 +2,7 @@
 
 What changed from case.py (v1):
 - no pillars sticking out of the corners: the walls are 6.5 mm thick blocks with soft R4 corners, and the lid screws
-  into M3 heat-set inserts in the wall corners (4 x M3 x 8, heads sunk in the lid);
+  into the wall corners (4 x M3 x 10 self-tapping, heads sunk in the lid);
 - the floor is open under the whole AC7200 SoM, so its heatsink passes through (up to 8 mm under the FPGA face) and
   breathes from below (stand the case on 4 rubber feet); the case stays 6 mm lower than v1; the lid is slotted over
   the hot half;
@@ -11,8 +11,8 @@ What changed from case.py (v1):
 - printable as drawn: base floor on the bed, lid top face on the bed, no supports, no brim; the lid's bed-side
   counterbores use stepped bridges, nothing prints in mid air.
 
-Board: on 4 bought M3 x 10 hex standoffs (5.0 mm across flats) dropped into hex pockets in the floor, no screws
-underneath; 4 x M3 x 6 hold the board on top (a drop of glue in a pocket if a standoff is loose).
+Board: no posts, no standoffs, no board screws. Its four corners rest on pads built into the wall corners and the
+lid's four corner columns clamp them from above. The only hardware is 4 x M3 x 10 self-tapping screws for the lid.
 
 Run:  uv run --with cadquery --with trimesh --with numpy --with vtk --with matplotlib --with scipy --with networkx \\
         --with manifold3d python ka7-uno-can-board/case_v2.py
@@ -30,17 +30,17 @@ import case as K  # noqa: E402  (ports, board, SoM)
 
 BW, BH, PCB = K.BOARD_W, K.BOARD_H, K.PCB_T
 CLEAR, WALL, R_OUT = 0.5, 6.5, 4.0
-FLOOR, LID_T, LIP, LIP_GAP = 4.0, 2.5, 2.0, 0.2
-SPACER = 10.0                           # bought M3 x 10 hex standoff (5.0 mm across flats)
-HEX = (5.1, 3.0)                        # floor pocket the standoff drops into: across flats, depth
-INSERT = (4.0, 5.5)                     # M3 heat-set insert pocket: dia, depth
+FLOOR, LID_T, LIP, LIP_GAP = 2.5, 2.5, 2.0, 0.2
+SOM_AIR = 1.0                           # FPGA face over the floor top (the floor is open under the SoM anyway)
+PAD = 3.5                               # board-corner pads: board corner to its mounting-hole centre
+INSERT = (2.6, 9.0)                     # M3 self-tapping pilot for the lid screws: dia, depth
 HOLE_IN = 3.2                           # insert axis, in from both cavity walls
 CB = (6.4, 2.0)                         # M3 head pocket in the lid top
 TONGUE_GAP = 0.3
 
 CX0, CY0, CX1, CY1 = -CLEAR, -CLEAR, BW + CLEAR, BH + CLEAR
 OX0, OY0, OX1, OY1 = CX0 - WALL, CY0 - WALL, CX1 + WALL, CY1 + WALL
-Z_BOARD = FLOOR - HEX[1] + SPACER
+Z_BOARD = FLOOR + K.SOM_DROP + SOM_AIR
 Z_TOP = Z_BOARD + PCB
 Z_LID = Z_TOP + max(p[4] for p in K.PORTS) + 2.0
 H = Z_LID + LID_T
@@ -79,15 +79,21 @@ def slots(x0, y0, x1, y1, z0, z1, w=3.0, pitch=6.0):
             .slot2D(y1 - y0, w, 90).extrude(z1 - z0))
 
 
+def corner_pads():
+    """lower-left corners of the four PAD x PAD squares under / over the board corners, flush with the cavity walls"""
+    w = PAD + CLEAR
+    return [(CX0, CY0), (CX1 - w, CY0), (CX1 - w, CY1 - w), (CX0, CY1 - w)]
+
+
 def base():
     b = rrect(OX0, OY0, OX1, OY1, 0, Z_LID, R_OUT)
     b = b.faces("<Z").edges().chamfer(0.6)
     b = b.faces(">Z").edges().fillet(0.8)
     b = b.cut(box(CX0, CY0, FLOOR, CX1, CY1, Z_LID + 1))
-    # no printed posts (they didn't hold on the TC4D7 tray) and no screws underneath: each bought hex standoff drops
-    # into a hex pocket its own width, 3 mm deep, so it can't turn while the board screw is tightened
-    b = b.cut(cq.Workplane("XY").workplane(offset=FLOOR - HEX[1]).pushPoints(K.MOUNTS)
-              .polygon(6, HEX[0] / np.cos(np.pi / 6)).extrude(HEX[1] + 1))
+    # no posts, no standoffs, no board screws: the board's four corners sit on pads that are part of the walls, and
+    # the lid's four corner columns press them down from above
+    for x0, y0 in corner_pads():
+        b = b.union(box(x0, y0, FLOOR - 0.01, x0 + PAD + CLEAR, y0 + PAD + CLEAR, Z_BOARD))
     for s, a, bb, h in openings():                     # open to the top: the board drops in, the lid closes them
         b = b.cut(window(s, a, bb, Z_TOP - 0.4, Z_LID + 1))
     b = b.cut(cq.Workplane("XY").workplane(offset=Z_LID - INSERT[1]).pushPoints(CORNERS).circle(INSERT[0] / 2).extrude(INSERT[1] + 1))
@@ -114,6 +120,11 @@ def lid():
             l = l.cut(box(CX0 - 0.1, a - 1, Z_LID - LIP - 1, CX0 + 6, bb + 1, Z_LID))
         else:
             l = l.cut(box(CX1 - 6, a - 1, Z_LID - LIP - 1, CX1 + 0.1, bb + 1, Z_LID))
+    w = PAD + CLEAR
+    for x0, y0 in corner_pads():                      # columns that hold the board corners down, LIP_GAP off the walls
+        gx0, gx1 = (LIP_GAP, 0) if x0 == CX0 else (0, LIP_GAP)
+        gy0, gy1 = (LIP_GAP, 0) if y0 == CY0 else (0, LIP_GAP)
+        l = l.union(box(x0 + gx0, y0 + gy0, Z_TOP + 0.1, x0 + w - gx1, y0 + w - gy1, Z_LID + 0.01))
     l = l.cut(cq.Workplane("XY").workplane(offset=Z_LID - 1).pushPoints(CORNERS).circle(1.7).extrude(LID_T + 2))
     l = l.cut(cq.Workplane("XY").workplane(offset=H - CB[1]).pushPoints(CORNERS).circle(CB[0] / 2).extrude(CB[1] + 1))
     # the lid prints top face down: stepped bridges over the head pockets
@@ -170,9 +181,16 @@ if __name__ == "__main__":
     lflat.apply_translation(-lflat.bounds[0])
     lflat.export(os.path.join(HERE, "ka7_case_v2_lid.stl"))        # stored as printed: top face down
     print(f"case v2 {OX1 - OX0:.1f} x {OY1 - OY0:.1f} x {H:.1f} mm (v1 {K.CASE_H:.1f} high over pillars)")
-    print(f"  board underside {Z_BOARD:.2f} (M3 x {SPACER:g} standoffs), FPGA face {Z_BOARD - K.SOM_DROP - FLOOR:.2f} over the floor top")
+    print(f"  board underside {Z_BOARD:.2f} on corner pads, FPGA face {Z_BOARD - K.SOM_DROP - FLOOR:.2f} over the floor top")
     print(f"  base watertight={b.is_watertight} bodies={len(b.split())}  floating {fb:.0f} mm2")
     print(f"  lid  watertight={l.is_watertight} bodies={len(l.split())}  floating (printed top down) {fl:.0f} mm2")
     for s, a, bb, h in openings():
         print(f"  opening {s:5s} {a:6.2f}..{bb:6.2f}  connector height {h}")
+    brd = trimesh.load(os.path.join(HERE, "ka7_uno_rev1.stl"))
+    brd.apply_translation((0, 0, Z_BOARD))
+    pts = brd.sample(40000)                         # the board model isn't a closed volume: probe its surface
+    for name, m in (("base", b), ("lid", l)):
+        inside = pts[m.contains(pts)]
+        print(f"  {name}: {len(inside)} of {len(pts)} board-surface points inside it"
+              + (f" (z {inside[:, 2].min() - Z_BOARD:.1f}..{inside[:, 2].max() - Z_BOARD:.1f} from the board underside)" if len(inside) else ""))
     preview(b, l, os.path.join(HERE, "ka7_case_v2.png"))
