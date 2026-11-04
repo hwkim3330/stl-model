@@ -126,6 +126,18 @@ it used to have, the FPGA package sat 0.78 mm off the acrylic; 10 mm leaves
 2.78 mm. A stick-on heatsink wants 20 mm, and `assembly.py` prints which of the
 two the current build has.
 
+## Closed case v2 — `case_v2.py` (recommended)
+
+![case v2](ka7_case_v2.png)
+
+Base + lid on one plate, **2 h 03 m / 74 g** (`ka7_case_v2.gcode.3mf`, PLA, 3 walls, no supports, no brim).
+84 x 104 x 32.3 mm: no pillars sticking out (6.5 mm block walls with R4 corners), no heatsink allowance, so 6 mm
+lower than v1. The port openings run to the top of the base so the board drops in with its connectors overhanging;
+the lid's tongues close each opening down to 0.5 mm over its connector. Slots under the SoM and over the hot half.
+Lid: 4 x M3 x 8 into M3 heat-set inserts in the wall corners, heads sunk in the lid (stepped bridges, nothing prints in
+mid air). Board: 4 x M3 x 6 self-tapping into the posts. Connector heights except the RJ45 are still the ASSUMED ones in
+case.py's PORTS: measure and re-run if a tongue sits on a connector.
+
 ## Open tray (one piece) — `tray.py`
 
 ![tray](ka7_tray.png)
