@@ -3,8 +3,9 @@
 What changed from case.py (v1):
 - no pillars sticking out of the corners: the walls are 6.5 mm thick blocks with soft R4 corners, and the lid screws
   into M3 heat-set inserts in the wall corners (4 x M3 x 8, heads sunk in the lid);
-- no heatsink allowance (HEATSINK = 0): the board sits SoM_DROP + 3 mm over the floor, so the case is 6 mm lower;
-  the floor is slotted under the SoM and the lid over the hot half;
+- the floor is open under the whole AC7200 SoM, so its heatsink passes through (up to 8 mm under the FPGA face) and
+  breathes from below (stand the case on 4 rubber feet); the case stays 6 mm lower than v1; the lid is slotted over
+  the hot half;
 - the port openings run up to the top of the base, so the board drops in with its connectors already overhanging the
   edges, and the lid carries tongues that close each opening down to just above its connector;
 - printable as drawn: base floor on the bed, lid top face on the bed, no supports, no brim; the lid's bed-side
@@ -89,8 +90,10 @@ def base():
     for s, a, bb, h in openings():                     # open to the top: the board drops in, the lid closes them
         b = b.cut(window(s, a, bb, Z_TOP - 0.4, Z_LID + 1))
     b = b.cut(cq.Workplane("XY").workplane(offset=Z_LID - INSERT[1]).pushPoints(CORNERS).circle(INSERT[0] / 2).extrude(INSERT[1] + 1))
+    # the AC7200 SoM hangs under the carrier with a heatsink on its FPGA (where on the SoM isn't in the fab data), so
+    # the floor under the whole SoM is open: any heatsink up to FLOOR + AIR + face gap passes through and breathes
     som = K.SOM
-    b = b.cut(slots(som[0] + 3, som[1] + 3, som[2] - 3, som[3] - 3, -1, FLOOR + 1))
+    b = b.cut(rrect(som[0] + 1, som[1] + 1, som[2] - 1, som[3] - 1, -1, FLOOR + 1, 3.0))
     return b
 
 

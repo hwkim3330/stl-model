@@ -130,10 +130,11 @@ two the current build has.
 
 ![case v2](ka7_case_v2.png)
 
-Base + lid on one plate, **2 h 03 m / 74 g** (`ka7_case_v2.gcode.3mf`, PLA, 3 walls, no supports, no brim).
-84 x 104 x 32.3 mm: no pillars sticking out (6.5 mm block walls with R4 corners), no heatsink allowance, so 6 mm
-lower than v1. The port openings run to the top of the base so the board drops in with its connectors overhanging;
-the lid's tongues close each opening down to 0.5 mm over its connector. Slots under the SoM and over the hot half.
+Base + lid on one plate, **1 h 58 m / 70 g** (`ka7_case_v2.gcode.3mf`, PLA, 3 walls, no supports, no brim).
+84 x 104 x 32.3 mm: no pillars sticking out (6.5 mm block walls with R4 corners), and 6 mm lower than v1:
+the floor is open under the whole AC7200 SoM, so a heatsink on the FPGA (up to 8 mm) passes through and breathes from
+below; stand the case on 4 rubber feet. The port openings run to the top of the base so the board drops in with its connectors overhanging;
+the lid's tongues close each opening down to 0.5 mm over its connector. Slots in the lid over the hot half.
 Lid: 4 x M3 x 8 into M3 heat-set inserts in the wall corners, heads sunk in the lid (stepped bridges, nothing prints in
 mid air). Board: 4 x M3 x 6 self-tapping into the posts. Connector heights except the RJ45 are still the ASSUMED ones in
 case.py's PORTS: measure and re-run if a tongue sits on a connector.
