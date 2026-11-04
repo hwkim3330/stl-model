@@ -6,8 +6,9 @@ What changed from case.py (v1):
 - the floor is open under the whole AC7200 SoM, so its heatsink passes through (up to 8 mm under the FPGA face) and
   breathes from below (stand the case on 4 rubber feet); the case stays 6 mm lower than v1; the lid is slotted over
   the hot half;
-- the port openings run up to the top of the base, so the board drops in with its connectors already overhanging the
-  edges, and the lid carries tongues that close each opening down to just above its connector;
+- the port openings are generous (each connector span + 3 mm a side, merged into one window per side, from 1.5 mm
+  under the board up to the lid), so plugs, latches and fingers fit, and the board drops in from the top with its
+  connectors overhanging; the lid simply closes the top of each window;
 - printable as drawn: base floor on the bed, lid top face on the bed, no supports, no brim; the lid's bed-side
   counterbores use stepped bridges, nothing prints in mid air.
 
@@ -57,9 +58,17 @@ def box(x0, y0, z0, x1, y1, z1):
     return cq.Workplane("XY").workplane(offset=z0).center((x0 + x1) / 2, (y0 + y1) / 2).rect(x1 - x0, y1 - y0).extrude(z1 - z0)
 
 
+PORT_GROW = 3.0      # each side of a connector body: room for the plug's grip and latch (MATEnet, RJ45, terminals)
+PORT_MERGE = 10.0    # openings closer than this become one: fewer, cleaner windows
+PORT_DROP = 1.5      # openings start this far under the board's underside, so plug latches clear
+
+
 def openings():
-    """(side, a, b, h): the merged port windows from case.py"""
-    return [(s, a, b, h) for s, a, b, h, _ in K.windows()]
+    """(side, a, b, h): generous port windows: case.py's connector spans grown by PORT_GROW and merged"""
+    K.PORT_SIDE_CLEAR, K.MIN_RIB = PORT_GROW, PORT_MERGE
+    lim = {"back": (CX0 + PAD + CLEAR + 1, CX1 - PAD - CLEAR - 1), "left": (CY0 + PAD + CLEAR + 1, CY1 - PAD - CLEAR - 1),
+           "right": (CY0 + PAD + CLEAR + 1, CY1 - PAD - CLEAR - 1)}
+    return [(s, max(a, lim[s][0]), min(b, lim[s][1]), h) for s, a, b, h, _ in K.windows()]
 
 
 def window(side, a, b, z0, z1, grow=0.0, through=1.0):
@@ -95,7 +104,7 @@ def base():
     for x0, y0 in corner_pads():
         b = b.union(box(x0, y0, FLOOR - 0.01, x0 + PAD + CLEAR, y0 + PAD + CLEAR, Z_BOARD))
     for s, a, bb, h in openings():                     # open to the top: the board drops in, the lid closes them
-        b = b.cut(window(s, a, bb, Z_TOP - 0.4, Z_LID + 1))
+        b = b.cut(window(s, a, bb, Z_BOARD - PORT_DROP, Z_LID + 1))
     b = b.cut(cq.Workplane("XY").workplane(offset=Z_LID - INSERT[1]).pushPoints(CORNERS).circle(INSERT[0] / 2).extrude(INSERT[1] + 1))
     # the AC7200 SoM hangs under the carrier with a heatsink on its FPGA (where on the SoM isn't in the fab data), so
     # the floor under the whole SoM is open: any heatsink up to FLOOR + AIR + face gap passes through and breathes
@@ -108,8 +117,6 @@ def lid():
     l = rrect(OX0, OY0, OX1, OY1, Z_LID, H, R_OUT)
     l = l.faces(">Z").edges().fillet(0.8)
     l = l.union(box(CX0 + LIP_GAP, CY0 + LIP_GAP, Z_LID - LIP, CX1 - LIP_GAP, CY1 - LIP_GAP, Z_LID + 0.01))
-    for s, a, bb, h in openings():                     # tongues down to just over each connector
-        l = l.union(window(s, a, bb, Z_TOP + h + 0.5, Z_LID + 0.01, grow=-TONGUE_GAP, through=0.0))
     l = l.cut(box(CX0 + LIP_GAP + 2.0, CY0 + LIP_GAP + 2.0, Z_LID - LIP - 1, CX1 - LIP_GAP - 2.0, CY1 - LIP_GAP - 2.0, Z_LID))
     # no lip over a port: the connector bodies reach right up to the lip's underside (RJ45: 0 mm), so the lip stops
     # 1 mm short of each opening on both sides
