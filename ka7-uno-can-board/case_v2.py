@@ -11,7 +11,8 @@ What changed from case.py (v1):
 - printable as drawn: base floor on the bed, lid top face on the bed, no supports, no brim; the lid's bed-side
   counterbores use stepped bridges, nothing prints in mid air.
 
-Board: 4 x M3 x 6 self-tapping into the posts (Ø2.6 pilots).
+Board: on 4 bought M3 x 10 hex standoffs (5.0 mm across flats) dropped into hex pockets in the floor, no screws
+underneath; 4 x M3 x 6 hold the board on top (a drop of glue in a pocket if a standoff is loose).
 
 Run:  uv run --with cadquery --with trimesh --with numpy --with vtk --with matplotlib --with scipy --with networkx \\
         --with manifold3d python ka7-uno-can-board/case_v2.py
@@ -29,9 +30,9 @@ import case as K  # noqa: E402  (ports, board, SoM)
 
 BW, BH, PCB = K.BOARD_W, K.BOARD_H, K.PCB_T
 CLEAR, WALL, R_OUT = 0.5, 6.5, 4.0
-FLOOR, LID_T, LIP, LIP_GAP = 2.5, 2.5, 2.0, 0.2
-AIR = 3.0                               # FPGA face to floor (no heatsink)
-POST = (7.0, 2.6)
+FLOOR, LID_T, LIP, LIP_GAP = 4.0, 2.5, 2.0, 0.2
+SPACER = 10.0                           # bought M3 x 10 hex standoff (5.0 mm across flats)
+HEX = (5.1, 3.0)                        # floor pocket the standoff drops into: across flats, depth
 INSERT = (4.0, 5.5)                     # M3 heat-set insert pocket: dia, depth
 HOLE_IN = 3.2                           # insert axis, in from both cavity walls
 CB = (6.4, 2.0)                         # M3 head pocket in the lid top
@@ -39,7 +40,7 @@ TONGUE_GAP = 0.3
 
 CX0, CY0, CX1, CY1 = -CLEAR, -CLEAR, BW + CLEAR, BH + CLEAR
 OX0, OY0, OX1, OY1 = CX0 - WALL, CY0 - WALL, CX1 + WALL, CY1 + WALL
-Z_BOARD = FLOOR + K.SOM_DROP + AIR
+Z_BOARD = FLOOR - HEX[1] + SPACER
 Z_TOP = Z_BOARD + PCB
 Z_LID = Z_TOP + max(p[4] for p in K.PORTS) + 2.0
 H = Z_LID + LID_T
@@ -83,10 +84,10 @@ def base():
     b = b.faces("<Z").edges().chamfer(0.6)
     b = b.faces(">Z").edges().fillet(0.8)
     b = b.cut(box(CX0, CY0, FLOOR, CX1, CY1, Z_LID + 1))
-    for x, y in K.MOUNTS:
-        p = cq.Workplane("XY").workplane(offset=FLOOR).center(x, y).circle(POST[0] / 2).extrude(Z_BOARD - FLOOR)
-        b = b.union(p)
-    b = b.cut(cq.Workplane("XY").workplane(offset=FLOOR).pushPoints(K.MOUNTS).circle(POST[1] / 2).extrude(Z_BOARD))
+    # no printed posts (they didn't hold on the TC4D7 tray) and no screws underneath: each bought hex standoff drops
+    # into a hex pocket its own width, 3 mm deep, so it can't turn while the board screw is tightened
+    b = b.cut(cq.Workplane("XY").workplane(offset=FLOOR - HEX[1]).pushPoints(K.MOUNTS)
+              .polygon(6, HEX[0] / np.cos(np.pi / 6)).extrude(HEX[1] + 1))
     for s, a, bb, h in openings():                     # open to the top: the board drops in, the lid closes them
         b = b.cut(window(s, a, bb, Z_TOP - 0.4, Z_LID + 1))
     b = b.cut(cq.Workplane("XY").workplane(offset=Z_LID - INSERT[1]).pushPoints(CORNERS).circle(INSERT[0] / 2).extrude(INSERT[1] + 1))
@@ -104,6 +105,15 @@ def lid():
     for s, a, bb, h in openings():                     # tongues down to just over each connector
         l = l.union(window(s, a, bb, Z_TOP + h + 0.5, Z_LID + 0.01, grow=-TONGUE_GAP, through=0.0))
     l = l.cut(box(CX0 + LIP_GAP + 2.0, CY0 + LIP_GAP + 2.0, Z_LID - LIP - 1, CX1 - LIP_GAP - 2.0, CY1 - LIP_GAP - 2.0, Z_LID))
+    # no lip over a port: the connector bodies reach right up to the lip's underside (RJ45: 0 mm), so the lip stops
+    # 1 mm short of each opening on both sides
+    for s, a, bb, h in openings():
+        if s == "back":
+            l = l.cut(box(a - 1, CY1 - 6, Z_LID - LIP - 1, bb + 1, CY1 + 0.1, Z_LID))
+        elif s == "left":
+            l = l.cut(box(CX0 - 0.1, a - 1, Z_LID - LIP - 1, CX0 + 6, bb + 1, Z_LID))
+        else:
+            l = l.cut(box(CX1 - 6, a - 1, Z_LID - LIP - 1, CX1 + 0.1, bb + 1, Z_LID))
     l = l.cut(cq.Workplane("XY").workplane(offset=Z_LID - 1).pushPoints(CORNERS).circle(1.7).extrude(LID_T + 2))
     l = l.cut(cq.Workplane("XY").workplane(offset=H - CB[1]).pushPoints(CORNERS).circle(CB[0] / 2).extrude(CB[1] + 1))
     # the lid prints top face down: stepped bridges over the head pockets
@@ -160,7 +170,7 @@ if __name__ == "__main__":
     lflat.apply_translation(-lflat.bounds[0])
     lflat.export(os.path.join(HERE, "ka7_case_v2_lid.stl"))        # stored as printed: top face down
     print(f"case v2 {OX1 - OX0:.1f} x {OY1 - OY0:.1f} x {H:.1f} mm (v1 {K.CASE_H:.1f} high over pillars)")
-    print(f"  board underside {Z_BOARD:.2f}, FPGA face {Z_BOARD - K.SOM_DROP:.2f} over the floor top {FLOOR}")
+    print(f"  board underside {Z_BOARD:.2f} (M3 x {SPACER:g} standoffs), FPGA face {Z_BOARD - K.SOM_DROP - FLOOR:.2f} over the floor top")
     print(f"  base watertight={b.is_watertight} bodies={len(b.split())}  floating {fb:.0f} mm2")
     print(f"  lid  watertight={l.is_watertight} bodies={len(l.split())}  floating (printed top down) {fl:.0f} mm2")
     for s, a, bb, h in openings():
